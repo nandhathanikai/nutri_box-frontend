@@ -1,0 +1,47 @@
+<header class="header">
+  <div class="container header-content">
+    <div class="logo" routerLink="/">
+      <div class="logo-icon">N</div>
+      <span class="logo-text">Nutribox</span>
+    </div>
+
+    @if (isLoggedIn) {
+      <nav class="nav desktop-nav">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
+        <a routerLink="/plans" routerLinkActive="active" class="nav-link">Plans</a>
+      </nav>
+    }
+
+    <div class="actions">
+      @if (isLoggedIn) {
+        <button type="button" class="icon-btn header-btn" aria-label="Announcements & Offers" (click)="openDrawer()">
+          <i class="pi pi-bell"></i>
+        </button>
+        <div class="avatar-wrapper">
+          <div class="avatar-initials header-avatar" (click)="toggleAvatarMenu()">{{ initials }}</div>
+          
+          @if (avatarMenuOpen) {
+            <div class="avatar-menu-backdrop" (click)="closeAvatarMenu()"></div>
+            <div class="avatar-menu" [class.open]="avatarMenuOpen">
+              <div class="am-header mobile-only">
+                <h3>Account</h3>
+                <button class="icon-btn" (click)="closeAvatarMenu()"><i class="pi pi-times"></i></button>
+              </div>
+              <div class="am-body">
+                <a routerLink="/profile" class="am-link" (click)="closeAvatarMenu()"><i class="pi pi-user"></i> Profile</a>
+                <a routerLink="/plans" class="am-link" (click)="closeAvatarMenu()"><i class="pi pi-box"></i> My Plan</a>
+                <a routerLink="/dashboard/credits" class="am-link" (click)="closeAvatarMenu()"><i class="pi pi-wallet"></i> Credits</a>
+                <hr class="am-divider" />
+                <button class="am-link text-danger" (click)="logout()"><i class="pi pi-sign-out"></i> Log out</button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/login" class="btn-unified btn-ghost sign-in-btn">Sign in</a>
+      }
+    </div>
+  </div>
+
+  <app-notifications-drawer [(visible)]="drawerOpen"></app-notifications-drawer>
+</header>

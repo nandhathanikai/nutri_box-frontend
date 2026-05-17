@@ -1,0 +1,100 @@
+<p-drawer
+  [(visible)]="visible"
+  position="right"
+  styleClass="notif-drawer"
+  [style]="{ width: '420px', maxWidth: '94vw' }"
+  [showCloseIcon]="true"
+  (onHide)="close()">
+
+  <ng-template pTemplate="header">
+    <div class="drawer-header">
+      <h3>What's New</h3>
+      <p>Latest from Nutribox.</p>
+    </div>
+  </ng-template>
+
+  <div class="drawer-tabs">
+    <button class="drawer-tab" [class.active]="activeTab === 'announcements'" (click)="setTab('announcements')">
+      <i class="pi pi-bell"></i>
+      Announcements
+      @if (announcements.length) { <span class="tab-count">{{ announcements.length }}</span> }
+    </button>
+    <button class="drawer-tab" [class.active]="activeTab === 'offers'" (click)="setTab('offers')">
+      <i class="pi pi-tag"></i>
+      Offers
+      @if (offers.length) { <span class="tab-count">{{ offers.length }}</span> }
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="drawer-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading…</span>
+    </div>
+  } @else {
+    @if (activeTab === 'announcements') {
+      @if (announcements.length === 0) {
+        <div class="drawer-empty">
+          <i class="pi pi-inbox"></i>
+          <p>No announcements right now.</p>
+          <span>We'll let you know when something's new.</span>
+        </div>
+      } @else {
+        <div class="drawer-list">
+          @for (a of announcements; track a.id) {
+            <article class="ann-card">
+              <div class="ann-icon">{{ a.icon || '📢' }}</div>
+              <div class="ann-body">
+                <h4>{{ a.title }}</h4>
+                <p>{{ a.body }}</p>
+                <div class="ann-meta">
+                  <span class="ann-date">{{ a.start_date | date:'MMM d' }}</span>
+                  @if (daysLeft(a.end_date) > 0) {
+                    <span class="ann-expiry">· expires in {{ daysLeft(a.end_date) }} day{{ daysLeft(a.end_date) === 1 ? '' : 's' }}</span>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+
+    @if (activeTab === 'offers') {
+      @if (offers.length === 0) {
+        <div class="drawer-empty">
+          <i class="pi pi-tag"></i>
+          <p>No active offers.</p>
+          <span>Check back later for new deals.</span>
+        </div>
+      } @else {
+        <div class="drawer-list">
+          @for (o of offers; track o.id) {
+            <article class="offer-card">
+              <div class="offer-value">{{ offerValueLabel(o) }}</div>
+              <div class="offer-body">
+                <h4>{{ o.description }}</h4>
+                <button class="offer-code" (click)="copyCode(o.code)" title="Click to copy">
+                  <i class="pi pi-copy"></i>
+                  <code>{{ o.code }}</code>
+                </button>
+                <div class="offer-meta">
+                  @if (o.min_order > 0) {
+                    <span>Min order ₹{{ o.min_order }}</span>
+                  }
+                  <span class="offer-expiry">
+                    @if (daysLeft(o.valid_until) > 0) {
+                      Valid for {{ daysLeft(o.valid_until) }} day{{ daysLeft(o.valid_until) === 1 ? '' : 's' }}
+                    } @else {
+                      Expires today
+                    }
+                  </span>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  }
+</p-drawer>

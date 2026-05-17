@@ -1,0 +1,45 @@
+<div class="admin-shell">
+  <!-- Mobile Header (Visible only on small screens) -->
+  <header class="mobile-admin-header">
+    <div class="mobile-brand">
+      <div class="brand-icon">N</div>
+      <span class="brand-name">Nutribox Admin</span>
+    </div>
+    <button class="hamburger-btn" (click)="toggleSidebar()">
+      <i class="pi" [ngClass]="sidebarOpen ? 'pi-times' : 'pi-bars'"></i>
+    </button>
+  </header>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-brand hidden-mobile">
+      <div class="brand-icon">N</div>
+      <div class="brand-text">
+        <span class="brand-name">Nutribox</span>
+        <span class="brand-sub">Admin Panel</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="closeSidebar()"
+      >
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

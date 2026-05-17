@@ -1,0 +1,128 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="ann-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-megaphone"></i> Announcements</h1>
+        <p>Broadcast messages and notifications to your customers.</p>
+      </div>
+      <button class="btn btn-primary" (click)="showNewAnn = true" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);">+ New Announcement</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid c3">
+    <div class="stat-card">
+      <div class="stat-label">Total Sent</div>
+      <div class="stat-value">{{ totalSent }}</div>
+      <div class="stat-sub green">This month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Open Rate</div>
+      <div class="stat-value">68%</div>
+      <div class="stat-sub green">↑ 5%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Now</div>
+      <div class="stat-value">{{ activeCount }}</div>
+      <div class="stat-sub muted">Visible to customers</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="ftabs">
+      <button class="ftab" [class.active]="annFilter === 'all'" (click)="setFilter('all')">All</button>
+      <button class="ftab" [class.active]="annFilter === 'active'" (click)="setFilter('active')">Active</button>
+      <button class="ftab" [class.active]="annFilter === 'draft'" (click)="setFilter('draft')">Draft</button>
+      <button class="ftab" [class.active]="annFilter === 'expired'" (click)="setFilter('expired')">Expired</button>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" (click)="showNewAnn = true">+ New Announcement</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="empty" *ngIf="isLoading"><i class="pi pi-spin pi-spinner"></i> Loading…</div>
+
+  <!-- List -->
+  <div class="ann-list" *ngIf="!isLoading">
+    <div class="ann-card" *ngFor="let a of announcements">
+      <div class="ann-icon" [ngClass]="'ann-icon--' + a.status">{{ a.icon }}</div>
+      <div class="ann-body">
+        <div class="ann-title-row">
+          <span class="ann-title">{{ a.title }}</span>
+          <span class="badge" [ngClass]="'badge-' + a.status">{{ a.status }}</span>
+        </div>
+        <div class="ann-text">{{ a.body }}</div>
+        <div class="ann-meta">
+          <span>👥 {{ a.audience }}</span>
+          <span>📅 {{ a.start_date }} → {{ a.end_date }}</span>
+          <span *ngIf="a.status !== 'draft'">👁 {{ a.opens }}% open rate</span>
+        </div>
+      </div>
+      <div class="ann-actions">
+        <button class="btn btn-primary btn-sm" *ngIf="a.status === 'draft'" (click)="setStatus(a, 'active')">Publish</button>
+        <button class="btn btn-ghost btn-sm" *ngIf="a.status === 'active'" (click)="setStatus(a, 'draft')">Deactivate</button>
+        <button class="btn btn-danger btn-sm" (click)="delete(a)">🗑</button>
+      </div>
+    </div>
+    <div class="empty" *ngIf="announcements.length === 0">No announcements found</div>
+  </div>
+</div>
+
+<!-- New Announcement Modal -->
+<p-dialog [(visible)]="showNewAnn" [modal]="true" header="New Announcement" [style]="{width:'500px'}">
+  <div class="dlg-field">
+    <label>Title</label>
+    <input type="text" [(ngModel)]="newForm.title" placeholder="e.g. Summer Menu Launch!" />
+  </div>
+  <div class="dlg-field">
+    <label>Message</label>
+    <textarea [(ngModel)]="newForm.body" rows="4" placeholder="Write your announcement…"></textarea>
+  </div>
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Audience</label>
+      <select [(ngModel)]="newForm.audience">
+        <option>All Customers</option>
+        <option>Premium Only</option>
+        <option>New Customers</option>
+        <option>Inactive Users</option>
+      </select>
+    </div>
+    <div class="dlg-field">
+      <label>Type / Icon</label>
+      <select [(ngModel)]="newForm.icon">
+        <option value="📢">📢 General</option>
+        <option value="🎉">🎉 Promotion</option>
+        <option value="⚠️">⚠️ Alert</option>
+        <option value="🍽️">🍽️ Menu Update</option>
+      </select>
+    </div>
+  </div>
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Start Date</label>
+      <input type="date" [(ngModel)]="newForm.start_date" [min]="today" />
+    </div>
+    <div class="dlg-field">
+      <label>End Date <span class="req">*</span></label>
+      <input type="date" [(ngModel)]="newForm.end_date" [min]="newForm.start_date || today" />
+      <small class="helper">Auto-deletes from DB after this date</small>
+    </div>
+  </div>
+  <div class="dlg-field">
+    <label>Status</label>
+    <select [(ngModel)]="newForm.status">
+      <option value="active">Publish Now</option>
+      <option value="draft">Save as Draft</option>
+    </select>
+  </div>
+  <ng-template pTemplate="footer">
+    <button class="btn btn-ghost" (click)="showNewAnn = false">Cancel</button>
+    <button class="btn btn-primary" (click)="publish()" [disabled]="isSaving">
+      {{ isSaving ? 'Saving…' : 'Publish' }}
+    </button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,501 @@
+<p-toast></p-toast>
+
+<div class="admin-credits-container">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-credit-card"></i> Credits Management</h1>
+        <p>Meal session credits — bonus meals delivered after plan ends.</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <div style="font-size:0.78rem; color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); padding:0.3rem 0.85rem; border-radius:20px; display:flex; align-items:center; gap:0.4rem;">
+          <i class="pi pi-clock"></i> Cutoff: 6:00 PM · Day Before Delivery
+        </div>
+        <button pButton label="Manual Credit" icon="pi pi-plus"
+          class="p-button-success p-button-sm"
+          (click)="showManualDialog = true; loadCustomerList()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card amber-accent">
+      <div class="stat-label">Pending Credits</div>
+      <div class="stat-value">{{ stats.pending }}</div>
+      <div class="stat-subtext">During active plan</div>
+    </div>
+    <div class="stat-card blue-accent">
+      <div class="stat-label">Scheduled</div>
+      <div class="stat-value">{{ stats.scheduled }}</div>
+      <div class="stat-subtext">Queued post-plan</div>
+    </div>
+    <div class="stat-card green-accent">
+      <div class="stat-label">Delivered</div>
+      <div class="stat-value">{{ stats.delivered }}</div>
+      <div class="stat-subtext">Bonus meals given</div>
+    </div>
+    <div class="stat-card grey-accent">
+      <div class="stat-label">Total Credits</div>
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-subtext">All time</div>
+    </div>
+  </div>
+
+  <!-- ── Tabs ───────────────────────────────────────────────────────────── -->
+  <div class="credit-tabs">
+    <button class="credit-tab" [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">Overview</button>
+    <button class="credit-tab" [class.active]="activeTab === 'customers'" (click)="switchTab('customers')">All Customers</button>
+    <button class="credit-tab" [class.active]="activeTab === 'log'" (click)="switchTab('log')">Credit Log</button>
+    <button class="credit-tab" [class.active]="activeTab === 'rules'" (click)="switchTab('rules')">Rules</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  TAB 1: OVERVIEW                                                      -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'overview'">
+
+    <!-- Process Credits Banner -->
+    <div class="process-banner">
+      <div class="process-banner-text">
+        <div class="banner-icon"><i class="pi pi-bolt"></i></div>
+        <div>
+          <div class="banner-title">Process Pending Credits</div>
+          <div class="banner-sub">Transitions credits: Pending → Scheduled (assigns delivery dates) and Scheduled → Delivered.</div>
+        </div>
+      </div>
+      <button pButton label="Process Credits Now" icon="pi pi-play"
+        class="p-button-success p-button-sm"
+        [loading]="isProcessing"
+        (click)="processCredits()"></button>
+    </div>
+
+    <div class="overview-label">Customers with Active Credits</div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <i class="pi pi-spin pi-spinner"></i> Loading credits...
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && overviewData.length === 0" class="empty-state">
+      <i class="pi pi-check-circle"></i>
+      <span>No pending credits — all clear!</span>
+    </div>
+
+    <!-- Customer Cards -->
+    <div *ngFor="let cust of overviewData" class="credit-card">
+      <div class="cc-header">
+        <div class="cc-customer">
+          <div class="cc-avatar">{{ getInitials(cust.customer_name) }}</div>
+          <div>
+            <div class="cc-name">{{ cust.customer_name }}</div>
+            <div class="cc-plan">{{ cust.plan_name }} · {{ cust.plan_start | date:'MMM d' }} → {{ cust.plan_end | date:'MMM d, y' }}</div>
+          </div>
+        </div>
+        <div class="cc-badges">
+          <span class="c-badge badge-pending" *ngIf="cust.pending_count">{{ cust.pending_count }} Pending</span>
+          <span class="c-badge badge-scheduled" *ngIf="cust.scheduled_count">{{ cust.scheduled_count }} Scheduled</span>
+          <button pButton label="View Details" icon="pi pi-eye" 
+            class="p-button-outlined p-button-sm p-button-secondary"
+            (click)="openDetail(cust)"></button>
+        </div>
+      </div>
+
+      <!-- Credit sessions -->
+      <div class="cc-sessions">
+        <div class="cc-session" *ngFor="let cr of cust.credits">
+          <div class="cc-session-top">
+            {{ cr.original_delivery_date | date:'MMM d, y' }} —
+            <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
+          </div>
+          <div class="cc-session-bot">
+            <span class="c-badge mini" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
+            · Deliver:
+            <strong *ngIf="cr.delivery_on">{{ cr.delivery_on | date:'MMM d, y' }}</strong>
+            <span *ngIf="!cr.delivery_on" class="after-plan">After {{ cust.plan_end | date:'MMM d' }}</span>
+            <span *ngIf="cr.is_manual" class="c-badge mini badge-manual">Manual</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan bar -->
+      <div class="plan-bar-wrap">
+        <div class="plan-bar-top">
+          <span>Plan period</span>
+          <span>{{ cust.credits.length }} bonus meal{{ cust.credits.length !== 1 ? 's' : '' }} after plan ends</span>
+        </div>
+        <div class="plan-bar">
+          <div class="pb-plan" [style.flex]="cust.plan_status === 'active' ? 7 : 10">
+            {{ cust.plan_status === 'active' ? 'Active Plan' : '' }}
+          </div>
+          <div class="pb-bonus">{{ cust.credits.length }} Bonus Day{{ cust.credits.length !== 1 ? 's' : '' }}</div>
+        </div>
+        <div class="plan-bar-legend">
+          <div class="legend-item"><span class="leg-dot plan-dot"></span>Plan period</div>
+          <div class="legend-item"><span class="leg-dot bonus-dot"></span>Bonus credit deliveries</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  TAB 2: ALL CUSTOMERS                                                -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'customers'">
+    <div class="toolbar-row">
+      <div class="search-wrap">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Search customers..." [(ngModel)]="custSearch" (input)="filterCustomers()" />
+      </div>
+      <select class="filter-select" [(ngModel)]="custStatusFilter" (change)="loadAllCredits()">
+        <option value="">All</option>
+        <option value="pending">Pending</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Session</th>
+            <th>Cancelled Date</th>
+            <th>Deliver On</th>
+            <th>Credits</th>
+            <th>Plan Ends</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cr of filteredAllCredits">
+            <td>
+              <div class="customer-cell">
+                <div class="avatar">{{ getInitials(cr.customer_name) }}</div>
+                <div class="info">
+                  <strong>{{ cr.customer_name }}</strong>
+                  <span>{{ cr.customer_email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
+            </td>
+            <td>{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
+            <td>
+              <span *ngIf="cr.delivery_on" class="delivery-date">{{ cr.delivery_on | date:'MMM d, y' }}</span>
+              <span *ngIf="!cr.delivery_on" class="after-plan">After plan ends</span>
+            </td>
+            <td class="credit-val">{{ cr.credit_days }}</td>
+            <td class="muted-text">{{ cr.plan_end_date | date:'MMM d, y' }}</td>
+            <td>
+              <span class="c-badge" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
+              <span *ngIf="cr.is_manual" class="c-badge mini badge-manual">Manual</span>
+            </td>
+            <td>
+              <button pButton icon="pi pi-pencil" pTooltip="Override status"
+                class="p-button-text p-button-sm"
+                style="color:#6b7280"
+                (click)="openOverride(cr)"></button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredAllCredits.length === 0">
+            <td colspan="8" class="empty-cell">
+              <i class="pi pi-inbox"></i> No credits found for the selected filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  TAB 3: CREDIT LOG                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'log'">
+    <div class="toolbar-row">
+      <div class="search-wrap">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Search..." [(ngModel)]="logSearch" (input)="filterLog()" />
+      </div>
+      <select class="filter-select" [(ngModel)]="logStatusFilter" (change)="loadAllCredits()">
+        <option value="">All</option>
+        <option value="pending">Pending</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="delivered">Delivered</option>
+        <option value="manual">Manual Only</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Date/Time</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Session</th>
+            <th>Cancelled Date</th>
+            <th>Deliver On</th>
+            <th>Note</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cr of filteredLogCredits">
+            <td class="muted-text">
+              {{ cr.created_at | date:'MMM d, y' }}<br/>
+              <span class="time-sub">{{ cr.cancelled_at | date:'h:mm a' }}</span>
+            </td>
+            <td class="bold-text">{{ cr.customer_name }}</td>
+            <td>
+              <span class="c-badge mini" [ngClass]="cr.is_manual ? 'badge-manual' : 'badge-auto'">
+                {{ cr.is_manual ? 'Manual' : 'Auto' }}
+              </span>
+            </td>
+            <td>
+              <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
+            </td>
+            <td class="muted-text">{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
+            <td>
+              <span *ngIf="cr.delivery_on" class="delivery-date">{{ cr.delivery_on | date:'MMM d, y' }}</span>
+              <span *ngIf="!cr.delivery_on" class="after-plan">TBD after plan ends</span>
+            </td>
+            <td class="note-text">{{ cr.notes || '—' }}</td>
+            <td>
+              <span class="c-badge" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
+            </td>
+          </tr>
+          <tr *ngIf="filteredLogCredits.length === 0">
+            <td colspan="8" class="empty-cell">
+              <i class="pi pi-inbox"></i> No log entries found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  TAB 4: RULES                                                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'rules'">
+    <div class="rules-card">
+      <h3>Credit Eligibility Rules</h3>
+      <p class="rules-desc">These rules govern when a cancelled session qualifies for a credit.</p>
+
+      <div class="rule-row">
+        <div class="rule-info">
+          <h4>Cancellation Cutoff Time</h4>
+          <p>Hours before the session that customer must cancel to earn credit</p>
+        </div>
+        <div class="rule-input-wrap">
+          <input class="rule-input" type="number" value="6" />
+          <span class="rule-unit">hrs prior</span>
+        </div>
+      </div>
+
+      <div class="rule-row">
+        <div class="rule-info">
+          <h4>Credit Delivery Starts</h4>
+          <p>Days after plan end when first credit is delivered</p>
+        </div>
+        <div class="rule-input-wrap">
+          <input class="rule-input" type="number" value="1" />
+          <span class="rule-unit">day(s) after</span>
+        </div>
+      </div>
+
+      <div class="rule-row">
+        <div class="rule-info">
+          <h4>Max Credits Per Plan</h4>
+          <p>Maximum credits a customer can earn per plan (0 = unlimited)</p>
+        </div>
+        <div class="rule-input-wrap">
+          <input class="rule-input" type="number" value="0" />
+          <span class="rule-unit">sessions</span>
+        </div>
+      </div>
+
+      <div class="rule-row">
+        <div class="rule-info">
+          <h4>Deliver on Non-Renewal</h4>
+          <p>Deliver credits even if customer does not renew after plan ends</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="rule-row">
+        <div class="rule-info">
+          <h4>Credit-of-Credit Allowed</h4>
+          <p>Can customer cancel a credit delivery day to earn another credit?</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="rules-footer">
+        <button pButton label="Save Rules" icon="pi pi-save" class="p-button-success" (click)="saveRules()"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Manual Credit Dialog ─────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showManualDialog" [modal]="true"
+  header="Add Manual Credit"
+  styleClass="credits-dialog"
+  [style]="{width: '480px'}">
+
+  <div class="dialog-info-box">
+    ℹ️ Manual credits bypass the cutoff check. Use for kitchen errors, delivery failures, or quality issues.
+  </div>
+
+  <div class="dialog-field">
+    <label>Customer</label>
+    <select class="dialog-select" [(ngModel)]="manualForm.customer_id">
+      <option *ngFor="let c of customerList" [ngValue]="c.id">{{ c.name }}</option>
+    </select>
+  </div>
+
+  <div class="dialog-row">
+    <div class="dialog-field">
+      <label>Session Type</label>
+      <select class="dialog-select" [(ngModel)]="manualForm.session">
+        <option value="BF">Breakfast (BF)</option>
+        <option value="LUNCH">Lunch</option>
+        <option value="DINNER">Dinner</option>
+        <option value="SNACK">Snack</option>
+      </select>
+    </div>
+    <div class="dialog-field">
+      <label>Deliver On</label>
+      <input type="date" class="dialog-input" [(ngModel)]="manualForm.delivery_on" />
+    </div>
+  </div>
+
+  <div class="dialog-field">
+    <label>Reason / Note</label>
+    <input type="text" class="dialog-input" [(ngModel)]="manualForm.note" 
+      placeholder="e.g. Delivery not received on Apr 10 Dinner" />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="showManualDialog = false"></button>
+    <button pButton label="Add Credit" icon="pi pi-plus" class="p-button-success" (click)="submitManualCredit()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Credit Detail Dialog ─────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showDetailDialog" [modal]="true"
+  [header]="detailCustomer?.customer_name + ' — Credit History'"
+  styleClass="credits-dialog credits-dialog-wide"
+  [style]="{width: '560px'}">
+
+  <div *ngIf="detailCustomer">
+    <div class="detail-plan-info">
+      <div class="detail-plan-name">{{ detailCustomer.plan_name }}</div>
+      <div class="detail-plan-dates">
+        {{ detailCustomer.plan_start | date:'MMM d' }} → {{ detailCustomer.plan_end | date:'MMM d, y' }}
+        · {{ detailCustomer.plan_status }}
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item" *ngFor="let cr of detailCustomer.credits">
+        <div class="tl-dot" [ngClass]="'dot-' + cr.status"></div>
+        <div class="tl-time">{{ cr.cancelled_at | date:'MMM d, y' }} at {{ cr.cancelled_at | date:'h:mm a' }}</div>
+        <div class="tl-title">
+          <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
+          cancelled for {{ cr.original_delivery_date | date:'MMM d, y' }}
+        </div>
+        <div class="tl-note">
+          {{ cr.notes }}
+          <span *ngIf="cr.is_manual" class="c-badge mini badge-manual">Manual</span>
+        </div>
+        <div class="tl-status">
+          <span class="c-badge" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
+          <span *ngIf="cr.delivery_on" class="tl-deliver">Deliver: <strong>{{ cr.delivery_on | date:'MMM d, y' }}</strong></span>
+          <span *ngIf="!cr.delivery_on" class="tl-deliver after-plan">Delivers: after plan ends</span>
+        </div>
+      </div>
+      <div *ngIf="detailCustomer.credits.length === 0" class="tl-empty">
+        No credits on record.
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Close" class="p-button-text p-button-secondary" (click)="showDetailDialog = false"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Override Dialog ──────────────────────────────────────────────────── -->
+<p-dialog [(visible)]="showOverrideDialog" [modal]="true"
+  header="Override Credit Status"
+  styleClass="credits-dialog"
+  [style]="{width: '440px'}">
+
+  <div *ngIf="selectedCredit">
+    <div class="override-customer-info">
+      <div class="oc-avatar">{{ getInitials(selectedCredit.customer_name) }}</div>
+      <div>
+        <div class="oc-name">{{ selectedCredit.customer_name }}</div>
+        <div class="oc-detail">
+          {{ sessionLabel(selectedCredit.session) }} · {{ selectedCredit.original_delivery_date | date:'MMM d, y' }} ·
+          Plan ends {{ selectedCredit.plan_end_date | date:'MMM d, y' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="status-transition">
+      <div>
+        <div class="st-label">Current</div>
+        <span class="c-badge" [ngClass]="'badge-' + selectedCredit.status" style="margin-top:4px;display:inline-flex">
+          {{ selectedCredit.status | uppercase }}
+        </span>
+      </div>
+      <i class="pi pi-arrow-right st-arrow"></i>
+      <div style="flex:1">
+        <div class="st-label">Override To</div>
+        <select class="dialog-select" [(ngModel)]="overrideStatus" style="margin-top:4px">
+          <option value="pending">Pending</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="delivered">Delivered</option>
+          <option value="not_eligible">Not Eligible</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="status-hint hint-info" *ngIf="overrideStatus === 'scheduled'">
+      <i class="pi pi-info-circle"></i>
+      Setting to <strong>Scheduled</strong> means the credit will be delivered on the assigned date.
+    </div>
+    <div class="status-hint hint-danger" *ngIf="overrideStatus === 'not_eligible'">
+      <i class="pi pi-exclamation-triangle"></i>
+      Setting to <strong>Not Eligible</strong> means this credit will not be delivered.
+    </div>
+
+    <div class="dialog-field" style="margin-top:1rem">
+      <label>Admin Notes</label>
+      <textarea class="dialog-textarea" [(ngModel)]="overrideNotes" rows="4"
+        placeholder="Optional reason for override..."></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="showOverrideDialog = false"></button>
+    <button pButton label="Save Changes" icon="pi pi-check" class="p-button-success" (click)="saveOverride()"></button>
+  </ng-template>
+</p-dialog>

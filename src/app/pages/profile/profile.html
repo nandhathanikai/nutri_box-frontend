@@ -1,0 +1,132 @@
+<p-toast></p-toast>
+<div class="container profile-container">
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="profile-loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--p-primary-color)"></i>
+    <p>Loading your profile…</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error" class="profile-error">
+    <i class="pi pi-exclamation-circle" style="font-size: 1.5rem; color: #e74c3c"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Profile content -->
+  <div class="profile-layout" *ngIf="!loading && !error">
+    <div class="sidebar">
+      <div class="profile-card">
+        <div class="avatar-initials profile-avatar">{{ initials }}</div>
+        <h3>{{ user.name }}</h3>
+        <p>{{ user.email }}</p>
+      </div>
+      <nav class="side-nav">
+        <a class="nav-item active"><i class="pi pi-user"></i> Account Settings</a>
+        <a class="nav-item"><i class="pi pi-credit-card"></i> Billing &amp; Plans</a>
+        <a class="nav-item"><i class="pi pi-history"></i> Order History</a>
+        
+        <div class="nav-spacer"></div>
+        <a class="nav-item logout-item" (click)="logout()"><i class="pi pi-sign-out"></i> Logout</a>
+      </nav>
+    </div>
+
+    <div class="main-content">
+      <section class="settings-section">
+        <h2>Personal Information</h2>
+        <p class="section-desc">Update your personal details and how we can reach you.</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="name">Full Name</label>
+            <input pInputText id="name" [(ngModel)]="user.name" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="phone">Phone Number</label>
+            <input pInputText id="phone" [(ngModel)]="user.phone" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input pInputText id="email" [(ngModel)]="user.email" disabled class="w-full opacity-60" />
+            <small>Email cannot be changed.</small>
+          </div>
+        </div>
+
+        <h3 class="subsection-title">Delivery Address</h3>
+        <div class="form-grid">
+          <div class="field field-wide">
+            <label for="addr1">Address Line 1</label>
+            <input pInputText id="addr1" [(ngModel)]="user.address_line_1" class="w-full" />
+          </div>
+          <div class="field field-wide">
+            <label for="addr2">Address Line 2 <span class="optional">(optional)</span></label>
+            <input pInputText id="addr2" [(ngModel)]="user.address_line_2" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="landmark">Landmark <span class="optional">(optional)</span></label>
+            <input pInputText id="landmark" [(ngModel)]="user.landmark" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="locationLink">Google Maps Link <span class="optional">(optional)</span></label>
+            <input pInputText id="locationLink" [(ngModel)]="user.location_link" class="w-full" placeholder="https://maps.google.com/..." />
+          </div>
+        </div>
+
+        <p-button label="Save Changes" (onClick)="saveProfile()" [loading]="saving" class="save-btn"></p-button>
+      </section>
+
+
+      <div class="divider"></div>
+
+      <section class="settings-section danger-zone">
+        <h2>Danger Zone</h2>
+        <p class="section-desc">Proceed with caution. These actions are permanent.</p>
+        <div class="danger-box">
+          <div class="danger-text">
+            <strong>Delete Account</strong>
+            <p>Permanently remove your account and all associated data.</p>
+          </div>
+          <p-button label="Delete Account" severity="danger" [outlined]="true" (onClick)="openDeleteDialog()"></p-button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Typed-confirmation modal for destructive delete -->
+<p-dialog
+  header="Delete account?"
+  [(visible)]="showDeleteDialog"
+  [modal]="true"
+  [closable]="!deleting"
+  [draggable]="false"
+  [style]="{ width: '440px', maxWidth: '94vw' }"
+  [breakpoints]="{ '640px': '94vw' }"
+  styleClass="ntb-sheet">
+  <div class="delete-dialog">
+    <p>This <strong>permanently</strong> removes your account, delivery history, and credit balance. This cannot be undone.</p>
+    <label for="confirmText" class="delete-confirm-label">
+      Type <code>{{ DELETE_PHRASE }}</code> to confirm:
+    </label>
+    <input
+      id="confirmText"
+      pInputText
+      type="text"
+      class="w-full"
+      autocomplete="off"
+      [(ngModel)]="deleteConfirmText"
+      [disabled]="deleting"
+      placeholder="Type {{ DELETE_PHRASE }}" />
+
+    <div class="delete-actions">
+      <p-button label="Cancel" [outlined]="true" (onClick)="cancelDelete()" [disabled]="deleting"></p-button>
+      <p-button
+        label="Delete forever"
+        severity="danger"
+        icon="pi pi-trash"
+        [loading]="deleting"
+        [disabled]="!canConfirmDelete || deleting"
+        (onClick)="confirmDelete()"></p-button>
+    </div>
+  </div>
+</p-dialog>

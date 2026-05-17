@@ -1,0 +1,182 @@
+<div class="signup-shell">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Left: Visual Panel -->
+  <div class="visual-panel">
+    <img src="signup_page.png" alt="Nutribox Meals" class="panel-bg-img" />
+    <div class="panel-overlay"></div>
+
+    <div class="visual-header">
+      <span class="logo-mark">N</span>
+      <span class="brand-name">Nutribox</span>
+    </div>
+
+    <div class="visual-body">
+      <div class="tagline-card">
+        <h2>Fuel your body with<br>editorial excellence.</h2>
+        <p>Join Nutribox today and experience a subscription service designed for the modern lifestyle. Organic sourcing, chef-curated menus, and seamless delivery.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Signup Form Panel -->
+  <div class="form-panel">
+    <div class="form-inner">
+
+      <!-- Mobile logo -->
+      <div class="mobile-logo">
+        <span class="logo-mark-sm">N</span>
+        <span>Nutribox</span>
+      </div>
+
+      <!-- Header -->
+      <div class="form-heading">
+        <h1>{{ currentStep === 1 ? 'Create your account' : 'Delivery address' }}</h1>
+        <p>{{ currentStep === 1 ? 'Start your wellness journey.' : 'Tell us where to deliver your meals.' }}</p>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step-track">
+          <div class="step-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+            <div class="step-dot">
+              @if (currentStep > 1) {
+                <i class="pi pi-check"></i>
+              } @else {
+                <span>1</span>
+              }
+            </div>
+            <span class="step-label">Personal Info</span>
+          </div>
+          <div class="step-connector" [class.filled]="currentStep > 1"></div>
+          <div class="step-item" [class.active]="currentStep >= 2">
+            <div class="step-dot">
+              <span>2</span>
+            </div>
+            <span class="step-label">Address</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Personal Info -->
+      @if (currentStep === 1) {
+        <div class="step-content">
+          <form [formGroup]="signupForm" class="auth-form">
+
+            <div class="field">
+              <label for="fullName">FULL NAME</label>
+              <input id="fullName" type="text" pInputText formControlName="fullName" placeholder="John Doe" />
+            </div>
+
+            <div class="field">
+              <label for="email">EMAIL ADDRESS</label>
+              <input id="email" type="email" pInputText formControlName="email" placeholder="john@example.com"
+                [class.input-error]="emailExistsError" />
+              @if (emailExistsError) {
+                <div class="email-exists-banner">
+                  <i class="pi pi-info-circle"></i>
+                  <span>An account with this email already exists.&nbsp;
+                    <a routerLink="/login" class="login-link">Please login</a> instead.
+                  </span>
+                </div>
+              }
+            </div>
+
+            <div class="field">
+              <label for="phone">PHONE NUMBER</label>
+              <input id="phone" type="tel" pInputText formControlName="phone" placeholder="+91 00000 00000" />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="password">PASSWORD</label>
+                <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true" placeholder="••••••••" styleClass="w-full" inputStyleClass="w-full"></p-password>
+                <!-- Validation hints (must match backend password policy) -->
+                <div class="pwd-hints">
+                  <span class="pwd-hint" [class.met]="pwdHas('len')">
+                    <i class="pi" [class.pi-check-circle]="pwdHas('len')" [class.pi-circle]="!pwdHas('len')"></i>
+                    Min 8 characters
+                  </span>
+                  <span class="pwd-hint" [class.met]="pwdHas('upper')">
+                    <i class="pi" [class.pi-check-circle]="pwdHas('upper')" [class.pi-circle]="!pwdHas('upper')"></i>
+                    1 uppercase letter
+                  </span>
+                  <span class="pwd-hint" [class.met]="pwdHas('lower')">
+                    <i class="pi" [class.pi-check-circle]="pwdHas('lower')" [class.pi-circle]="!pwdHas('lower')"></i>
+                    1 lowercase letter
+                  </span>
+                  <span class="pwd-hint" [class.met]="pwdHas('digit')">
+                    <i class="pi" [class.pi-check-circle]="pwdHas('digit')" [class.pi-circle]="!pwdHas('digit')"></i>
+                    1 number
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="confirmPassword">CONFIRM PASSWORD</label>
+                <p-password id="confirmPassword" formControlName="confirmPassword" [feedback]="false" [toggleMask]="true" placeholder="••••••••" styleClass="w-full" inputStyleClass="w-full"></p-password>
+                @if (!passwordsMatch) {
+                  <span class="pwd-hint mismatch">
+                    <i class="pi pi-times-circle"></i> Passwords do not match
+                  </span>
+                }
+              </div>
+            </div>
+
+          </form>
+
+          <p-button label="Next — Address Details" icon="pi pi-arrow-right" iconPos="right"
+            [disabled]="!step1Valid" [loading]="isCheckingEmail" (onClick)="goNext()" styleClass="w-full submit-btn next-btn">
+          </p-button>
+
+          <p class="login-cta">
+            Already have an account? <a routerLink="/login" class="login-link">Login</a>
+          </p>
+        </div>
+      }
+
+      <!-- STEP 2: Address Details -->
+      @if (currentStep === 2) {
+        <div class="step-content">
+          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+            <div class="field">
+              <label for="addressLine1">ADDRESS LINE 1</label>
+              <input id="addressLine1" type="text" pInputText formControlName="addressLine1" placeholder="House / Flat no., Street name" />
+            </div>
+
+            <div class="field">
+              <label for="addressLine2">ADDRESS LINE 2 <span class="optional">(optional)</span></label>
+              <input id="addressLine2" type="text" pInputText formControlName="addressLine2" placeholder="Area, Colony, Sector, Village" />
+            </div>
+
+            <div class="field">
+              <label for="landmark">LANDMARK</label>
+              <input id="landmark" type="text" pInputText formControlName="landmark" placeholder="e.g. Near City Mall, Opposite Park" />
+            </div>
+
+            <div class="field">
+              <label for="locationLink">LOCATION LINK <span class="optional">(optional)</span></label>
+              <input id="locationLink" type="url" pInputText formControlName="locationLink" placeholder="Paste your Google Maps link" />
+            </div>
+
+            <div class="action-row">
+              <p-button type="button" label="Back" icon="pi pi-arrow-left" [outlined]="true"
+                (onClick)="goBack()" styleClass="back-btn">
+              </p-button>
+              <p-button type="submit" label="Create Account" icon="pi pi-check" iconPos="right"
+                [disabled]="!step2Valid || isLoading" [loading]="isLoading" styleClass="submit-btn flex-1">
+              </p-button>
+            </div>
+
+          </form>
+
+          <p class="login-cta">
+            Already have an account? <a routerLink="/login" class="login-link">Login</a>
+          </p>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

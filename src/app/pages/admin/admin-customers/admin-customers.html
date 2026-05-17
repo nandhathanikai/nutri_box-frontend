@@ -1,0 +1,184 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="customers-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-users"></i> Customer Management</h1>
+        <p>View, search, and manage all customer subscriptions and activity.</p>
+      </div>
+      <button class="btn-add-user" (click)="openAddDialog()">
+        <i class="pi pi-user-plus"></i> Add User
+      </button>
+    </div>
+  </div>
+
+
+  <div class="table-card">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="tab-group">
+        <button
+          *ngFor="let tab of tabs"
+          class="tab-btn"
+          [class.active]="activeTab === tab"
+          (click)="setTab(tab)"
+        >{{ tab }}</button>
+      </div>
+
+      <div class="search-bar">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search customers..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+        />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Plan</th>
+            <th>Sessions</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Credits</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filtered">
+            <td class="name-cell">
+              <div class="name-stack">
+                <span>{{ c.name }}</span>
+                <span class="email-line">{{ c.email }}</span>
+              </div>
+            </td>
+            <td class="phone-cell">{{ c.phone }}</td>
+            <td>{{ c.plan }}</td>
+            <td class="sessions-cell">{{ c.sessions }}</td>
+            <td>{{ c.startDate }}</td>
+            <td>{{ c.endDate }}</td>
+            <td>{{ c.credits }}</td>
+            <td>
+              <span class="status-badge" [class]="getStatusClass(c.status)">
+                {{ getStatusLabel(c.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="action-icons">
+                <button class="action-btn action-danger" title="Delete customer" [disabled]="deletingId === c.id" (click)="deleteCustomer(c)">
+                  @if (deletingId === c.id) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                  } @else {
+                    <i class="pi pi-trash"></i>
+                  }
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0 && !isLoading">
+            <td colspan="9" class="empty-state">No customers found.</td>
+          </tr>
+          <tr *ngIf="isLoading">
+            <td colspan="9" class="empty-state"><i class="pi pi-spin pi-spinner"></i> Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p-paginator
+      [first]="(page - 1) * pageSize"
+      [rows]="pageSize"
+      [totalRecords]="total"
+      [rowsPerPageOptions]="[25, 50, 100, 200]"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </div>
+
+  <!-- Add User Dialog -->
+  <p-dialog
+    header="Add User"
+    [(visible)]="showAddDialog"
+    [modal]="true"
+    [closable]="!isCreating"
+    [draggable]="false"
+    [style]="{ width: '520px', maxWidth: '94vw' }"
+    [breakpoints]="{ '640px': '94vw' }"
+    (onHide)="closeAddDialog()">
+    <form [formGroup]="addForm" (ngSubmit)="submitAddUser()" class="add-user-form">
+
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Full Name <span class="req">*</span></label>
+          <input pInputText type="text" formControlName="full_name" placeholder="Jane Doe" />
+        </div>
+        <div class="dlg-field">
+          <label>Role <span class="req">*</span></label>
+          <p-select formControlName="role" [options]="roleOptions" optionLabel="label" optionValue="value"
+            [style]="{ width: '100%' }"></p-select>
+        </div>
+      </div>
+
+      <div class="dlg-field">
+        <label>Email <span class="req">*</span></label>
+        <input pInputText type="email" formControlName="email" placeholder="user@example.com" />
+        @if (addForm.get('email')!.touched && addForm.get('email')!.errors?.['email']) {
+          <span class="helper" style="color: var(--color-red)">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Phone <span class="req">*</span></label>
+          <input pInputText type="tel" formControlName="phone" placeholder="+91 00000 00000" />
+        </div>
+        <div class="dlg-field">
+          <label>Initial Password <span class="req">*</span></label>
+          <p-password formControlName="password" [feedback]="false" [toggleMask]="true" placeholder="8+ chars, Aa1"
+            styleClass="w-full" inputStyleClass="w-full"></p-password>
+          <span class="helper">8+ chars with an uppercase letter, lowercase letter, and a number. Share privately; user can change it later.</span>
+        </div>
+      </div>
+
+      <div class="dlg-field">
+        <label>Address Line 1</label>
+        <input pInputText type="text" formControlName="address_line_1" placeholder="House / Flat no., Street name" />
+      </div>
+
+      <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Address Line 2</label>
+          <input pInputText type="text" formControlName="address_line_2" placeholder="Area, Colony" />
+        </div>
+        <div class="dlg-field">
+          <label>Landmark</label>
+          <input pInputText type="text" formControlName="landmark" placeholder="Nearby landmark" />
+        </div>
+      </div>
+
+      <div class="dlg-field">
+        <label>Google Maps Link</label>
+        <input pInputText type="url" formControlName="location_link" placeholder="https://maps.google.com/..." />
+      </div>
+
+      <div class="dlg-actions">
+        <button type="button" class="btn-ghost" (click)="closeAddDialog()" [disabled]="isCreating">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="addForm.invalid || isCreating">
+          @if (isCreating) {
+            <i class="pi pi-spin pi-spinner"></i> Creating…
+          } @else {
+            <i class="pi pi-check"></i> Create User
+          }
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.sticky-cta-container {
+  @media (max-width: 767px) {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+  }
+}
+
+.sticky-cta-content {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+}

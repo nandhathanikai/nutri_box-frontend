@@ -1,0 +1,20 @@
+<div class="empty-state-unified">
+  @if (icon) {
+    <i class="pi {{ icon }}"></i>
+  }
+  @if (image) {
+    <img [src]="image" alt="" class="empty-image" />
+  }
+  
+  <div class="empty-title">{{ title }}</div>
+  
+  @if (description) {
+    <div class="empty-sub">{{ description }}</div>
+  }
+
+  @if (actionLabel) {
+    <button class="btn-unified btn-primary" style="margin-top: 1rem;" (click)="onActionClick()">
+      {{ actionLabel }}
+    </button>
+  }
+</div>

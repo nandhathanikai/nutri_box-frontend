@@ -1,0 +1,13 @@
+<p-toast position="top-right" key="global"></p-toast>
+@if (showHeader) {
+  <app-header></app-header>
+}
+<main class="main-content" [class.has-bottom-nav]="showBottomNav">
+  <router-outlet></router-outlet>
+</main>
+@if (showFooter) {
+  <app-footer></app-footer>
+}
+@if (showBottomNav) {
+  <app-bottom-nav></app-bottom-nav>
+}

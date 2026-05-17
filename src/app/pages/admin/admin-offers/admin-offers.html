@@ -1,0 +1,140 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="off-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-tag"></i> Offers & Coupons</h1>
+        <p>Create and manage discount codes and promotional offers.</p>
+      </div>
+      <button class="btn btn-primary" (click)="showNewOffer = true" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);">+ Create Offer</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid c4">
+    <div class="stat-card">
+      <div class="stat-label">Active Offers</div>
+      <div class="stat-value">{{ activeCount }}</div>
+      <div class="stat-sub muted">Running now</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Redemptions</div>
+      <div class="stat-value">1,284</div>
+      <div class="stat-sub green">↑ 18%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Discount Given</div>
+      <div class="stat-value">₹48,600</div>
+      <div class="stat-sub red">Revenue impact</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Expiring Soon</div>
+      <div class="stat-value">{{ expiringSoon }}</div>
+      <div class="stat-sub amber">Within 7 days</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="ftabs">
+      <button class="ftab" [class.active]="offerFilter === 'all'" (click)="offerFilter = 'all'">All</button>
+      <button class="ftab" [class.active]="offerFilter === 'active'" (click)="offerFilter = 'active'">Active</button>
+      <button class="ftab" [class.active]="offerFilter === 'draft'" (click)="offerFilter = 'draft'">Draft</button>
+      <button class="ftab" [class.active]="offerFilter === 'expired'" (click)="offerFilter = 'expired'">Expired</button>
+    </div>
+    <div class="search-bar">
+      <i class="pi pi-search"></i>
+      <input type="text" [(ngModel)]="offerSearch" placeholder="Search offers…" />
+    </div>
+    <button class="btn btn-primary" (click)="showNewOffer = true">+ Create Offer</button>
+  </div>
+
+  <!-- Offer Cards -->
+  <div class="off-list">
+    <div class="off-card" *ngFor="let o of filtered">
+      <div class="off-badge" [ngClass]="'off-badge--' + o.type">{{ valueLabel(o) }}</div>
+      <div class="off-info">
+        <div class="off-title-row">
+          <span class="off-code">{{ o.code }}</span>
+          <span class="badge" [ngClass]="'badge-' + o.status">{{ o.status }}</span>
+        </div>
+        <div class="off-desc">
+          {{ o.description }}
+          <ng-container *ngIf="o.min_order"> · Min ₹{{ o.min_order }}</ng-container>
+          <ng-container *ngIf="o.max_cap"> · Max ₹{{ o.max_cap }} off</ng-container>
+        </div>
+        <div class="off-stats">
+          <span class="off-stat">Used: <strong>{{ o.used_count | number }}</strong>{{ o.usage_limit ? ' / ' + o.usage_limit : '' }}</span>
+          <span class="off-stat">Valid: <strong>{{ o.valid_from }}</strong> → <strong>{{ o.valid_until }}</strong></span>
+          <span class="off-stat usage" *ngIf="usagePct(o) !== null">
+            <div class="prog"><div class="prog-f" [style.width.%]="usagePct(o)"></div></div>
+            {{ usagePct(o) }}%
+          </span>
+        </div>
+      </div>
+      <div class="off-actions">
+        <button class="btn btn-ghost btn-sm" *ngIf="o.status === 'active'" (click)="toggle(o)">Pause</button>
+        <button class="btn btn-primary btn-sm" *ngIf="o.status === 'draft'" (click)="toggle(o)">Activate</button>
+        <button class="btn btn-danger btn-sm" (click)="delete(o)">Delete</button>
+      </div>
+    </div>
+    <div class="empty" *ngIf="filtered.length === 0">No offers found</div>
+  </div>
+</div>
+
+<!-- New Offer Modal -->
+<p-dialog [(visible)]="showNewOffer" [modal]="true" header="Create Offer" [style]="{width:'500px'}">
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Coupon Code</label>
+      <input type="text" [(ngModel)]="newForm.code" placeholder="e.g. SAVE20" style="text-transform:uppercase;font-weight:600" />
+    </div>
+    <div class="dlg-field">
+      <label>Type</label>
+      <select [(ngModel)]="newForm.type">
+        <option value="pct">Percentage (%)</option>
+        <option value="flat">Flat (₹)</option>
+        <option value="free">Free Delivery</option>
+      </select>
+    </div>
+  </div>
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Value</label>
+      <input type="number" [(ngModel)]="newForm.value" placeholder="e.g. 20" />
+    </div>
+    <div class="dlg-field">
+      <label>Max Discount (₹)</label>
+      <input type="number" [(ngModel)]="newForm.max_cap" placeholder="e.g. 100" />
+    </div>
+  </div>
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Min Order (₹)</label>
+      <input type="number" [(ngModel)]="newForm.min_order" placeholder="e.g. 299" />
+    </div>
+    <div class="dlg-field">
+      <label>Usage Limit</label>
+      <input type="number" [(ngModel)]="newForm.usage_limit" placeholder="Blank = unlimited" />
+    </div>
+  </div>
+  <div class="dlg-row">
+    <div class="dlg-field">
+      <label>Valid From</label>
+      <input type="date" [(ngModel)]="newForm.valid_from" />
+    </div>
+    <div class="dlg-field">
+      <label>Valid Until</label>
+      <input type="date" [(ngModel)]="newForm.valid_until" />
+    </div>
+  </div>
+  <div class="dlg-field">
+    <label>Description</label>
+    <input type="text" [(ngModel)]="newForm.description" placeholder="e.g. 20% off on orders above ₹299" />
+  </div>
+  <ng-template pTemplate="footer">
+    <button class="btn btn-ghost" (click)="showNewOffer = false">Cancel</button>
+    <button class="btn btn-primary" (click)="create()">Create Offer</button>
+  </ng-template>
+</p-dialog>

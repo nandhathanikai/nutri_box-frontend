@@ -1,0 +1,126 @@
+@if (!calendar || !calendar.days.length) {
+  <div class="calendar-empty">
+    <i class="pi pi-calendar"></i>
+    <p>No deliveries scheduled.</p>
+  </div>
+} @else {
+  <!-- Header strip with subscription window -->
+  <div class="calendar-meta">
+    <div class="meta-block">
+      <span class="meta-label">Subscription window</span>
+      <span class="meta-value">
+        {{ calendar.subscription?.start_date | date:'MMM d' }} —
+        {{ activeWindowEnd | date:'MMM d, y' }}
+      </span>
+    </div>
+    <div class="meta-legend">
+      <span class="legend-item"><span class="dot dot-delivered"></span>Delivered</span>
+      <span class="legend-item"><span class="dot dot-today"></span>Today</span>
+      <span class="legend-item"><span class="dot dot-scheduled"></span>Scheduled</span>
+      <span class="legend-item"><span class="dot dot-skipped"></span>Skipped</span>
+    </div>
+  </div>
+
+  <!-- Weekday header (Mon-Sat delivery; Sun shown as 'No delivery' column) -->
+  <div class="calendar-grid weekday-header">
+    <div class="weekday">Mon</div>
+    <div class="weekday">Tue</div>
+    <div class="weekday">Wed</div>
+    <div class="weekday">Thu</div>
+    <div class="weekday">Fri</div>
+    <div class="weekday">Sat</div>
+    <div class="weekday weekend">Sun</div>
+  </div>
+
+  <div class="calendar-weeks">
+    @for (row of weekRows; track $index) {
+      @if (row.monthLabel) {
+        <div class="month-divider"><span>{{ row.monthLabel }}</span></div>
+      }
+      <div class="calendar-grid">
+        @for (day of row.days; track day?.date || $index) {
+          @if (!day) {
+            <div class="day-card day-empty"></div>
+          } @else {
+            <button
+              type="button"
+              class="day-card"
+              [class.day-today]="day.is_today"
+              [class.day-past]="day.is_past && !day.is_weekend"
+              [class.day-weekend]="day.is_weekend"
+              [class.day-clickable]="isInteractive(day)"
+              [attr.data-status]="dayStatus(day)"
+              [disabled]="!isInteractive(day)"
+              (click)="openDay(day)">
+              <div class="day-head">
+                <span class="day-number">{{ dayNumber(day) }}</span>
+                <span class="day-month">{{ monthLabel(day) }}</span>
+              </div>
+
+              @if (day.is_weekend) {
+                <span class="day-tag tag-muted">No delivery</span>
+              } @else if (day.is_today) {
+                <span class="day-tag tag-today">Today</span>
+              }
+
+              <div class="day-sessions">
+                @for (s of day.sessions; track s.key) {
+                  <span class="session-chip" [attr.data-status]="s.status">
+                    {{ s.label[0] }}
+                  </span>
+                }
+              </div>
+            </button>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Skip dialog -->
+  <p-dialog
+    [(visible)]="showDialog"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [style]="{ width: '420px', maxWidth: '92vw' }"
+    [breakpoints]="{ '640px': '92vw' }"
+    (onHide)="closeDialog()">
+    <ng-template pTemplate="header">
+      <div class="dialog-header">
+        <strong>{{ selectedDay?.date | date:'EEEE, MMM d' }}</strong>
+      </div>
+    </ng-template>
+
+    @if (selectedDay) {
+      <div class="dialog-body">
+        @for (s of selectedDay.sessions; track s.key) {
+          <div class="dialog-session">
+            <div class="dialog-session-info">
+              <span class="session-label">{{ s.label }}</span>
+              <span class="session-status" [attr.data-status]="s.status">
+                @if (s.status === 'delivered')   { Delivered }
+                @if (s.status === 'today')        { Today }
+                @if (s.status === 'scheduled')    { Scheduled }
+                @if (s.status === 'skipped')      { Skipped }
+                @if (s.status === 'no_delivery')  { No delivery }
+              </span>
+            </div>
+            @if (s.cancellable) {
+              <button class="btn-skip" (click)="onSkip(s)">Skip</button>
+            } @else if (s.status === 'skipped' && s.undoable) {
+              <button class="btn-unskip" (click)="onUnskip(s)">Cancel skip</button>
+            } @else if (s.status === 'skipped') {
+              <span class="muted-text">Already skipped</span>
+            } @else if (s.status === 'delivered') {
+              <span class="muted-text">Past delivery</span>
+            } @else {
+              <span class="muted-text">Cutoff passed</span>
+            }
+          </div>
+        }
+        <p class="cutoff-hint">{{ cutoffHint(selectedDay) }}</p>
+      </div>
+    }
+  </p-dialog>
+}

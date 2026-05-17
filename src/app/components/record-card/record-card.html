@@ -1,0 +1,75 @@
+<div class="record-card" (click)="onCardClick()">
+  <div class="rc-header">
+    <div class="rc-title-block">
+      <h3>{{ title }}</h3>
+      @if (subtitle) {
+        <p class="rc-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+    @if (status) {
+      <span class="badge-unified" [ngClass]="'badge-' + status.tone">
+        {{ status.label }}
+      </span>
+    }
+  </div>
+
+  @if (fields && fields.length > 0) {
+    <div class="rc-fields">
+      @for (field of fields; track field.label) {
+        <div class="rc-field-row">
+          <span class="rc-label">{{ field.label }}</span>
+          <span class="rc-value">
+            @if (isTemplate(field.value)) {
+              <ng-container *ngTemplateOutlet="field.value"></ng-container>
+            } @else {
+              {{ field.value }}
+            }
+          </span>
+        </div>
+      }
+
+      @if (collapsibleFields && collapsibleFields.length > 0) {
+        <div class="rc-collapsible" [class.expanded]="expanded">
+          @for (field of collapsibleFields; track field.label) {
+            <div class="rc-field-row">
+              <span class="rc-label">{{ field.label }}</span>
+              <span class="rc-value">
+                @if (isTemplate(field.value)) {
+                  <ng-container *ngTemplateOutlet="field.value"></ng-container>
+                } @else {
+                  {{ field.value }}
+                }
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (collapsibleFields && collapsibleFields.length > 0) {
+    <button class="rc-toggle-btn" (click)="toggleExpand($event)">
+      <span>{{ expanded ? 'Less details' : 'More details' }}</span>
+      <i class="pi" [ngClass]="expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+    </button>
+  }
+
+  @if (primaryAction || (secondaryActions && secondaryActions.length > 0)) {
+    <div class="rc-actions">
+      @if (primaryAction) {
+        <button class="btn-unified btn-primary full-width-mobile" (click)="onActionClick($event, primaryAction)">
+          {{ primaryAction.label }}
+        </button>
+      }
+      @if (secondaryActions) {
+        <div class="rc-secondary-actions">
+          @for (action of secondaryActions; track action.label) {
+            <button class="btn-unified btn-ghost icon-only" (click)="onActionClick($event, action)" [title]="action.label">
+              <i class="pi {{ action.icon }}"></i>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

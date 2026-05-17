@@ -1,0 +1,88 @@
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-section brand-section" [class.open]="openSection === 0">
+      <h4 class="accordion-header" (click)="toggleSection(0)">
+        <span>Brand</span>
+        <i class="pi pi-chevron-down accordion-icon"></i>
+      </h4>
+      <h4 class="desktop-header">Brand</h4>
+      <div class="accordion-content">
+        <div class="logo">
+          <div class="logo-icon">N</div>
+          <span class="logo-text">Nutribox</span>
+        </div>
+        <p class="brand-desc">Fresh, healthy, and delicious meals delivered to your doorstep every day. Start your journey to a better you with Nutribox.</p>
+      </div>
+    </div>
+
+    <div class="footer-section links-section" [class.open]="openSection === 1">
+      <h4 class="accordion-header" (click)="toggleSection(1)">
+        <span>Product</span>
+        <i class="pi pi-chevron-down accordion-icon"></i>
+      </h4>
+      <h4 class="desktop-header">Product</h4>
+      <div class="accordion-content">
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/plans">Meal Plans</a></li>
+          <li><a routerLink="/dashboard">Dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-section links-section" [class.open]="openSection === 2">
+      <h4 class="accordion-header" (click)="toggleSection(2)">
+        <span>Company</span>
+        <i class="pi pi-chevron-down accordion-icon"></i>
+      </h4>
+      <h4 class="desktop-header">Company</h4>
+      <div class="accordion-content">
+        <ul>
+          <li><a>About Us</a></li>
+          <li><a>FAQ</a></li>
+          <li><a>Privacy Policy</a></li>
+          <li><a>Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-section contact-section" [class.open]="openSection === 3">
+      <h4 class="accordion-header" (click)="toggleSection(3)">
+        <span>Contact</span>
+        <i class="pi pi-chevron-down accordion-icon"></i>
+      </h4>
+      <h4 class="desktop-header">Contact Info</h4>
+      <div class="accordion-content">
+        <ul>
+          <li>
+            <i class="pi pi-envelope"></i> 
+            <a *ngIf="settings?.email" [href]="'mailto:' + settings.email">{{settings.email}}</a>
+            <span *ngIf="!settings?.email">hello@nutribox.com</span>
+          </li>
+          <li>
+            <i class="pi pi-whatsapp"></i>
+            <a *ngIf="whatsappLink" [href]="whatsappLink" target="_blank" rel="noopener noreferrer">{{ settings.phone_number }}</a>
+            <span *ngIf="!whatsappLink">+91 98765 43210</span>
+          </li>
+          <li>
+            <i class="pi pi-map-marker"></i> 
+            <span *ngIf="settings?.address">{{settings.address}}</span>
+            <span *ngIf="!settings?.address">123 Health Street, Green City, 560001</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container footer-bottom-flex">
+      <div class="social-links">
+        <a href="#"><i class="pi pi-facebook"></i></a>
+        <a *ngIf="settings?.instagram_link" [href]="settings.instagram_link" target="_blank" rel="noopener noreferrer"><i class="pi pi-instagram"></i></a>
+        <a *ngIf="!settings?.instagram_link" href="#"><i class="pi pi-instagram"></i></a>
+        <a href="#"><i class="pi pi-twitter"></i></a>
+      </div>
+      <p>&copy; {{ currentYear }} {{ settings?.business_name || 'Nutribox' }}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

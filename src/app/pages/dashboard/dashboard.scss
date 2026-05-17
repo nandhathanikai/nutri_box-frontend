@@ -1,0 +1,383 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  CUSTOMER DASHBOARD — light editorial, mobile-first
+// ─────────────────────────────────────────────────────────────────────────────
+
+.dashboard-container {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  font-family: var(--font-family);
+
+  @media (max-width: 640px) {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+}
+
+.header-section {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    font-size: clamp(1.5rem, 4.5vw, 2.25rem);
+    font-weight: 800;
+    color: var(--heading-green);
+    letter-spacing: -0.7px;
+    margin: 0 0 0.3rem;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin: 0;
+
+    @media (max-width: 640px) { font-size: 0.92rem; }
+  }
+}
+
+// ── Renewal alert ────────────────────────────────────────────────────────────
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--color-amber-bg);
+  border: 1px solid var(--color-amber-border);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.25rem;
+
+  .alert-content { display: flex; align-items: center; gap: 0.75rem; }
+  i { color: var(--color-amber); font-size: 1.2rem; }
+  .alert-text { color: #7a4000; font-size: 0.9rem; line-height: 1.4; }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    .alert-content { align-items: flex-start; }
+  }
+}
+
+// ── Sections ─────────────────────────────────────────────────────────────────
+
+.section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 0.75rem;
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--heading-green);
+    letter-spacing: -0.2px;
+    margin: 0;
+  }
+}
+
+.section-help {
+  margin: 0 0 1rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+
+  strong { color: var(--text-main); }
+}
+
+.text-link {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-green);
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover { background: var(--green-light); }
+  &.danger { color: var(--color-red); }
+  &.danger:hover { background: var(--color-red-bg); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+// ── Plan summary ─────────────────────────────────────────────────────────────
+
+.plan-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+
+  @media (max-width: 720px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.plan-summary-item {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  .label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+}
+
+// ── Weekly menu image ────────────────────────────────────────────────────────
+
+.weekly-menu-figure {
+  display: block;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  img { display: block; width: 100%; height: auto; object-fit: cover; }
+
+  &:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+}
+
+.weekly-menu-placeholder {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+
+  i { font-size: 2rem; opacity: 0.5; color: var(--primary-green); margin-bottom: 0.5rem; display: block; }
+  p { margin: 0; font-size: 0.9rem; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  STATE 1 — fresh / no subscription
+// ─────────────────────────────────────────────────────────────────────────────
+
+.grace-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-amber-bg);
+  border: 1px solid var(--color-amber-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+
+  &.grace-banner--urgent {
+    background: var(--color-red-bg);
+    border-color: #fca5a5;
+
+    .grace-banner-icon i { color: var(--color-red); }
+    .grace-banner-text strong { color: #991b1b; }
+  }
+
+  .grace-banner-icon i {
+    font-size: 1.5rem;
+    color: var(--color-amber);
+  }
+
+  .grace-banner-text {
+    flex: 1;
+    line-height: 1.45;
+
+    strong {
+      display: block;
+      color: #7a4000;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+    text-align: center;
+    .grace-banner-icon { margin-bottom: 0.2rem; }
+  }
+}
+
+.welcome-hero {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 3rem 2rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+
+  h1 {
+    font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+    color: var(--heading-green);
+    letter-spacing: -0.8px;
+    margin: 0 0 0.75rem;
+  }
+
+  .welcome-sub {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+    margin: 0 auto 1.75rem;
+    max-width: 480px;
+
+    @media (max-width: 640px) { font-size: 0.92rem; }
+  }
+
+  .welcome-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  @media (max-width: 640px) {
+    padding: 2rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.benefit-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  transition: box-shadow 0.2s, transform 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+  i {
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 0.7rem;
+    display: block;
+  }
+
+  h3 {
+    font-size: 1rem;
+    color: var(--heading-green);
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.2px;
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  STATE 2 — lapsed (had a sub before)
+// ─────────────────────────────────────────────────────────────────────────────
+
+.lapsed-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+
+  .lapsed-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--primary-green);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    i { font-size: 1.5rem; }
+  }
+
+  .lapsed-text {
+    flex: 1;
+
+    h2 {
+      font-size: 1.2rem;
+      color: var(--heading-green);
+      letter-spacing: -0.3px;
+      margin: 0 0 0.3rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+.lapsed-credits-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary-green);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+
+  &:hover { background: var(--green-light); }
+}

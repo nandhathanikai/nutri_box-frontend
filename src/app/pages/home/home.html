@@ -1,0 +1,213 @@
+<div class="home-page">
+
+  <!-- HERO SECTION -->
+  <section class="hero" #parallaxHero>
+    <div class="hero-bg" [style.transform]="'translateY(' + heroParallax + 'px)'">
+      <video autoplay muted loop playsinline class="hero-video">
+        <source src="background_video.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-content container" [style.transform]="'translateY(' + heroTextY + 'px)'" [style.opacity]="heroOpacity">
+      <div class="hero-badge">🌿 Premium Wellness Meals</div>
+      <h1>Eat Well.<br><span class="gradient-text">Live Beautifully.</span></h1>
+      <p>Personalized meal plans crafted by nutritionists. Fresh ingredients, delivered daily.</p>
+      <div class="hero-actions">
+        <p-button label="Start Your Journey" icon="pi pi-arrow-right" iconPos="right" routerLink="/login" styleClass="hero-btn-primary"></p-button>
+        <p-button label="Explore Plans" [outlined]="true" routerLink="/plans" styleClass="hero-btn-secondary"></p-button>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- SHOWCASE SECTION (Using local assets as beautiful cards) -->
+  <section class="showcase py-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Every Box Is A <span class="text-green">Statement</span></h2>
+        <p>Curated with care. Designed for your health goals.</p>
+      </div>
+      <div class="showcase-grid">
+        <div class="showcase-card showcase-card--large">
+          <img src="meal_bowl.png" alt="Premium Nutribox Meal">
+          <div class="showcase-overlay">
+            <h3>Balanced Protein Bowl</h3>
+            <p>Grilled chicken, avocado, quinoa & roasted vegetables</p>
+          </div>
+        </div>
+        <div class="showcase-card-stack">
+          <div class="showcase-card">
+            <img src="fresh_spread.png" alt="Fresh Vegetables">
+            <div class="showcase-overlay">
+              <h3>The Complete Harvest</h3>
+              <p>Farm-fresh produce every morning</p>
+            </div>
+          </div>
+          <div class="showcase-card showcase-card--accent">
+            <img src="veggie_crate.png" alt="Garden Fresh">
+            <div class="showcase-overlay">
+              <h3>The Crate</h3>
+              <p>Each delivery box packed with seasonal goodness</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works py-section bg-off-white">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p>Healthy eating in three simple steps</p>
+      </div>
+      <div class="steps-grid">
+        @for (step of howItWorks; track step.step) {
+          <div class="step-card">
+            <div class="step-number">{{ step.step }}</div>
+            <div class="step-icon-wrap">
+              <i [class]="step.icon"></i>
+            </div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- PARALLAX BANNER -->
+  <section class="parallax-banner" #parallaxBanner>
+    <div class="pb-bg">
+      <video autoplay muted loop playsinline>
+        <source src="vegetables_video.mp4" type="video/mp4">
+      </video>
+      <div class="pb-overlay"></div>
+    </div>
+    <div class="container pb-content">
+      <div class="pb-badge">Why Nutribox</div>
+      <h2>The freshest ingredients,<br>the smartest nutrition.</h2>
+      <p>We partner with local organic farms to bring you ingredients harvested within 24 hours of preparation. Every Nutribox is a curated experience of taste and health.</p>
+      <div class="pb-features">
+        <div class="pb-feat"><i class="pi pi-check-circle"></i>100% Organic Sourcing</div>
+        <div class="pb-feat"><i class="pi pi-check-circle"></i>Chef-crafted meals</div>
+        <div class="pb-feat"><i class="pi pi-check-circle"></i>Nutritionist approved</div>
+        <div class="pb-feat"><i class="pi pi-check-circle"></i>Zero preservatives</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANS SECTION -->
+  <section class="plans-section py-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Choose Your Plan</h2>
+        <p>Flexible subscriptions that fit your lifestyle and goals.</p>
+      </div>
+
+      @if (plansLoading) {
+        <div class="plans-grid">
+          @for (i of [1,2,3]; track i) {
+            <div class="plan-card">
+              <p-skeleton width="60%" height="0.85rem" styleClass="mb-3"></p-skeleton>
+              <p-skeleton width="80%" height="2.4rem" styleClass="mb-2"></p-skeleton>
+              <p-skeleton width="70%" height="0.85rem" styleClass="mb-4"></p-skeleton>
+              <p-skeleton width="100%" height="0.8rem" styleClass="mb-2"></p-skeleton>
+              <p-skeleton width="90%" height="0.8rem" styleClass="mb-2"></p-skeleton>
+              <p-skeleton width="80%" height="0.8rem" styleClass="mb-4"></p-skeleton>
+              <p-skeleton width="50%" height="2.4rem"></p-skeleton>
+            </div>
+          }
+        </div>
+      } @else if (plansLoadFailed) {
+        <div class="plans-error">
+          <i class="pi pi-exclamation-circle"></i>
+          <p>We couldn't load our plans right now.</p>
+          <button class="retry-btn" (click)="retryLoadPlans()">
+            <i class="pi pi-refresh"></i> Try again
+          </button>
+        </div>
+      } @else if (featuredPlans.length === 0) {
+        <p class="plans-empty">Our chefs are finalising this season's plans. Check back soon.</p>
+      } @else {
+        <div class="plans-grid">
+          @for (plan of featuredPlans; track plan.slug || plan.name) {
+            <div class="plan-card" [class.plan-card--popular]="plan.popular">
+              @if (plan.popular) {
+                <div class="popular-badge">⭐ Most Popular</div>
+              }
+              <div class="plan-name">{{ plan.name }}</div>
+              <div class="plan-price">₹{{ plan.price | number }}<span>/mo</span></div>
+              <div class="plan-cal">{{ plan.subtitle }}</div>
+              <ul class="plan-features">
+                @for (f of plan.features; track f) {
+                  <li><i class="pi pi-check"></i>{{ f }}</li>
+                }
+              </ul>
+              <p-button [label]="plan.popular ? 'Get Started' : 'Choose Plan'" [outlined]="!plan.popular" routerLink="/plans" styleClass="plan-btn"></p-button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="testimonials py-section bg-off-white">
+    <div class="container">
+      <div class="section-header">
+        <h2>Real People. Real Results.</h2>
+        <p>Customer reviews appear here as soon as they're submitted.</p>
+      </div>
+
+      @if (reviews.length > 0) {
+        <div class="testimonials-grid">
+          @for (t of reviews; track t.id) {
+            <div class="testimonial-card">
+              <div class="quote-icon">"</div>
+              <p class="t-text">{{ t.text }}</p>
+              <div class="t-author">
+                <div class="t-avatar">{{ t.avatar }}</div>
+                <div class="t-info">
+                  <strong>{{ t.name }}</strong>
+                  <span>{{ t.role }}</span>
+                </div>
+                <div class="t-rating">
+                  @for (_ of [].constructor(t.rating); track $index) { ★ }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="testimonials-grid">
+          <div class="testimonial-card review-placeholder">
+            <i class="pi pi-comments placeholder-icon"></i>
+            <h3>No reviews yet</h3>
+            <p>Be the first to share your Nutribox experience. Real customer reviews will show up here.</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-section">
+    <div class="container cta-content">
+      <div class="cta-bag">
+        <img src="hero_bag.png" alt="Nutribox Bag">
+      </div>
+      <div class="cta-text">
+        <h2>Ready to transform your diet?</h2>
+        <p>Start with a 7-day trial — no commitments, cancel anytime.</p>
+      </div>
+    </div>
+  </section>
+
+</div>

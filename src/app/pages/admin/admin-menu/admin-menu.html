@@ -1,0 +1,58 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="menu-page">
+      <div class="page-header">
+        <h1 class="page-title">Menu Management</h1>
+        <p-button label="Add Menu" icon="pi pi-plus" (onClick)="openNew()" styleClass="p-button-success" [disabled]="isLoading"></p-button>
+      </div>
+
+      <!-- Custom Food Loader -->
+      <div class="loader-container" *ngIf="isLoading">
+        <div class="loader-wrapper">
+          <span class="loader"></span>
+        </div>
+        <div class="loading-text">Cooking up menus...</div>
+      </div>
+
+      <!-- Main Data Table -->
+      <div class="card" *ngIf="!isLoading">
+        <p-table [value]="menus" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Weekly (INR)</th>
+              <th>Monthly (INR)</th>
+              <th>W-Del (INR)</th>
+              <th>M-Del (INR)</th>
+              <th style="width: 10rem">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-menu>
+            <tr>
+              <td>
+                <img *ngIf="menu.menu_image" [src]="menu.menu_image" [alt]="menu.menu_name" class="menu-img-preview shadow-2" />
+                <div *ngIf="!menu.menu_image" class="no-img">No Image</div>
+              </td>
+              <td>{{ menu.menu_name }}</td>
+              <td>{{ menu.weekly_price ? (menu.weekly_price | currency:'INR') : 'N/A' }}</td>
+              <td>{{ menu.monthly_price ? (menu.monthly_price | currency:'INR') : 'N/A' }}</td>
+              <td>{{ menu.weekly_delivery_charge ? (menu.weekly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
+              <td>{{ menu.monthly_delivery_charge ? (menu.monthly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
+              <td>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editMenu(menu)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteMenu(menu)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center p-4">No menus found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Menu Dialog via nested Component -->
+      <app-add-dish-form *ngIf="menuDialog" (dishSaved)="onDishSaved()" (closeDialog)="hideDialog()"></app-add-dish-form>
+    </div>

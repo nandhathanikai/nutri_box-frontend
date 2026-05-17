@@ -1,0 +1,174 @@
+<p-toast></p-toast>
+<div class="plans-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="plans-header">
+    <h1>Choose Your Plan</h1>
+    <p class="plans-subtitle">Building a healthier habit starts here. Pick your tier, diet, and schedule.</p>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="plans-container">
+    <div class="tier-grid">
+      <p-skeleton *ngFor="let i of [1,2,3,4]" height="160px" borderRadius="16px"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- ── Main Selector ──────────────────────────────────────────────── -->
+  <div *ngIf="!isLoading" class="plans-container">
+
+    <!-- STEP 1: Choose Tier -->
+    <div class="step-section">
+      <div class="step-label"><span class="step-number">1</span> Choose your tier</div>
+      <div class="tier-grid">
+        @for (tier of tiers; track tier.id) {
+          <div class="tier-card" [ngClass]="getTierClass(tier.slug)"
+            [class.tier-card--selected]="selectedTier?.id === tier.id"
+            (click)="selectTier(tier)">
+            <div class="tier-card-icon">
+              <i class="pi" [ngClass]="getTierIcon(tier.slug)"></i>
+            </div>
+            <div class="tier-card-body">
+              <h3 class="tier-card-name">{{ tier.name }}</h3>
+              <p class="tier-card-from" *ngIf="tier.pricing?.length">
+                from <strong>₹{{ getStartingPrice(tier) }}</strong>/week
+              </p>
+              <div class="tier-diet-tags">
+                <span class="tier-diet-tag" *ngIf="tier.diet_support !== 'nonveg_only'">🌿 Veg</span>
+                <span class="tier-diet-tag" *ngIf="tier.diet_support !== 'veg_only'">🍖 Non-Veg</span>
+              </div>
+            </div>
+            <div class="tier-card-check" *ngIf="selectedTier?.id === tier.id">
+              <i class="pi pi-check-circle"></i>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- STEP 2: Diet Type (shown after tier selected) -->
+    <div class="step-section" *ngIf="selectedTier" [@stepIn]>
+      <div class="step-label"><span class="step-number">2</span> Choose diet type</div>
+      <div class="option-grid">
+        @for (opt of getDietOptionsForTier(selectedTier); track opt.value) {
+          <div class="option-card"
+            [class.option-card--selected]="selectedDiet === opt.value"
+            (click)="selectDiet(opt.value)">
+            <span class="option-label">{{ opt.label }}</span>
+            <i class="pi pi-check option-check" *ngIf="selectedDiet === opt.value"></i>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- STEP 3: Meal Slot (shown after diet selected) -->
+    <div class="step-section" *ngIf="selectedDiet">
+      <div class="step-label"><span class="step-number">3</span> Choose meal slot</div>
+      <div class="option-grid">
+        @for (opt of slotOptions; track opt.value) {
+          <div class="option-card option-card--wide"
+            [class.option-card--selected]="selectedSlot === opt.value"
+            (click)="selectSlot(opt.value)">
+            <span class="option-label">{{ opt.label }}</span>
+            <span class="option-desc">{{ opt.desc }}</span>
+            <i class="pi pi-check option-check" *ngIf="selectedSlot === opt.value"></i>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- STEP 4: Duration (shown after slot selected) -->
+    <div class="step-section" *ngIf="selectedSlot">
+      <div class="step-label"><span class="step-number">4</span> Choose duration</div>
+      <div class="option-grid option-grid--2col">
+        @for (opt of durationOptions; track opt.value) {
+          <div class="option-card option-card--wide"
+            [class.option-card--selected]="selectedDuration === opt.value"
+            (click)="selectDuration(opt.value)">
+            <span class="option-label">{{ opt.label }}</span>
+            <span class="option-desc">{{ opt.desc }}</span>
+            <i class="pi pi-check option-check" *ngIf="selectedDuration === opt.value"></i>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── Price Breakdown ──────────────────────────────────────────── -->
+    <div class="price-breakdown-card" *ngIf="isAllSelected()">
+
+      <div class="price-breakdown-loading" *ngIf="isComputingPrice">
+        <i class="pi pi-spin pi-spinner"></i> Calculating...
+      </div>
+
+      <div *ngIf="!isComputingPrice && computedPrice" class="price-breakdown-content">
+        <div class="breakdown-header">
+          <h2 class="breakdown-plan-name">{{ computedPrice.display_name }}</h2>
+          <span class="breakdown-badge">
+            {{ selectedDuration === 'weekly' ? 'Weekly Plan' : 'Monthly Plan' }}
+          </span>
+        </div>
+
+        <!-- Summary chips -->
+        <div class="breakdown-chips">
+          <span class="chip">
+            <i class="pi pi-tag"></i>
+            {{ selectedTier?.name }}
+          </span>
+          <span class="chip">
+            <i class="pi pi-heart"></i>
+            {{ selectedDiet === 'veg' ? '🌿 Veg' : '🍖 Non-Veg' }}
+          </span>
+          <span class="chip">
+            <i class="pi pi-clock"></i>
+            {{ selectedSlot === 'both' ? 'Breakfast + Dinner' : selectedSlot === 'breakfast_only' ? 'Breakfast' : 'Dinner' }}
+          </span>
+          <span class="chip chip-meals">
+            <i class="pi pi-check-circle"></i>
+            {{ getMealCount() }} meals
+          </span>
+        </div>
+
+        <div class="breakdown-lines">
+          <div class="breakdown-line">
+            <span>₹{{ computedPrice.price_per_meal }} × {{ computedPrice.meal_count }} meals</span>
+            <span class="breakdown-amount">₹{{ computedPrice.subtotal }}</span>
+          </div>
+          <div class="breakdown-line">
+            <span>Delivery charge</span>
+            <span class="breakdown-amount">{{ computedPrice.delivery_charge === 0 ? 'Free 🎉' : '₹' + computedPrice.delivery_charge }}</span>
+          </div>
+          <div class="breakdown-divider"></div>
+          <div class="breakdown-line breakdown-total">
+            <span>Total to Pay</span>
+            <span class="breakdown-total-amount">₹{{ computedPrice.total }}</span>
+          </div>
+          <div class="breakdown-duration-note">
+            per {{ selectedDuration === 'weekly' ? 'week' : 'month' }}
+          </div>
+        </div>
+
+        <!-- Razorpay Pay Button (docks to bottom on mobile via sticky-cta) -->
+        <app-sticky-cta>
+          <button
+            id="pay-now-btn"
+            class="pay-btn"
+            (click)="pay()"
+            [disabled]="!isAllSelected() || isPaymentLoading">
+            @if (isPaymentLoading) {
+              <i class="pi pi-spin pi-spinner"></i>&nbsp; Processing…
+            } @else {
+              <i class="pi pi-lock"></i>&nbsp;
+              Pay ₹{{ computedPrice.total }} Securely
+            }
+          </button>
+        </app-sticky-cta>
+
+        <p class="powered-by">
+          <img src="https://razorpay.com/favicon.ico" width="14" height="14" alt="Razorpay" />
+          Secured by Razorpay · Test mode
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /plans-container -->
+</div>

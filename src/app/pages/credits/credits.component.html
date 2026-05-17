@@ -1,0 +1,67 @@
+<div class="credits-container">
+  <div class="credits-header">
+    <h1>Your Credits</h1>
+    <p>Earn bonus meals by cancelling before the 6 PM cutoff. Delivered after your plan ends.</p>
+  </div>
+
+  <div class="balance-card" *ngIf="balance && !loading">
+    <div class="balance-item pending">
+      <h2>{{ balance.pending }}</h2>
+      <span>Pending</span>
+      <p>Waiting for current plan to end</p>
+    </div>
+    <div class="balance-item scheduled">
+      <h2>{{ balance.scheduled }}</h2>
+      <span>Scheduled</span>
+      <p>Bonus meals coming soon</p>
+    </div>
+    <div class="balance-item delivered">
+      <h2>{{ balance.delivered }}</h2>
+      <span>Delivered</span>
+      <p>Bonus meals received ✓</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <p>Loading your credits...</p>
+  </div>
+
+  <div class="error-state" *ngIf="!loading && loadError">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>{{ loadError }}</p>
+    <button class="retry-btn" (click)="fetchCredits()">
+      <i class="pi pi-refresh"></i> Try again
+    </button>
+  </div>
+
+  <div class="history-section" *ngIf="!loading">
+    <h3>Credit History</h3>
+    <div class="timeline">
+      <div class="timeline-item" *ngFor="let credit of credits">
+        <div class="timeline-date">{{ credit.original_delivery_date | date:'MMM d, y' }}</div>
+        <div class="timeline-content">
+          <div class="content-header">
+            <span class="session" [ngClass]="'session-' + credit.session?.toLowerCase()">{{ sessionLabel(credit.session) }}</span>
+            <span class="badge" [ngClass]="'badge-' + credit.status">{{ credit.status | uppercase }}</span>
+            <span class="badge badge-manual" *ngIf="credit.is_manual">MANUAL</span>
+          </div>
+          <p class="description">
+            {{ credit.credit_days }} day credit for cancellation
+          </p>
+          <p class="status-detail" *ngIf="credit.status === 'pending'">
+            ⏳ Will be scheduled after your plan ends on {{ credit.plan_end_date | date:'MMM d, y' }}
+          </p>
+          <p class="status-detail scheduled-detail" *ngIf="credit.status === 'scheduled'">
+            📅 Delivering on <strong>{{ credit.delivery_on | date:'MMM d, y' }}</strong>
+          </p>
+          <p class="status-detail delivered-detail" *ngIf="credit.status === 'delivered'">
+            ✅ Delivered on {{ credit.delivery_on | date:'MMM d, y' }}
+          </p>
+        </div>
+      </div>
+      <div class="no-history" *ngIf="credits.length === 0">
+        You don't have any credit history yet. Cancel a session before 6 PM to earn credits!
+      </div>
+    </div>
+  </div>
+</div>

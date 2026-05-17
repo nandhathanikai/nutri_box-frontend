@@ -1,0 +1,11 @@
+<div class="section-tabs-container">
+  <ul class="section-tabs">
+    @for (tab of tabs; track tab.id) {
+      <li class="section-tab" 
+          [class.active]="tab.id === activeId" 
+          (click)="selectTab(tab.id)">
+        {{ tab.label }}
+      </li>
+    }
+  </ul>
+</div>

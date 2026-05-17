@@ -1,0 +1,197 @@
+<p-dialog [visible]="true" [modal]="true" [closable]="false" [draggable]="false" [resizable]="false" [style]="{width: '560px'}" styleClass="premium-light-modal p-fluid">
+  
+  <ng-template pTemplate="header">
+    <div class="modal-header-content w-full flex justify-content-between align-items-center">
+      <div class="header-text">
+        <h2 class="modal-title m-0">Create New Dish</h2>
+        <span class="modal-subtitle mt-1 block">Fill in the dish details below</span>
+      </div>
+      <button class="close-btn" (click)="onCancel()" type="button">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="dishForm" class="dish-form">
+
+    <!-- SECTION 1: BASIC INFO -->
+    <div class="form-section">
+      <div class="section-title-row">
+        <span class="section-title">Basic Info</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Dish Name <span class="req">*</span></label>
+        <p-iconField iconPosition="left">
+          <p-inputIcon styleClass="pi pi-tag"></p-inputIcon>
+          <input type="text" pInputText formControlName="name" placeholder="e.g. Classic Chicken Salad" class="w-full" />
+        </p-iconField>
+        <small class="err" *ngIf="dishForm.get('name')?.touched && dishForm.get('name')?.invalid">Dish name is required.</small>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">Tier <span class="req">*</span></label>
+          <div *ngIf="isLoadingTiers">
+            <p-skeleton height="38px" borderRadius="6px"></p-skeleton>
+          </div>
+          <div *ngIf="tiersLoadError" class="err">Could not load tiers. <span class="retry-link" (click)="loadTiers()">Retry</span></div>
+          <p-select
+            *ngIf="!isLoadingTiers && !tiersLoadError"
+            [options]="tiers"
+            formControlName="tier_id"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select a tier"
+            appendTo="body"
+            class="w-full">
+            <ng-template let-item pTemplate="item">
+              <div class="tier-option">
+                <span class="tier-name">{{ item.label }}</span>
+                <span class="tier-price">{{ item.sub }}</span>
+              </div>
+            </ng-template>
+            <ng-template let-item pTemplate="selectedItem">
+              <div class="tier-option" *ngIf="item">
+                <span class="tier-name">{{ item.label }}</span>
+                <span class="tier-price">{{ item.sub }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+          <small class="err" *ngIf="dishForm.get('tier_id')?.touched && dishForm.get('tier_id')?.invalid">Tier is required.</small>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Diet Type <span class="req">*</span></label>
+          <p-selectButton
+            [options]="dietTypes"
+            formControlName="diet_type"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="diet-select-btn">
+            <ng-template let-item pTemplate="item">
+              <div class="diet-option">
+                <span class="diet-dot" [ngStyle]="{'background': item.value === 'veg' ? '#4ade80' : '#f87171'}"></span>
+                <span>{{ item.label }}</span>
+              </div>
+            </ng-template>
+          </p-selectButton>
+          <small class="err" *ngIf="dishForm.get('diet_type')?.touched && dishForm.get('diet_type')?.invalid">Diet type is required.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: MEAL SLOTS -->
+    <div class="form-section">
+      <div class="section-title-row">
+        <span class="section-title">Meal Slots</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">
+          Available For <span class="req">*</span>
+          <span class="optional-hint">(select all that apply)</span>
+        </label>
+        <div class="meal-slots-grid">
+          @for (m of mealSlots; track m.value) {
+            <div
+              class="meal-slot-card"
+              [class.active]="dishForm.get('meal_slot')?.value?.includes(m.value)"
+              (click)="toggleMealSlot(m.value)">
+              <div class="slot-check">
+                <i class="pi pi-check" *ngIf="dishForm.get('meal_slot')?.value?.includes(m.value)"></i>
+              </div>
+              <span class="slot-label">{{ m.label }}</span>
+            </div>
+          }
+        </div>
+        <small class="err" *ngIf="dishForm.get('meal_slot')?.touched && dishForm.get('meal_slot')?.invalid">
+          At least one slot is required.
+        </small>
+      </div>
+    </div>
+
+    <!-- SECTION 3: ADDITIONAL DETAILS -->
+    <div class="form-section">
+      <div class="section-title-row">
+        <span class="section-title">Additional Details</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">Calories <span class="optional-hint">(optional)</span></label>
+          <p-inputGroup>
+            <input type="number" pInputText formControlName="calories" placeholder="e.g. 450" min="0" />
+            <p-inputGroupAddon>kcal</p-inputGroupAddon>
+          </p-inputGroup>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Status</label>
+          <div class="status-card">
+            <div class="status-text">
+              <span class="status-title">Active</span>
+              <span class="status-sub">Visible to customers</span>
+            </div>
+            <p-toggleSwitch formControlName="is_active"></p-toggleSwitch>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Description <span class="optional-hint">(optional)</span></label>
+        <textarea
+          pTextarea
+          formControlName="description"
+          rows="3"
+          [autoResize]="true"
+          placeholder="Tell us about the ingredients and macros..."
+          class="w-full">
+        </textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Dish Image <span class="optional-hint">(optional)</span></label>
+
+        <div class="upload-zone"
+          *ngIf="!imagePreview"
+          [class.drag-over]="isDragging"
+          (click)="fileInput.click()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)">
+          <input type="file" #fileInput accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+          <i class="pi pi-cloud-upload upload-icon"></i>
+          <span class="upload-title">Click to browse or drag image</span>
+          <span class="upload-sub">PNG, JPG — Max 5MB</span>
+        </div>
+
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Dish preview" class="preview-img" />
+          <div class="preview-meta">
+            <span class="file-name">{{ selectedFile?.name }}</span>
+            <span class="file-size">{{ fileSizeStr }}</span>
+            <button class="remove-btn" type="button" (click)="removePreview()">
+              <i class="pi pi-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="form-footer">
+      <button pButton label="Discard" class="btn-cancel" (click)="onCancel()" [disabled]="isSaving"></button>
+      <button pButton class="btn-save" [disabled]="dishForm.invalid || isLoadingTiers || isSaving" (click)="saveDish()">
+        <p-progressSpinner *ngIf="isSaving" strokeWidth="5" styleClass="w-1rem h-1rem mr-2"></p-progressSpinner>
+        <span>{{ isSaving ? 'Saving...' : 'Save Changes' }}</span>
+      </button>
+    </div>
+  </ng-template>
+
+</p-dialog>

@@ -1,0 +1,113 @@
+<div class="todays-orders-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-truck"></i> Today's Orders</h1>
+        <p>{{ displayDate }} — meals scheduled to go out today and any customer skips.</p>
+      </div>
+      <button class="btn-refresh" (click)="load()" [disabled]="loading">
+        @if (loading) {
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i class="pi pi-refresh"></i>
+        }
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (data?.is_weekend) {
+    <div class="info-banner">
+      <i class="pi pi-info-circle"></i>
+      Today is a weekend — no scheduled deliveries.
+    </div>
+  }
+
+  <div class="table-card">
+    <div class="toolbar">
+      <div class="tab-group">
+        <button
+          *ngFor="let tab of tabs"
+          class="tab-btn"
+          [class.active]="activeTab === tab"
+          (click)="setTab(tab)"
+        >
+          {{ tab }}
+          <span class="tab-count">{{ tab === 'Orders' ? ordersCount : skippedCount }}</span>
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by customer, tier, session..."
+          [(ngModel)]="searchQuery"
+        />
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Tier</th>
+            <th>Diet</th>
+            <th>Address</th>
+            @if (activeTab === 'Skipped') {
+              <th>Skipped At</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of rows">
+            <td>
+              <span class="session-badge" [class]="sessionBadgeClass(r.session_key)">
+                @if (r.session_key === 'BF') {
+                  <i class="pi pi-sun"></i>
+                } @else if (r.session_key === 'DINNER') {
+                  <i class="pi pi-moon"></i>
+                }
+                {{ r.session_label }}
+              </span>
+            </td>
+            <td class="name-cell">
+              <div class="name-stack">
+                <span>{{ r.customer_name }}</span>
+                <span class="email-line">{{ r.customer_email }}</span>
+              </div>
+            </td>
+            <td class="phone-cell">{{ r.customer_phone }}</td>
+            <td>{{ r.tier_name }}</td>
+            <td>
+              <span class="diet-badge" [class]="dietBadgeClass(r.diet_type)">
+                {{ r.diet_type }}
+              </span>
+            </td>
+            <td class="address-cell" [title]="r.address">{{ r.address }}</td>
+            @if (activeTab === 'Skipped') {
+              <td>{{ r.cancelled_at | date:'short' }}</td>
+            }
+          </tr>
+          <tr *ngIf="rows.length === 0 && !loading">
+            <td [attr.colspan]="activeTab === 'Skipped' ? 7 : 6" class="empty-state">
+              @if (activeTab === 'Orders') {
+                No orders to send out today.
+              } @else {
+                No customers have skipped today.
+              }
+            </td>
+          </tr>
+          <tr *ngIf="loading && !data">
+            <td [attr.colspan]="activeTab === 'Skipped' ? 7 : 6" class="empty-state">
+              <i class="pi pi-spin pi-spinner"></i> Loading…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="dashboard-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-th-large"></i> Dashboard</h1>
+        <p>Overview of revenue, orders, and customer activity.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Error state -->
+  <div *ngIf="loadError" class="dashboard-error-banner">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>We couldn't load the dashboard stats.</span>
+    <button class="retry-btn" (click)="loadStats()"><i class="pi pi-refresh"></i> Retry</button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid" *ngIf="!loadError">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-top">
+        <i [class]="stat.icon" class="stat-icon"></i>
+        <span class="stat-change" [class.positive]="stat.positive" [class.negative]="!stat.positive">
+          <i class="pi" [class.pi-arrow-up-right]="stat.positive" [class.pi-arrow-up-right]="!stat.positive"></i>
+          {{ stat.change }}
+        </span>
+      </div>
+      <div class="stat-value">{{ stat.value }}</div>
+      <div class="stat-label">{{ stat.label }}</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3 class="chart-title">Revenue Trend</h3>
+      <div class="chart-wrapper">
+        <canvas #revenueChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">Cancellations by Session</h3>
+      <div class="chart-wrapper">
+        <canvas #cancellationsChart></canvas>
+      </div>
+    </div>
+  </div>
+</div>

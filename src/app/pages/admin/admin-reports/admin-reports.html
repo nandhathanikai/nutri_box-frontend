@@ -1,0 +1,92 @@
+<div class="rep-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-chart-bar"></i> Reports & Analytics</h1>
+        <p>Revenue trends, customer segments, and business performance metrics.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid c4">
+    <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value">{{ stats.revenue }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">{{ stats.totalOrders | number }}</div></div>
+    <div class="stat-card"><div class="stat-label">New Customers</div><div class="stat-value">{{ stats.newCustomers | number }}</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Order Value</div><div class="stat-value">{{ stats.aov }}</div></div>
+  </div>
+
+  <!-- Period Filter -->
+  <div class="toolbar">
+    <div class="ftabs">
+      <button class="ftab" [class.active]="period === 'week'" (click)="setPeriod('week')">This Week</button>
+      <button class="ftab" [class.active]="period === 'month'" (click)="setPeriod('month')">Month</button>
+      <button class="ftab" [class.active]="period === 'quarter'" (click)="setPeriod('quarter')">Quarter</button>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-ghost" *ngIf="isLoading"><i class="pi pi-spin pi-spinner"></i> Loading...</button>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="charts-grid" *ngIf="!isLoading">
+    <!-- Bar Chart -->
+    <div class="chart-card full-width">
+      <h3>Revenue Overview</h3>
+      <p>Revenue breakdown by period</p>
+      <div class="barchart">
+        <div
+          class="bar"
+          *ngFor="let v of data.values"
+          [style.height.px]="barHeight(v)"
+          [title]="'₹' + (v | number)"
+        >
+          <span class="bar-val">₹{{ fmtK(v) }}</span>
+        </div>
+      </div>
+      <div class="bar-labels">
+        <span class="bar-label" *ngFor="let l of data.labels">{{ l }}</span>
+      </div>
+    </div>
+
+    <!-- Top Items -->
+    <div class="chart-card">
+      <h3>Top Menu Items</h3>
+      <p>By orders this period</p>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Item</th><th>Orders</th><th>Revenue</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of stats.topItems; let i = index">
+              <td class="muted">{{ i + 1 }}</td>
+              <td class="sm-text">{{ item.name }}</td>
+              <td class="bold">{{ item.orders }}</td>
+              <td class="green-text bold">{{ item.revenue }}</td>
+            </tr>
+            <tr *ngIf="stats.topItems.length === 0">
+              <td colspan="4" class="empty text-center">No orders this period</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Customer Segments -->
+    <div class="chart-card">
+      <h3>Customer Segments</h3>
+      <p>By order frequency</p>
+      <div class="segments">
+        <div class="seg-item" *ngFor="let s of stats.segments">
+          <div class="seg-header">
+            <span>{{ s.label }}</span>
+            <span class="bold">{{ s.count }} ({{ s.pct }}%)</span>
+          </div>
+          <div class="seg-bar">
+            <div class="seg-fill" [style.width.%]="s.pct" [style.background]="s.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

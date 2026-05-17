@@ -1,0 +1,159 @@
+<div class="login-shell">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Left: Immersive Visual Panel -->
+  <div class="visual-panel">
+    <!-- Full-bleed background image -->
+    <img src="login_page.png" alt="Nutribox Meal" class="panel-bg-img" />
+    <!-- Dark gradient overlay -->
+    <div class="panel-overlay"></div>
+
+    <div class="visual-header">
+      <span class="logo-mark">N</span>
+      <span class="brand-name">Nutribox</span>
+    </div>
+
+    <div class="visual-body">
+      <div class="tagline-block">
+        <div class="tagline-line"></div>
+        <p class="tagline">Eat with intention.<br>Live with precision.</p>
+      </div>
+      <p class="tagline-sub">
+        Premium meal subscriptions, Delivered fresh. Every day.
+      </p>
+    </div>
+  </div>
+
+  <!-- Right: Form Panel -->
+  <div class="form-panel">
+    <div class="form-inner">
+
+      <!-- Mobile logo -->
+      <div class="mobile-logo">
+        <span class="logo-mark-sm">N</span>
+        <span>Nutribox</span>
+      </div>
+
+      <div class="form-heading">
+        <h1>{{ mode === 'login' ? 'Welcome back' : 'Reset password' }}</h1>
+        <p *ngIf="mode === 'login'">Sign in to continue your wellness journey.</p>
+        <p *ngIf="mode === 'reset'">Enter the OTP we sent and choose a new password.</p>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form *ngIf="mode === 'login'" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <i class="pi pi-envelope"></i>
+            <input id="email" type="email" pInputText formControlName="email" placeholder="hello@example.com" />
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label-row">
+            <label for="password">Password</label>
+            <button
+              type="button"
+              class="forgot-btn"
+              [disabled]="!isEmailValid || otpRequested || isLoading"
+              (click)="onForgotPassword()">
+              Forgot password?
+            </button>
+          </div>
+          <div class="input-wrap">
+            <i class="pi pi-lock"></i>
+            <p-password id="password" formControlName="password" [feedback]="false" [toggleMask]="true"
+              placeholder="••••••••" styleClass="w-full" inputStyleClass="w-full"></p-password>
+          </div>
+        </div>
+
+        <p-button type="submit" label="Sign In" icon="pi pi-arrow-right" iconPos="right" [disabled]="loginForm.invalid"
+          [loading]="isLoading" styleClass="w-full submit-btn"></p-button>
+
+      </form>
+
+      <p *ngIf="mode === 'login'" class="signup-cta">
+        New here? <a routerLink="/signup" class="signup-link">Create an account</a>
+      </p>
+
+      <!-- RESET FORM (inline, replaces login form) -->
+      <div *ngIf="mode === 'reset'" class="reset-block">
+
+        <div class="otp-banner">
+          We have sent an OTP to <strong>{{ resetEmail }}</strong>.
+          <br>
+          <small>The OTP expires in <strong>5 minutes</strong>. If you don't see the email, please check your <strong>Spam</strong> folder.</small>
+        </div>
+
+        <!-- STEP 1: Verify OTP -->
+        <form *ngIf="resetStep === 'otp'" (ngSubmit)="verifyOtp()" class="auth-form">
+
+          <div class="field otp-field">
+            <label>Enter 6-digit OTP</label>
+            <div class="otp-inputs" (paste)="onOtpPaste($event)">
+              <input
+                *ngFor="let digit of otpDigits; let i = index; trackBy: trackByIndex"
+                type="text"
+                inputmode="numeric"
+                maxlength="1"
+                [(ngModel)]="otpDigits[i]"
+                [ngModelOptions]="{standalone: true}"
+                (input)="onOtpInput(i, $event)"
+                (keydown)="onOtpKeydown(i, $event)"
+                #otpInput
+                class="otp-box"
+              />
+            </div>
+          </div>
+
+          <p-button type="submit" label="Verify OTP" icon="pi pi-arrow-right" iconPos="right"
+            [disabled]="!isOtpComplete"
+            [loading]="isLoading" styleClass="w-full submit-btn"></p-button>
+
+        </form>
+
+        <!-- STEP 2: Set new password (only after OTP is verified) -->
+        <form *ngIf="resetStep === 'password'" [formGroup]="resetForm" (ngSubmit)="resetPassword()" class="auth-form">
+
+          <div class="otp-verified-badge">
+            <i class="pi pi-check-circle"></i>
+            OTP verified — please set a new password.
+          </div>
+
+          <div class="field">
+            <label for="newPassword">New Password</label>
+            <div class="input-wrap">
+              <i class="pi pi-lock"></i>
+              <p-password id="newPassword" formControlName="newPassword" [feedback]="false" [toggleMask]="true"
+                placeholder="Min. 6 characters" styleClass="w-full" inputStyleClass="w-full"></p-password>
+            </div>
+            <small class="field-error" *ngIf="resetForm.get('newPassword')?.invalid && resetForm.get('newPassword')?.touched">
+              Password must be at least 6 characters.
+            </small>
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <i class="pi pi-lock"></i>
+              <p-password id="confirmPassword" formControlName="confirmPassword" [feedback]="false" [toggleMask]="true"
+                placeholder="Confirm new password" styleClass="w-full" inputStyleClass="w-full"></p-password>
+            </div>
+            <small class="field-error" *ngIf="resetForm.hasError('mismatch') && resetForm.get('confirmPassword')?.touched">
+              Passwords do not match.
+            </small>
+          </div>
+
+          <p-button type="submit" label="Reset Password" icon="pi pi-check" iconPos="right"
+            [disabled]="resetForm.invalid || !otpVerified"
+            [loading]="isLoading" styleClass="w-full submit-btn"></p-button>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>

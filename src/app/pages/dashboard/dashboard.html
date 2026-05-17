@@ -1,0 +1,180 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+@if (loading) {
+  <div class="container dashboard-container">
+    <div class="header-section">
+      <h1>Loading your dashboard…</h1>
+    </div>
+  </div>
+}
+
+<!-- ─────────────────── STATE 1: Fresh account, no subscription ────────────── -->
+@if (!loading && isFreshAccount && !subscription) {
+  <div class="container dashboard-container">
+
+    <!-- Grace warning if days_until_auto_delete is still counting down -->
+    @if (user.days_until_auto_delete !== null) {
+      <div class="grace-banner" [class.grace-banner--urgent]="user.days_until_auto_delete <= 3">
+        <div class="grace-banner-icon">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <div class="grace-banner-text">
+          <strong>
+            @if (user.days_until_auto_delete === 0) {
+              Your account is scheduled for deletion today
+            } @else if (user.days_until_auto_delete === 1) {
+              Your account will be deleted in 1 day
+            } @else {
+              Your account will be deleted in {{ user.days_until_auto_delete }} days
+            }
+          </strong>
+          <p>Subscribe to a plan to keep your account active. Once you subscribe, this warning goes away permanently.</p>
+        </div>
+        <p-button routerLink="/plans" label="Choose a Plan" icon="pi pi-arrow-right" iconPos="right"></p-button>
+      </div>
+    }
+
+    <div class="welcome-hero">
+      <h1>Welcome to Nutribox, {{ firstName }} 👋</h1>
+      <p class="welcome-sub">Fresh, chef-curated meals delivered Monday through Friday.<br/>Pick a plan to get started.</p>
+      <div class="welcome-cta">
+        <p-button routerLink="/plans" label="View Meal Plans" icon="pi pi-shopping-cart" size="large"></p-button>
+        <a routerLink="/profile" class="text-link">Complete your profile first →</a>
+      </div>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <i class="pi pi-bolt"></i>
+        <h3>Chef-curated</h3>
+        <p>Weekly menus designed by nutritionists. Macros that match your goals.</p>
+      </div>
+      <div class="benefit-card">
+        <i class="pi pi-truck"></i>
+        <h3>Delivered fresh</h3>
+        <p>Mon–Sat delivery. Skip any day before 6 PM and earn credit days.</p>
+      </div>
+      <div class="benefit-card">
+        <i class="pi pi-heart-fill"></i>
+        <h3>Built for habits</h3>
+        <p>Weekly or monthly plans. Pause, skip, renew — it's your kitchen.</p>
+      </div>
+    </div>
+
+  </div>
+}
+
+<!-- ─────────────────── STATE 2: Lapsed (had a sub before, no active one) ─── -->
+@if (!loading && user.has_subscription && !subscription) {
+  <div class="container dashboard-container">
+    <div class="header-section">
+      <h1>{{ greeting }}, {{ firstName }} 👋</h1>
+      <p class="subtitle">Your last subscription has ended. Ready for the next one?</p>
+    </div>
+
+    <div class="lapsed-card">
+      <div class="lapsed-icon"><i class="pi pi-refresh"></i></div>
+      <div class="lapsed-text">
+        <h2>Renew your meal plan</h2>
+        <p>You've subscribed before — your account is permanently active. Pick a plan when you're ready.</p>
+      </div>
+      <p-button routerLink="/plans" label="Browse Plans" icon="pi pi-arrow-right" iconPos="right"></p-button>
+    </div>
+
+    <a routerLink="/dashboard/credits" class="lapsed-credits-link">
+      <i class="pi pi-wallet"></i>
+      View your credit history →
+    </a>
+  </div>
+}
+
+<!-- ─────────────────── STATE 3: Active subscription ───────────────────────── -->
+@if (!loading && subscription) {
+  <div class="container dashboard-container">
+
+    <div class="header-section">
+      <h1>{{ greeting }}, {{ firstName }} 👋</h1>
+      <p class="subtitle">Here's your week.</p>
+    </div>
+
+    @if (isExpiringSoon) {
+      <div class="alert-banner">
+        <div class="alert-content">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div class="alert-text">
+            <strong>Action Needed:</strong>
+            Your subscription expires in {{ daysUntilExpiry }} day{{ daysUntilExpiry === 1 ? '' : 's' }}. Renew to avoid interruption.
+          </div>
+        </div>
+        <p-button routerLink="/plans" label="Renew" severity="warn" [outlined]="true" size="small"></p-button>
+      </div>
+    }
+
+    <!-- Plan summary -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Your Plan</h2>
+        <button class="text-link danger" (click)="cancelSubscription()" [disabled]="cancellingSub">
+          @if (cancellingSub) { <i class="pi pi-spin pi-spinner"></i> Cancelling… }
+          @else { Cancel subscription }
+        </button>
+      </div>
+      <div class="plan-summary-grid">
+        <div class="plan-summary-item">
+          <span class="label">Tier</span>
+          <span class="value">{{ subscription.tier_name }}</span>
+        </div>
+        <div class="plan-summary-item">
+          <span class="label">Diet</span>
+          <span class="value">{{ subscription.diet_type === 'veg' ? 'Veg' : 'Non-Veg' }}</span>
+        </div>
+        <div class="plan-summary-item">
+          <span class="label">Sessions</span>
+          <span class="value">
+            @if (subscription.slot_combo === 'breakfast_only') { Breakfast }
+            @else if (subscription.slot_combo === 'dinner_only') { Dinner }
+            @else { Breakfast + Dinner }
+          </span>
+        </div>
+        <div class="plan-summary-item">
+          <span class="label">Active Until</span>
+          <span class="value">{{ subscription.end_date | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar with skip controls -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Delivery Schedule</h2>
+        <a routerLink="/dashboard/credits" class="text-link">View credits →</a>
+      </div>
+      <p class="section-help">
+        Click any future weekday to skip a meal. Skip before <strong>6 PM IST the day before</strong> to earn a credit.
+      </p>
+      <app-meal-calendar
+        [calendar]="calendar"
+        (skip)="handleSkip($event)"
+        (unskip)="handleUnskip($event)"></app-meal-calendar>
+    </div>
+
+    <!-- This week's menu image -->
+    <div class="section">
+      <div class="section-header">
+        <h2>This Week's Menu</h2>
+      </div>
+      @if (weekImageUrl) {
+        <a [href]="weekImageUrl" target="_blank" rel="noopener noreferrer" class="weekly-menu-figure">
+          <img [src]="weekImageUrl" alt="This week's menu" />
+        </a>
+      } @else {
+        <div class="weekly-menu-placeholder">
+          <i class="pi pi-image"></i>
+          <p>This week's menu hasn't been published yet. Check back soon.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+}
