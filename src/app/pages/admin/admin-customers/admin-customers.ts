@@ -34,7 +34,7 @@ export class AdminCustomersComponent implements OnInit {
   tabs: FilterTab[] = ['All', 'Active', 'Expiring Soon', 'Expired'];
 
   customers: Customer[] = [];
-  deletingId: number | null = null;
+  deletingId: any = null;
   isLoading = false;
 
   // Server-side pagination

@@ -19,7 +19,7 @@ export interface DashboardStats {
 }
 
 export interface Customer {
-  id: number;
+  id: any;
   email: string;
   name: string;
   phone: string;
@@ -97,11 +97,11 @@ export class AdminService {
     return this.http.get<any>(`${this.apiUrl}/customers?${q.toString()}`);
   }
 
-  deleteCustomer(id: number): Observable<void> {
+  deleteCustomer(id: any): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/customers/${id}`);
   }
 
-  changeCustomerRole(id: number, role: 'customer' | 'admin'): Observable<any> {
+  changeCustomerRole(id: any, role: 'customer' | 'admin'): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/customers/${id}/role`, { role });
   }
 
