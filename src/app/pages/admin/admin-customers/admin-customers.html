@@ -44,6 +44,7 @@
           <tr>
             <th>Name</th>
             <th>Phone</th>
+            <th>Role</th>
             <th>Plan</th>
             <th>Sessions</th>
             <th>Start Date</th>
@@ -62,6 +63,12 @@
               </div>
             </td>
             <td class="phone-cell">{{ c.phone }}</td>
+            <td>
+              <select [value]="c.role" (change)="changeRole(c, $event)" class="role-select">
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </td>
             <td>{{ c.plan }}</td>
             <td class="sessions-cell">{{ c.sessions }}</td>
             <td>{{ c.startDate }}</td>
@@ -85,10 +92,10 @@
             </td>
           </tr>
           <tr *ngIf="filtered.length === 0 && !isLoading">
-            <td colspan="9" class="empty-state">No customers found.</td>
+            <td colspan="10" class="empty-state">No customers found.</td>
           </tr>
           <tr *ngIf="isLoading">
-            <td colspan="9" class="empty-state"><i class="pi pi-spin pi-spinner"></i> Loading…</td>
+            <td colspan="10" class="empty-state"><i class="pi pi-spin pi-spinner"></i> Loading…</td>
           </tr>
         </tbody>
       </table>

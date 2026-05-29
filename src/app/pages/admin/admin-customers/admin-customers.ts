@@ -199,4 +199,29 @@ export class AdminCustomersComponent implements OnInit {
       }
     });
   }
+
+  changeRole(c: Customer, event: Event) {
+    const selectEl = event.target as HTMLSelectElement;
+    const newRole = selectEl.value as 'customer' | 'admin';
+
+    this.adminService.changeCustomerRole(c.id, newRole).subscribe({
+      next: () => {
+        c.role = newRole;
+        this.msg.add({
+          severity: 'success',
+          summary: 'Role Updated',
+          detail: `${c.name}'s role changed to ${newRole.toUpperCase()}.`
+        });
+      },
+      error: (err) => {
+        // Revert select input value on error
+        selectEl.value = c.role;
+        this.msg.add({
+          severity: 'error',
+          summary: 'Could not change role',
+          detail: err.error?.detail || 'An error occurred.'
+        });
+      }
+    });
+  }
 }

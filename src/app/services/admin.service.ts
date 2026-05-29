@@ -29,6 +29,7 @@ export interface Customer {
   endDate: string;
   credits: number;
   status: 'ACTIVE' | 'EXPIRING' | 'EXPIRED';
+  role: 'customer' | 'admin';
 }
 
 export interface Menu {
@@ -98,6 +99,10 @@ export class AdminService {
 
   deleteCustomer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/customers/${id}`);
+  }
+
+  changeCustomerRole(id: number, role: 'customer' | 'admin'): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/customers/${id}/role`, { role });
   }
 
   addCustomer(payload: AdminUserPayload): Observable<{ id: number; email: string; full_name: string; role: string }> {
