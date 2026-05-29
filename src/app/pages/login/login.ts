@@ -253,3 +253,5 @@ export class LoginComponent {
       life: 8000
     });
   }
+}
+
