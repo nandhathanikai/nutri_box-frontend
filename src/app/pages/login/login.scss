@@ -535,35 +535,3 @@ $white:     #ffffff;
   }
 }
 
-/* ── Email Not Verified Banner ───────────── */
-.verify-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-  margin-top: 0.5rem;
-
-  > .pi {
-    color: #ea580c;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .verify-banner-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    font-size: 0.82rem;
-    line-height: 1.5;
-
-    strong {
-      font-weight: 700;
-      color: #9a3412;
-    }
-    span { color: #7c2d12; }
-  }
-}

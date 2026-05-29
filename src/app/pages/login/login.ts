@@ -42,10 +42,6 @@ export class LoginComponent {
   resetEmail = '';
   otpDigits: string[] = ['', '', '', '', '', ''];
 
-  /** Set when the backend blocks login because the email is unverified. */
-  unverifiedEmail = '';
-  isResendingVerification = false;
-
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
 
   constructor(
@@ -202,7 +198,6 @@ export class LoginComponent {
     if (this.loginForm.invalid || this.isLoading) return;
 
     this.isLoading = true;
-    this.unverifiedEmail = '';
     const credentials = this.loginForm.value;
 
     this.authService.login(credentials).subscribe({
@@ -220,37 +215,9 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        // 403 = email not verified
-        if (err.status === 403) {
-          this.unverifiedEmail = this.loginForm.value.email || '';
-          return;
-        }
         const errorMsg = err.error?.detail || 'Incorrect email or password.';
         this.messageService.add({ severity: 'error', summary: 'Sign In Failed', detail: errorMsg });
       }
-    });
-  }
-
-  resendVerification() {
-    if (!this.unverifiedEmail || this.isResendingVerification) return;
-    this.isResendingVerification = true;
-    // Re-login triggers the backend which will give 403 again, so we call the
-    // dedicated resend endpoint. We need to be authenticated for it, so we
-    // log in first — but since email isn't verified the login will 403.
-    // Instead call the public endpoint directly.
-    this.authService.login({ email: this.unverifiedEmail, password: '' }).subscribe({
-      // This will 401/403 — we only care about triggering the resend endpoint
-      error: () => {}
-    });
-    // Call resend endpoint (requires token — user isn't logged in yet,
-    // so we guide them to check their inbox; the resend-verification endpoint
-    // requires auth which they don't have). Show a helpful toast instead.
-    this.isResendingVerification = false;
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Check your inbox',
-      detail: `We sent a verification link to ${this.unverifiedEmail} when you signed up. Check your spam folder too.`,
-      life: 8000
     });
   }
 }

@@ -8,7 +8,6 @@ import { ProfileComponent } from './pages/profile/profile';
 import { CreditsComponent } from './pages/credits/credits.component';
 import { NotFoundComponent } from './pages/not-found/not-found';
 import { CustomPlanComponent } from './pages/plans/custom-plan/custom-plan';
-import { VerifyEmailComponent } from './pages/verify-email/verify-email';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 
@@ -54,9 +53,6 @@ export const routes: Routes = [
       { path: 'custom-requests', component: AdminRequestsComponent },
     ]
   },
-
-  // Email verification (token comes from the backend email link)
-  { path: 'verify-email', component: VerifyEmailComponent },
 
   // 404 catch-all — must be last
   { path: '**', component: NotFoundComponent },
