@@ -26,6 +26,7 @@ export class AdminLayoutComponent {
     { label: 'Credits', icon: 'pi pi-wallet', route: '/admin/credits' },
     { label: 'Announcements', icon: 'pi pi-bell', route: '/admin/announcements' },
     { label: 'Offers', icon: 'pi pi-tag', route: '/admin/offers' },
+    { label: 'Custom Requests', icon: 'pi pi-sparkles', route: '/admin/custom-requests' },
     { label: 'Reports', icon: 'pi pi-chart-bar', route: '/admin/reports' },
     { label: 'Settings', icon: 'pi pi-cog', route: '/admin/settings' },
   ];

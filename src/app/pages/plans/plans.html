@@ -5,6 +5,9 @@
   <div class="plans-header">
     <h1>Choose Your Plan</h1>
     <p class="plans-subtitle">Building a healthier habit starts here. Pick your tier, diet, and schedule.</p>
+    <div style="margin-top: 1rem;">
+      <p-button label="Need a Custom Menu?" icon="pi pi-sparkles" severity="secondary" [outlined]="true" (onClick)="goToCustomPlan()"></p-button>
+    </div>
   </div>
 
   <!-- ── Loading ────────────────────────────────────────────────────── -->
@@ -41,6 +44,11 @@
             <div class="tier-card-check" *ngIf="selectedTier?.id === tier.id">
               <i class="pi pi-check-circle"></i>
             </div>
+
+            <!-- View Menu Button -->
+            <button class="tier-view-menu-btn" (click)="openMenuLightbox(tier, $event)">
+              <i class="pi pi-image"></i> View Menu
+            </button>
           </div>
         }
       </div>
@@ -58,6 +66,24 @@
             <i class="pi pi-check option-check" *ngIf="selectedDiet === opt.value"></i>
           </div>
         }
+      </div>
+    </div>
+
+    <!-- MENU PREVIEW -->
+    <div class="step-section" *ngIf="selectedDiet">
+      <div class="step-label"><span class="step-number"><i class="pi pi-image"></i></span> This Week's Menu</div>
+      
+      <div class="menu-preview-container" *ngIf="isFetchingImage" style="margin-top: 1rem;">
+         <p-skeleton width="100%" height="200px" borderRadius="12px"></p-skeleton>
+      </div>
+
+      <div class="menu-preview-container" *ngIf="!isFetchingImage && currentMenuImage" style="margin-top: 1rem; text-align: center;">
+         <img [src]="currentMenuImage" alt="Weekly Menu Preview" style="max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      </div>
+
+      <div class="menu-preview-empty" *ngIf="!isFetchingImage && !currentMenuImage" style="margin-top: 1rem; padding: 1.5rem; background: var(--surface-hover); border-radius: 12px; text-align: center; color: var(--text-secondary);">
+         <i class="pi pi-calendar-times" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+         <p style="margin: 0;">Menu image will be updated soon.</p>
       </div>
     </div>
 
@@ -171,4 +197,41 @@
     </div>
 
   </div><!-- /plans-container -->
+</div>
+
+<!-- ── Menu Lightbox Overlay ─────────────────────────────────────────────── -->
+<div class="menu-lightbox" *ngIf="lightboxVisible" (click)="closeLightbox()">
+  <div class="menu-lightbox-inner" (click)="$event.stopPropagation()">
+    <div class="menu-lightbox-header">
+      <div class="menu-lightbox-title">
+        <span class="lightbox-icon" [ngClass]="'lb-' + lightboxTierSlug">
+          <i class="pi" [ngClass]="lightboxTierIcon"></i>
+        </span>
+        <div>
+          <h3>{{ lightboxTierName }}</h3>
+          <p>This Week's Menu</p>
+        </div>
+      </div>
+      <button class="menu-lightbox-close" (click)="closeLightbox()" id="lightbox-close-btn">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div class="menu-lightbox-body" *ngIf="lightboxLoading">
+      <p-skeleton width="100%" height="420px" borderRadius="12px"></p-skeleton>
+    </div>
+
+    <!-- Image -->
+    <div class="menu-lightbox-body" *ngIf="!lightboxLoading && lightboxImageUrl">
+      <img [src]="lightboxImageUrl" [alt]="lightboxTierName + ' Menu'" class="menu-lightbox-img">
+    </div>
+
+    <!-- Empty -->
+    <div class="menu-lightbox-empty" *ngIf="!lightboxLoading && !lightboxImageUrl">
+      <i class="pi pi-calendar-times"></i>
+      <p>Menu image not available yet.</p>
+      <small>Check back later — our team updates it every week.</small>
+    </div>
+  </div>
 </div>

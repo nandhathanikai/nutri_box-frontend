@@ -15,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { environment } from '../../../environments/environment';
 import { StickyCtaComponent } from '../../components/sticky-cta/sticky-cta';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-plans',
@@ -22,7 +23,15 @@ import { StickyCtaComponent } from '../../components/sticky-cta/sticky-cta';
   imports: [CommonModule, FormsModule, CardModule, ButtonModule, SelectButtonModule, SkeletonModule, TabsModule, TooltipModule, ToastModule, StickyCtaComponent],
   providers: [MessageService],
   templateUrl: './plans.html',
-  styleUrl: './plans.scss'
+  styleUrl: './plans.scss',
+  animations: [
+    trigger('stepIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('220ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+    ]),
+  ],
 })
 export class PlansComponent implements OnInit {
   apiUrl = `${environment.apiBaseUrl}/api/menu`;
@@ -36,11 +45,23 @@ export class PlansComponent implements OnInit {
   selectedDiet: string | null = null;
   selectedSlot: string | null = null;
   selectedDuration: string | null = null;
+  
+  // ── Menu Preview ──────────────────────────────────────────────────────
+  currentMenuImage: string | null = null;
+  isFetchingImage = false;
+
+  // ── Lightbox ──────────────────────────────────────────────────────────
+  lightboxVisible = false;
+  lightboxImageUrl: string | null = null;
+  lightboxTierName = '';
+  lightboxTierSlug = '';
+  lightboxTierIcon = 'pi-star';
+  lightboxLoading = false;
 
   // ── Computed / Payment ────────────────────────────────────────────────
   computedPrice: any = null;
   isComputingPrice = false;
-  isPaymentLoading = false;   // covers: create-order + modal + verify
+  isPaymentLoading = false;
 
   // ── Logged-in user info (for Razorpay prefill) ────────────────────────
   currentUser: any = null;
@@ -92,6 +113,7 @@ export class PlansComponent implements OnInit {
     this.selectedSlot = null;
     this.selectedDuration = null;
     this.computedPrice = null;
+    this.currentMenuImage = null;
   }
 
   selectDiet(diet: string) {
@@ -99,6 +121,7 @@ export class PlansComponent implements OnInit {
     this.selectedSlot = null;
     this.selectedDuration = null;
     this.computedPrice = null;
+    this.fetchMenuImage();
   }
 
   selectSlot(slot: string) {
@@ -125,6 +148,83 @@ export class PlansComponent implements OnInit {
       },
       error: () => this.isComputingPrice = false,
     });
+  }
+
+  fetchMenuImage() {
+    if (!this.selectedTier || !this.selectedDiet) {
+      this.currentMenuImage = null;
+      return;
+    }
+    this.isFetchingImage = true;
+    const today = new Date().toISOString().split('T')[0];
+    const params = `week_start_date=${today}&tier_id=${this.selectedTier.id}&diet_type=${this.selectedDiet}`;
+    this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${params}`).subscribe({
+      next: (res) => {
+        if (res.images && res.images.length > 0) {
+          this.currentMenuImage = res.images[0].image_url;
+        } else {
+          this.currentMenuImage = null;
+        }
+        this.isFetchingImage = false;
+      },
+      error: () => {
+        this.currentMenuImage = null;
+        this.isFetchingImage = false;
+      }
+    });
+  }
+
+  // ── Lightbox ──────────────────────────────────────────────────────────
+
+  openMenuLightbox(tier: any, event: Event) {
+    event.stopPropagation();  // don't trigger selectTier()
+    this.lightboxVisible = true;
+    this.lightboxLoading = true;
+    this.lightboxImageUrl = null;
+    this.lightboxTierName = tier.name;
+    this.lightboxTierSlug = tier.slug;
+    this.lightboxTierIcon = this.getTierIcon(tier.slug);
+
+    // Try veg first, then nonveg, then 'both'
+    const dietPreference = tier.diet_support === 'nonveg_only' ? 'nonveg' : 'veg';
+    const today = new Date().toISOString().split('T')[0];
+    const params = `week_start_date=${today}&tier_id=${tier.id}&diet_type=${dietPreference}`;
+
+    this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${params}`).subscribe({
+      next: (res) => {
+        if (res.images && res.images.length > 0) {
+          this.lightboxImageUrl = res.images[0].image_url;
+        } else {
+          // Fallback: try the other diet type
+          const fallbackDiet = dietPreference === 'veg' ? 'nonveg' : 'veg';
+          const fbParams = `week_start_date=${today}&tier_id=${tier.id}&diet_type=${fallbackDiet}`;
+          this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${fbParams}`).subscribe({
+            next: (res2) => {
+              this.lightboxImageUrl = (res2.images && res2.images.length > 0)
+                ? res2.images[0].image_url
+                : null;
+              this.lightboxLoading = false;
+            },
+            error: () => { this.lightboxImageUrl = null; this.lightboxLoading = false; }
+          });
+          return;
+        }
+        this.lightboxLoading = false;
+      },
+      error: () => {
+        this.lightboxImageUrl = null;
+        this.lightboxLoading = false;
+      }
+    });
+  }
+
+  closeLightbox() {
+    this.lightboxVisible = false;
+    this.lightboxImageUrl = null;
+  }
+
+  goToCustomPlan() {
+    this.router.navigate(['/plans/custom']);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────

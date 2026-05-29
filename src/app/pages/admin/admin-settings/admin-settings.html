@@ -11,10 +11,10 @@
   </div>
 
   <!-- Sub-tabs -->
-  <div class="stabs">
+  <div class="stg-content">
+    <div class="stabs">
     <button class="stab" [class.active]="activeTab === 'general'" (click)="activeTab = 'general'">General</button>
-    <button class="stab" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">Notifications</button>
-    <button class="stab" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">Payment</button>
+
     <button class="stab" [class.active]="activeTab === 'account'" (click)="activeTab = 'account'">Account & Security</button>
   </div>
 
@@ -76,125 +76,14 @@
       </div>
     </div>
 
-    <div class="settings-card">
-      <h3>Operating Hours</h3>
-      <p>Delivery availability windows.</p>
-      <div class="fg3">
-        <div class="fg">
-          <label>Opens At</label>
-          <input type="time" [formControl]="$any(contactForm.get('opens_at'))" />
-        </div>
-        <div class="fg">
-          <label>Closes At</label>
-          <input type="time" [formControl]="$any(contactForm.get('closes_at'))" />
-        </div>
-        <div class="fg">
-          <label>Timezone</label>
-          <select><option>IST (UTC+5:30)</option></select>
-        </div>
-      </div>
-      <div class="card-footer">
-        <button class="btn btn-primary">Save</button>
-      </div>
-    </div>
+
   </ng-container>
 
   <!-- ── NOTIFICATIONS ── -->
-  <ng-container *ngIf="activeTab === 'notifications'">
-    <div class="settings-card">
-      <h3>Admin Notifications</h3>
-      <p>Events that alert the admin team.</p>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>New Order Alert</h4><p>Notify when a new order is placed</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.newOrder" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Credit Earned</h4><p>Notify when a customer earns a meal credit</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.creditEarned" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Payment Failure</h4><p>Notify on failed transactions</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.paymentFail" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>New Customer Signup</h4><p>Alert for each new registration</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.newCustomer" /><span class="tslider"></span></label>
-      </div>
-    </div>
 
-    <div class="settings-card">
-      <h3>Customer Notifications</h3>
-      <p>Automated messages sent to customers.</p>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Credit Earned Notification</h4><p>Tell customer when a credit is logged after cancellation</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.custCreditEarned" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Credit Delivery Reminder</h4><p>Notify 1 day before bonus meal is delivered</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.deliveryReminder" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Order Confirmation SMS</h4><p>Send SMS on order confirmation</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.orderSms" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Delivery Status Updates</h4><p>Notify at each delivery stage</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="notifs.deliveryUpdates" /><span class="tslider"></span></label>
-      </div>
-    </div>
-    <div class="card-footer-standalone">
-      <button class="btn btn-primary" (click)="saveNotifs()">Save Settings</button>
-    </div>
-  </ng-container>
 
   <!-- ── PAYMENT ── -->
-  <ng-container *ngIf="activeTab === 'payment'">
-    <div class="settings-card">
-      <h3>Payment Gateway</h3>
-      <p>Configure payment processing.</p>
-      <div class="fg">
-        <label>Gateway</label>
-        <select [(ngModel)]="payment.gateway">
-          <option>Razorpay</option><option>PayU</option><option>Cashfree</option>
-        </select>
-      </div>
-      <div class="fg2">
-        <div class="fg">
-          <label>API Key ID</label>
-          <input type="text" [(ngModel)]="payment.apiKey" />
-        </div>
-        <div class="fg">
-          <label>API Secret</label>
-          <input type="password" [(ngModel)]="payment.apiSecret" placeholder="••••••••••" />
-        </div>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Enable COD</h4><p>Allow cash on delivery</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="payment.cod" /><span class="tslider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Enable UPI</h4><p>Accept UPI payments</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="payment.upi" /><span class="tslider"></span></label>
-      </div>
-      <div class="card-footer"><button class="btn btn-primary" (click)="savePayment()">Save</button></div>
-    </div>
 
-    <div class="settings-card">
-      <h3>Tax</h3>
-      <p>GST configuration.</p>
-      <div class="fg2">
-        <div class="fg">
-          <label>GST Rate (%)</label>
-          <input type="number" [(ngModel)]="payment.gstRate" />
-        </div>
-        <div class="fg">
-          <label>GSTIN</label>
-          <input type="text" [(ngModel)]="payment.gstin" />
-        </div>
-      </div>
-      <div class="card-footer"><button class="btn btn-primary" (click)="savePayment()">Save</button></div>
-    </div>
-  </ng-container>
 
   <!-- ── ACCOUNT ── -->
   <ng-container *ngIf="activeTab === 'account'">
@@ -218,14 +107,7 @@
       <div class="card-footer"><button class="btn btn-primary" (click)="savePassword()">Update</button></div>
     </div>
 
-    <div class="settings-card">
-      <h3>Two-Factor Authentication</h3>
-      <p>Extra security on admin login.</p>
-      <div class="toggle-row">
-        <div class="tr-info"><h4>Enable 2FA</h4><p>Require OTP on each login</p></div>
-        <label class="tog"><input type="checkbox" [(ngModel)]="twoFa" /><span class="tslider"></span></label>
-      </div>
-    </div>
+
 
     <div class="settings-card">
       <h3>Session</h3>
@@ -244,4 +126,5 @@
       </div>
     </div>
   </ng-container>
+  </div>
 </div>

@@ -80,7 +80,7 @@
   background: #fff;
   border: 2px solid var(--border-color, #e5e7eb);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem 3.5rem; // extra bottom padding for the button
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -161,6 +161,48 @@
   right: 12px;
   i { color: var(--primary-green, #2d6a4f); font-size: 1.25rem; }
 }
+
+// ── View Menu Button ────────────────────────────────────────────────────────
+.tier-view-menu-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 0.6rem 0;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: var(--primary-green, #2d6a4f);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: var(--font-family, inherit);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.18s;
+  border-radius: 0 0 14px 14px;
+  letter-spacing: 0.02em;
+
+  i { font-size: 0.8rem; }
+
+  &:hover {
+    background: #e8f5ee;
+    color: #1a4d2e;
+  }
+
+  &:active {
+    background: #d1fae5;
+  }
+}
+
+// Tier-specific button accent on hover
+.tier-classic  .tier-view-menu-btn:hover { background: #eff6ff; color: #1d4ed8; }
+.tier-premium  .tier-view-menu-btn:hover { background: #fffbeb; color: #b45309; }
+.tier-protein  .tier-view-menu-btn:hover { background: #fef2f2; color: #b91c1c; }
+.tier-fruits   .tier-view-menu-btn:hover { background: #fdf2f8; color: #be185d; }
 
 // ── Option Cards ──────────────────────────────────────────────────────────
 .option-grid {
@@ -399,11 +441,153 @@
   img { border-radius: 3px; opacity: 0.7; }
 }
 
+// ── Menu Lightbox ─────────────────────────────────────────────────────────
+.menu-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.18s ease;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+.menu-lightbox-inner {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.4);
+  animation: zoomIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+}
+
+.menu-lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  z-index: 1;
+}
+
+.menu-lightbox-title {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--heading-green, #1a4d2e);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    font-weight: 500;
+  }
+}
+
+.lightbox-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+
+  &.lb-classic     { background: #eff6ff; i { color: #3b82f6; } }
+  &.lb-premium     { background: #fffbeb; i { color: #f59e0b; } }
+  &.lb-protein_rich { background: #fef2f2; i { color: #ef4444; } }
+  &.lb-fruits_bowl { background: #fdf2f8; i { color: #ec4899; } }
+}
+
+.menu-lightbox-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  color: #4b5563;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #e5e7eb;
+    color: #111827;
+  }
+}
+
+.menu-lightbox-body {
+  padding: 1.5rem;
+}
+
+.menu-lightbox-img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.menu-lightbox-empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #9ca3af;
+
+  i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin: 0 0 0.4rem;
+  }
+
+  small {
+    font-size: 0.82rem;
+  }
+}
+
 // ── Responsive ────────────────────────────────────────────────────────────
 @media (max-width: 640px) {
   .plans-header h1 { font-size: 1.75rem; }
   .tier-grid { grid-template-columns: 1fr 1fr; }
   .option-grid--2col { grid-template-columns: 1fr; }
+  .menu-lightbox-inner { max-height: 95vh; }
 }
 
 @media (max-width: 400px) {

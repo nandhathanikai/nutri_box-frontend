@@ -1,0 +1,250 @@
+<p-toast></p-toast>
+
+<div class="cp-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="cp-header">
+    <button class="cp-back-btn" (click)="goBack()" id="custom-plan-back-btn">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="cp-header-text">
+      <h1>Custom Plan</h1>
+      <p>Tell us what you need — we'll price it and you pay when ready.</p>
+    </div>
+  </div>
+
+  <!-- ── How It Works ────────────────────────────────────────────────────── -->
+  <div class="cp-how-it-works">
+    <div class="cp-step-pill cp-step-1">
+      <span class="cp-step-num">1</span>
+      <span>You submit your requirements</span>
+    </div>
+    <div class="cp-step-arrow"><i class="pi pi-chevron-right"></i></div>
+    <div class="cp-step-pill cp-step-2">
+      <span class="cp-step-num">2</span>
+      <span>Admin reviews &amp; quotes a price</span>
+    </div>
+    <div class="cp-step-arrow"><i class="pi pi-chevron-right"></i></div>
+    <div class="cp-step-pill cp-step-3">
+      <span class="cp-step-num">3</span>
+      <span>You pay &amp; subscription starts</span>
+    </div>
+  </div>
+
+  <!-- ── Request Form ────────────────────────────────────────────────────── -->
+  <div class="cp-card" *ngIf="!submitted">
+    <div class="cp-card-title">
+      <i class="pi pi-pen-to-square"></i>
+      <span>New Custom Request</span>
+    </div>
+
+    <div class="cp-form">
+
+      <!-- Base Tier -->
+      <div class="cp-field">
+        <label class="cp-label">Base Plan <span class="cp-optional">(optional)</span></label>
+        <p-select
+          [options]="tiers"
+          [(ngModel)]="selectedTierId"
+          placeholder="Start from an existing tier (optional)"
+          styleClass="w-full"
+          id="cp-base-tier">
+        </p-select>
+        <small class="cp-hint">Helps us understand your starting preference.</small>
+      </div>
+
+      <!-- Diet + Slot row -->
+      <div class="cp-row">
+        <div class="cp-field">
+          <label class="cp-label">Diet Type <span class="cp-required">*</span></label>
+          <p-select
+            [options]="dietOptions"
+            [(ngModel)]="selectedDiet"
+            placeholder="Select diet"
+            styleClass="w-full"
+            id="cp-diet">
+          </p-select>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Meal Slots <span class="cp-required">*</span></label>
+          <p-select
+            [options]="slotOptions"
+            [(ngModel)]="selectedSlot"
+            placeholder="Select slots"
+            styleClass="w-full"
+            id="cp-slot">
+          </p-select>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="cp-field">
+        <label class="cp-label">Duration <span class="cp-required">*</span></label>
+        <div class="cp-duration-grid">
+          <div class="cp-duration-card" [class.cp-duration-card--selected]="selectedDuration === 'weekly'" (click)="selectedDuration = 'weekly'">
+            <i class="pi pi-bolt"></i>
+            <strong>Weekly</strong>
+            <small>Flexible, renew each week</small>
+          </div>
+          <div class="cp-duration-card" [class.cp-duration-card--selected]="selectedDuration === 'monthly'" (click)="selectedDuration = 'monthly'">
+            <i class="pi pi-calendar"></i>
+            <strong>Monthly</strong>
+            <small>Best value, full month</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Requirements -->
+      <div class="cp-field">
+        <label class="cp-label">Your Requirements <span class="cp-required">*</span></label>
+        <textarea
+          pTextarea
+          [(ngModel)]="customRequirements"
+          rows="5"
+          class="w-full cp-textarea"
+          id="cp-requirements"
+          placeholder="E.g. High protein meals, no dairy, specific allergies, dishes you love or want to avoid…">
+        </textarea>
+        <small class="cp-hint">The more detail you provide, the better we can tailor your plan.</small>
+      </div>
+
+      <button
+        class="cp-submit-btn"
+        (click)="submitRequest()"
+        [disabled]="isSubmitting"
+        id="cp-submit-btn">
+        @if (isSubmitting) {
+          <i class="pi pi-spin pi-spinner"></i> Submitting…
+        } @else {
+          <i class="pi pi-send"></i> Submit Request
+        }
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── Submitted Banner ─────────────────────────────────────────────────── -->
+  <div class="cp-success-banner" *ngIf="submitted">
+    <div class="cp-success-icon"><i class="pi pi-check-circle"></i></div>
+    <div>
+      <h3>Request Submitted!</h3>
+      <p>Our team will review it and quote you a price shortly. Check the tracker below.</p>
+    </div>
+    <button class="cp-new-btn" (click)="startNewRequest()">
+      <i class="pi pi-plus"></i> New Request
+    </button>
+  </div>
+
+  <!-- ── My Requests Tracker ─────────────────────────────────────────────── -->
+  <div class="cp-requests-section">
+    <div class="cp-requests-header">
+      <div class="cp-requests-title">
+        <i class="pi pi-list-check"></i>
+        <h2>My Requests</h2>
+      </div>
+      <button class="cp-refresh-btn" (click)="loadMyRequests()" [disabled]="isLoadingRequests" id="cp-refresh-btn">
+        <i class="pi" [ngClass]="isLoadingRequests ? 'pi-spin pi-spinner' : 'pi-refresh'"></i>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div class="cp-requests-list" *ngIf="isLoadingRequests">
+      <div class="cp-request-card" *ngFor="let i of [1,2]">
+        <p-skeleton height="120px" borderRadius="16px"></p-skeleton>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div class="cp-requests-empty" *ngIf="!isLoadingRequests && myRequests.length === 0">
+      <i class="pi pi-inbox"></i>
+      <p>No requests yet. Submit one above!</p>
+    </div>
+
+    <!-- Request Cards -->
+    <div class="cp-requests-list" *ngIf="!isLoadingRequests && myRequests.length > 0">
+      @for (req of myRequests; track req.id) {
+        <div class="cp-request-card" [ngClass]="'cp-req-' + req.status">
+
+          <!-- Card Header -->
+          <div class="cp-req-header">
+            <div class="cp-req-meta">
+              <span class="cp-req-date">{{ req.created_at | date:'MMM d, y' }}</span>
+              <span class="cp-req-tags">
+                <span class="cp-req-tag">{{ getDietLabel(req.diet_type) }}</span>
+                <span class="cp-req-tag">{{ getSlotLabel(req.slot_combo) }}</span>
+                <span class="cp-req-tag">{{ req.duration | titlecase }}</span>
+              </span>
+            </div>
+            <span class="cp-req-badge" [ngClass]="'badge-' + req.status">
+              <i class="pi" [ngClass]="getStatusIcon(req.status)"></i>
+              {{ getStatusLabel(req.status) }}
+            </span>
+          </div>
+
+          <!-- Requirements preview -->
+          <p class="cp-req-requirements">
+            <i class="pi pi-quote-left" style="font-size: 0.7rem; opacity: 0.4;"></i>
+            {{ req.custom_requirements }}
+          </p>
+
+          <!-- Pending state -->
+          <div class="cp-req-pending-msg" *ngIf="req.status === 'pending'">
+            <i class="pi pi-hourglass"></i>
+            <span>Waiting for admin to review and set a price…</span>
+          </div>
+
+          <!-- Priced state — show quote + Pay Now -->
+          <div class="cp-req-quote" *ngIf="req.status === 'priced'">
+            <div class="cp-quote-box">
+              <div class="cp-quote-breakdown">
+                <div class="cp-quote-line">
+                  <span>₹{{ req.quoted_price_per_meal }} × {{ req.meal_count }} meals</span>
+                  <span>₹{{ (req.quoted_price_per_meal * req.meal_count).toFixed(0) }}</span>
+                </div>
+                <div class="cp-quote-line" *ngIf="req.quoted_delivery_charge > 0">
+                  <span>Delivery charge</span>
+                  <span>₹{{ req.quoted_delivery_charge }}</span>
+                </div>
+                <div class="cp-quote-divider"></div>
+                <div class="cp-quote-total">
+                  <span>Total to Pay</span>
+                  <span class="cp-quote-total-amount">₹{{ req.quoted_total }}</span>
+                </div>
+              </div>
+            </div>
+            <button
+              class="cp-pay-btn"
+              (click)="payForRequest(req)"
+              [disabled]="payingRequestId === req.id"
+              [id]="'pay-custom-' + req.id">
+              @if (payingRequestId === req.id) {
+                <i class="pi pi-spin pi-spinner"></i> Processing…
+              } @else {
+                <i class="pi pi-lock"></i> Pay ₹{{ req.quoted_total }} Now
+              }
+            </button>
+            <p class="cp-quote-note">
+              <i class="pi pi-shield-check" style="color: #34d399;"></i>
+              Secured by Razorpay · Your plan activates immediately after payment
+            </p>
+          </div>
+
+          <!-- Paid state -->
+          <div class="cp-req-paid-msg" *ngIf="req.status === 'paid'">
+            <i class="pi pi-check-circle"></i>
+            <span>Payment received! Your subscription has been activated. Check your dashboard.</span>
+          </div>
+
+          <!-- Rejected state -->
+          <div class="cp-req-rejected-msg" *ngIf="req.status === 'rejected'">
+            <i class="pi pi-times-circle"></i>
+            <span>This request was not accepted. Please submit a new request with different requirements.</span>
+          </div>
+
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,76 @@
+<p-toast></p-toast>
+<div class="admin-page">
+  <div class="page-header">
+    <div class="header-titles">
+      <h1>Custom Plan Requests</h1>
+      <p class="subtitle">Review customer custom requests and set custom pricing.</p>
+    </div>
+    <div class="header-actions">
+      <button pButton icon="pi pi-refresh" label="Refresh" (click)="loadRequests()"></button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <p-table [value]="requests" [loading]="isLoading" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Requirements</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-req>
+        <tr>
+          <td>{{ req.created_at | date:'MMM d, y, h:mm a' }}</td>
+          <td>
+            <strong>{{ req.customer_name }}</strong><br>
+            <small>{{ req.customer_email }}</small>
+          </td>
+          <td>
+            <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+              <strong>Diet:</strong> {{ req.diet_type }} | <strong>Slots:</strong> {{ req.slot_combo }} | <strong>Duration:</strong> {{ req.duration }}<br>
+              <em>"{{ req.custom_requirements }}"</em>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="req.status | uppercase" [severity]="getStatusSeverity(req.status)"></p-tag>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button *ngIf="req.status === 'pending' || req.status === 'priced'" pButton icon="pi pi-dollar" class="p-button-sm p-button-success" pTooltip="Set Price" (click)="openPriceDialog(req)"></button>
+              <button *ngIf="req.status === 'pending' || req.status === 'priced'" pButton icon="pi pi-times" class="p-button-sm p-button-danger" pTooltip="Reject" (click)="updateStatus(req, 'rejected')"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center p-4">No custom plan requests found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog header="Set Price for Custom Plan" [(visible)]="displayPriceDialog" [modal]="true" [style]="{width: '450px'}" [draggable]="false" [resizable]="false">
+    <ng-container *ngIf="selectedRequest">
+      <p class="mb-4">Setting price for <strong>{{ selectedRequest.customer_name }}</strong>'s custom {{ selectedRequest.duration }} plan.</p>
+      
+      <div class="field mb-3">
+        <label class="block font-bold mb-2">Price Per Meal (₹)</label>
+        <p-inputNumber [(ngModel)]="pricePerMeal" mode="currency" currency="INR" locale="en-IN" class="w-full"></p-inputNumber>
+      </div>
+
+      <div class="field mb-4">
+        <label class="block font-bold mb-2">Delivery Charge (₹)</label>
+        <p-inputNumber [(ngModel)]="deliveryCharge" mode="currency" currency="INR" locale="en-IN" class="w-full"></p-inputNumber>
+      </div>
+      
+      <div class="flex justify-content-end gap-2">
+        <button pButton label="Cancel" class="p-button-text" (click)="displayPriceDialog = false"></button>
+        <button pButton label="Save Price" class="p-button-primary" (click)="submitPrice()"></button>
+      </div>
+    </ng-container>
+  </p-dialog>
+</div>

@@ -333,7 +333,7 @@ $white:     #ffffff;
     outline: none;
 
     &::placeholder { color: $silver; }
-    &:hover { border-color: darken($light, 15%); }
+    &:hover { border-color: color-mix(in srgb, $light, black 15%); }
 
     &:focus {
       border-color: $black;

@@ -7,6 +7,7 @@ import { PlansComponent } from './pages/plans/plans';
 import { ProfileComponent } from './pages/profile/profile';
 import { CreditsComponent } from './pages/credits/credits.component';
 import { NotFoundComponent } from './pages/not-found/not-found';
+import { CustomPlanComponent } from './pages/plans/custom-plan/custom-plan';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 
@@ -21,6 +22,7 @@ import { AdminAnnouncementsComponent } from './pages/admin/admin-announcements/a
 import { AdminOffersComponent } from './pages/admin/admin-offers/admin-offers';
 import { AdminReportsComponent } from './pages/admin/admin-reports/admin-reports';
 import { AdminSettingsComponent } from './pages/admin/admin-settings/admin-settings';
+import { AdminRequestsComponent } from './pages/admin/admin-requests/admin-requests';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -30,6 +32,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'dashboard/credits', component: CreditsComponent, canActivate: [authGuard] },
   { path: 'plans', component: PlansComponent, canActivate: [authGuard] },
+  { path: 'plans/custom', component: CustomPlanComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
 
   // Admin section
@@ -47,6 +50,7 @@ export const routes: Routes = [
       { path: 'offers', component: AdminOffersComponent },
       { path: 'reports', component: AdminReportsComponent },
       { path: 'settings', component: AdminSettingsComponent },
+      { path: 'custom-requests', component: AdminRequestsComponent },
     ]
   },
 

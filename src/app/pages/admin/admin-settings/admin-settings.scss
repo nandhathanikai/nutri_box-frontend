@@ -1,7 +1,8 @@
 // ── Admin Settings ────────────────────────────────────────────────────────────
 :host { display: block; font-family: var(--font-family); }
 
-.stg-page { display: flex; flex-direction: column; gap: 1.1rem; max-width: 860px; }
+.stg-page { display: flex; flex-direction: column; gap: 1.1rem; }
+.stg-content { display: flex; flex-direction: column; gap: 1.1rem; margin: 0 auto; margin-left: 0; }
 
 .stabs {
   display: flex; border-bottom: 1px solid var(--border-color); overflow-x: auto;
