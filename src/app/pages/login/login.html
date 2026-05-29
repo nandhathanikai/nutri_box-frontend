@@ -72,6 +72,15 @@
         <p-button type="submit" label="Sign In" icon="pi pi-arrow-right" iconPos="right" [disabled]="loginForm.invalid"
           [loading]="isLoading" styleClass="w-full submit-btn"></p-button>
 
+        <!-- Email not verified banner -->
+        <div *ngIf="unverifiedEmail" class="verify-banner">
+          <i class="pi pi-envelope"></i>
+          <div class="verify-banner-text">
+            <strong>Email not verified</strong>
+            <span>Check your inbox at <b>{{ unverifiedEmail }}</b> for the verification link. Check spam too.</span>
+          </div>
+        </div>
+
       </form>
 
       <p *ngIf="mode === 'login'" class="signup-cta">

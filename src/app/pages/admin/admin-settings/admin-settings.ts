@@ -167,9 +167,15 @@ export class AdminSettingsComponent {
   }
 
   savePassword() {
-    if (!this.pwdForm.current) { this.msg.add({ severity: 'error', summary: 'Error', detail: 'Enter current password.' }); return; }
+    if (!this.pwdForm.current) { this.msg.add({ severity: 'error', summary: 'Error', detail: 'Enter your current password.' }); return; }
     if (this.pwdForm.newPwd !== this.pwdForm.confirm) { this.msg.add({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.' }); return; }
-    if (this.pwdForm.newPwd.length < 6) { this.msg.add({ severity: 'error', summary: 'Error', detail: 'New password must be at least 6 characters.' }); return; }
+    // Mirror backend: ≥8 chars, uppercase, lowercase, digit
+    const pwd = this.pwdForm.newPwd;
+    const strongPwd = pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /\d/.test(pwd);
+    if (!strongPwd) {
+      this.msg.add({ severity: 'error', summary: 'Weak Password', detail: 'Password must be at least 8 characters with an uppercase letter, lowercase letter, and a number.' });
+      return;
+    }
 
     this.auth.changePassword(this.pwdForm.current, this.pwdForm.newPwd).subscribe({
       next: () => {
