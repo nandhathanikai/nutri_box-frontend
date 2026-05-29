@@ -117,6 +117,7 @@
                       <th>Effective From</th>
                       <th>Status</th>
                       <th>Active</th>
+                      <th>Actions</th>
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="body" let-p>
@@ -128,12 +129,15 @@
                         <span class="status-chip" [class.chip-active]="p.status === 'active'" [class.chip-scheduled]="p.status === 'scheduled'">{{ p.status }}</span>
                       </td>
                       <td>
-                        <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)" [disabled]="p.status === 'active'"></p-toggleSwitch>
+                        <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)"></p-toggleSwitch>
+                      </td>
+                      <td>
+                        <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger p-0" (click)="deletePricingRule(p, tier.id)" pTooltip="Delete price rule"></button>
                       </td>
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="emptymessage">
-                    <tr><td colspan="5" class="text-center text-muted py-3">No pricing rows yet.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted py-3">No pricing rows yet.</td></tr>
                   </ng-template>
                 </p-table>
               </div>
@@ -439,6 +443,7 @@
           <th>Effective From</th>
           <th>Status</th>
           <th>Active</th>
+          <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-p>
@@ -448,7 +453,10 @@
           <td>{{ p.effective_from | date:'MMM d, yyyy' }}</td>
           <td><span class="status-chip" [class.chip-active]="p.status === 'active'" [class.chip-scheduled]="p.status === 'scheduled'">{{ p.status }}</span></td>
           <td>
-            <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)" [disabled]="p.status === 'active'"></p-toggleSwitch>
+            <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)"></p-toggleSwitch>
+          </td>
+          <td>
+            <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger p-0" (click)="deletePricingRule(p, pricingDialogTier.id)" pTooltip="Delete price rule"></button>
           </td>
         </tr>
       </ng-template>
@@ -463,7 +471,7 @@
 <!-- ==================== TIER DIALOG ==================== -->
 <p-dialog [(visible)]="tierDialog" [modal]="true"
   [header]="isEditMode ? 'Edit Tier' : 'New Tier'"
-  [style]="{width:'420px'}" styleClass="premium-light-modal">
+  [style]="{width:'540px'}" styleClass="premium-light-modal">
 
   <form [formGroup]="tierForm" class="flex flex-column gap-3 p-1">
     <div class="form-field">
@@ -471,15 +479,17 @@
       <input pInputText formControlName="name" placeholder="e.g. Classic" class="w-full" />
       <small class="text-muted">Slug is auto-generated from name</small>
     </div>
+    
     <div class="form-field">
       <label class="form-label">Diet Support</label>
       <p-select [options]="dietSupportOptions" formControlName="diet_support" optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
     </div>
+    
     <div class="form-row-2">
       <div class="form-field">
         <label class="form-label">Delivery / meal (Weekly) ₹</label>
         <input pInputText type="number" formControlName="delivery_charge_weekly" class="w-full" />
-        <small class="text-muted">Charged per meal. e.g. ₹10 × 6 meals = ₹60</small>
+        <small class="text-muted">Charged per meal (e.g. ₹10 × 6 meals = ₹60)</small>
       </div>
       <div class="form-field">
         <label class="form-label">Delivery / meal (Monthly) ₹</label>
@@ -487,14 +497,21 @@
         <small class="text-muted">Usually ₹0 — monthly delivery is free</small>
       </div>
     </div>
-    <div class="flex gap-2 align-items-center">
+    
+    <div class="toggle-row">
       <p-toggleSwitch formControlName="is_active"></p-toggleSwitch>
-      <span class="form-label m-0">Active</span>
+      <div>
+        <span class="form-label font-bold">Active Status</span>
+        <div class="text-muted">Show or hide this tier from customers completely</div>
+      </div>
     </div>
-    <div class="flex gap-2 align-items-center">
+    
+    <div class="toggle-row">
       <p-toggleSwitch formControlName="is_featured"></p-toggleSwitch>
-      <span class="form-label m-0">Featured on home page</span>
-      <small class="text-muted ml-2">Shown as "Most Popular". Only one tier at a time.</small>
+      <div>
+        <span class="form-label font-bold">Featured on Home Page</span>
+        <div class="text-muted">Shown with a "Most Popular" ribbon. Only one tier at a time.</div>
+      </div>
     </div>
   </form>
 

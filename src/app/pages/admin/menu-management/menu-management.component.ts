@@ -247,8 +247,35 @@ export class MenuManagementComponent implements OnInit {
 
   togglePricingActive(row: any) {
     this.http.patch(`${this.apiUrl}/tier-pricing/${row.id}`, { is_active: row.is_active }).subscribe({
-      next: () => this.messageService.add({ severity: 'success', summary: 'Pricing Updated' }),
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Pricing Updated' });
+        this.loadTiers();
+        this.loadPlans();
+      },
       error: () => row.is_active = !row.is_active,
+    });
+  }
+
+  deletePricingRule(rule: any, tierId: string) {
+    this.confirmationService.confirm({
+      message: `Delete this pricing rule (₹${rule.price_per_meal} for ${rule.diet_type === 'veg' ? 'Veg' : 'Non-Veg'})?`,
+      header: 'Delete Price Rule',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.http.delete(`${this.apiUrl}/tier-pricing/${rule.id}`).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Price Rule Deleted' });
+            this.loadPricingHistory(tierId);
+            this.loadTiers();
+            this.loadPlans();
+          },
+          error: (err) => {
+            const msg = err.error?.detail || 'Failed to delete price rule';
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+          }
+        });
+      }
     });
   }
 
