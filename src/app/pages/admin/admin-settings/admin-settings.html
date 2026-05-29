@@ -123,6 +123,9 @@
       <div class="danger-btns">
         <button class="btn btn-danger">Clear Cache</button>
         <button class="btn btn-danger">Reset Settings</button>
+        <button class="btn btn-danger" [disabled]="isLoading" (click)="confirmClearDashboard()">
+          <i class="pi pi-trash" style="margin-right: 4px;"></i>{{ isLoading ? 'Resetting…' : 'Reset Dashboard Stats' }}
+        </button>
       </div>
     </div>
   </ng-container>
