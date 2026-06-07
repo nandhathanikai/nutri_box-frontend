@@ -4,6 +4,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { resolveImageUrl } from '../../utils/image-resolver';
 
 interface GalleryImage {
   id: string;
@@ -41,7 +42,7 @@ export class GalleryCarouselComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.galleryImages = (data || []).map(img => ({
           id: img.id,
-          image_url: img.image_url,
+          image_url: resolveImageUrl(img.image_url),
           caption: img.caption ?? null,
           sort_order: img.sort_order,
           created_at: img.created_at,

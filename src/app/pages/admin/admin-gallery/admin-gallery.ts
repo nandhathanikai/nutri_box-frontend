@@ -7,6 +7,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { environment } from '../../../../environments/environment';
+import { resolveImageUrl } from '../../../utils/image-resolver';
 
 interface GalleryImage {
   id: string;
@@ -47,7 +48,10 @@ export class AdminGalleryComponent implements OnInit {
     this.isLoading = true;
     this.http.get<GalleryImage[]>(`${environment.apiBaseUrl}/api/gallery`).subscribe({
       next: (data) => {
-        this.images = data;
+        this.images = (data || []).map(img => ({
+          ...img,
+          image_url: resolveImageUrl(img.image_url)
+        }));
         this.isLoading = false;
       },
       error: () => {

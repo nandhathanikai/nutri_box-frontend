@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { environment } from '../../../environments/environment';
+import { resolveImageUrl } from '../../utils/image-resolver';
 import { StickyCtaComponent } from '../../components/sticky-cta/sticky-cta';
 import { BrandBarComponent } from '../../components/brand-bar/brand-bar';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -218,7 +219,7 @@ export class PlansComponent implements OnInit {
     this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${params}`).subscribe({
       next: (res) => {
         if (res.images && res.images.length > 0) {
-          this.currentMenuImage = res.images[0].image_url;
+          this.currentMenuImage = resolveImageUrl(res.images[0].image_url);
         } else {
           this.currentMenuImage = null;
         }
@@ -250,7 +251,7 @@ export class PlansComponent implements OnInit {
     this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${params}`).subscribe({
       next: (res) => {
         if (res.images && res.images.length > 0) {
-          this.lightboxImageUrl = res.images[0].image_url;
+          this.lightboxImageUrl = resolveImageUrl(res.images[0].image_url);
         } else {
           // Fallback: try the other diet type
           const fallbackDiet = dietPreference === 'veg' ? 'nonveg' : 'veg';
@@ -258,7 +259,7 @@ export class PlansComponent implements OnInit {
           this.http.get<any>(`${this.apiUrl}/weekly-menu-images?${fbParams}`).subscribe({
             next: (res2) => {
               this.lightboxImageUrl = (res2.images && res2.images.length > 0)
-                ? res2.images[0].image_url
+                ? resolveImageUrl(res2.images[0].image_url)
                 : null;
               this.lightboxLoading = false;
             },
