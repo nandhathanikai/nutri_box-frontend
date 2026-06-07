@@ -1,0 +1,96 @@
+<div class="route-page">
+  <div class="route-header">
+    <button class="btn-back" (click)="goBack()"><i class="pi pi-arrow-left"></i></button>
+    <div class="route-title">
+      <h1><i class="pi pi-map"></i> Delivery Route</h1>
+      @if (routeInfo) {
+        <p>{{ routeInfo.customer_name }} · {{ routeInfo.customer_phone }}</p>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="route-loading"><i class="pi pi-spin pi-spinner"></i> Loading route…</div>
+  }
+
+  @if (error) {
+    <div class="route-error">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <!-- Route info strip -->
+    <div class="route-info-strip">
+      @if (distance) {
+        <div class="route-stat">
+          <i class="pi pi-arrows-h"></i>
+          <span>{{ distance }}</span>
+          <label>Distance</label>
+        </div>
+      }
+      @if (distance && duration) {
+        <div class="route-divider"></div>
+      }
+      @if (duration) {
+        <div class="route-stat">
+          <i class="pi pi-clock"></i>
+          <span>{{ duration }}</span>
+          <label>Est. Time</label>
+        </div>
+      }
+      @if (distance || duration) {
+        <div class="route-divider"></div>
+      }
+      <button class="btn-gmaps" (click)="openGoogleMaps()" id="btn-open-gmaps">
+        <i class="pi pi-external-link"></i> Navigate
+      </button>
+    </div>
+
+    <!-- Customer info card -->
+    @if (routeInfo) {
+      <div class="customer-card">
+        <i class="pi pi-map-marker loc-icon"></i>
+        <div>
+          <strong>{{ routeInfo.customer_name }}</strong>
+          <span>{{ routeInfo.address }}</span>
+          @if (!routeInfo.latitude) {
+            <span class="no-gps-warn">⚠ No GPS coordinates — route shown as straight line</span>
+          }
+        </div>
+        <a [href]="'tel:' + routeInfo.customer_phone" class="call-btn">
+          <i class="pi pi-phone"></i>
+        </a>
+      </div>
+    }
+
+    <!-- Map -->
+    <div class="map-wrapper">
+      <div #mapContainer id="driver-map" class="leaflet-map"></div>
+      <!-- Inline Leaflet pin styles -->
+      <style>
+        .map-pin {
+          width: 40px; height: 40px;
+          border-radius: 50% 50% 50% 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1rem; color: white; transform: rotate(-45deg);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        .map-pin i { transform: rotate(45deg); }
+        .driver-pin { background: #f59e0b; }
+        .customer-pin { background: #2e7d32; }
+      </style>
+    </div>
+
+    @if (!routeInfo?.latitude) {
+      <div class="no-coords-banner">
+        <i class="pi pi-info-circle"></i>
+        Customer GPS coordinates are not set. Update the customer profile to enable map routing.
+        <button class="btn-gmaps" (click)="openGoogleMaps()">
+          <i class="pi pi-external-link"></i> Open Google Maps anyway
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -1,10 +1,12 @@
 <p-toast></p-toast>
-<div class="plans-page">
+<app-brand-bar></app-brand-bar>
+<div class="plans-page brand-watermark-container">
+  <div class="brand-watermark-bg"></div>
 
   <!-- ── Header ─────────────────────────────────────────────────────── -->
   <div class="plans-header">
-    <h1>Choose Your Plan</h1>
-    <p class="plans-subtitle">Building a healthier habit starts here. Pick your tier, diet, and schedule.</p>
+    <h1>✨ Choose Your Plan</h1>
+    <p class="plans-subtitle">Building a healthier habit starts here 🥗 Pick your tier, diet, and schedule.</p>
     <div style="margin-top: 1rem;">
       <p-button label="Need a Custom Menu?" icon="pi pi-sparkles" severity="secondary" [outlined]="true" (onClick)="goToCustomPlan()"></p-button>
     </div>
@@ -163,6 +165,46 @@
             <span>Delivery charge</span>
             <span class="breakdown-amount">{{ computedPrice.delivery_charge === 0 ? 'Free 🎉' : '₹' + computedPrice.delivery_charge }}</span>
           </div>
+
+          <!-- Promo Code Entry Section -->
+          <div class="promo-section">
+            <div class="promo-input-group">
+              <input
+                type="text"
+                class="promo-input"
+                placeholder="Enter promo code"
+                [(ngModel)]="promoCode"
+                [disabled]="isApplyingPromo || promoApplied"
+                (keyup.enter)="applyPromo()"
+                style="text-transform: uppercase;"
+              />
+              <button
+                type="button"
+                class="btn-promo-apply"
+                [class.applied]="promoApplied"
+                (click)="promoApplied ? removePromo() : applyPromo()"
+                [disabled]="(!promoCode && !promoApplied) || isApplyingPromo"
+              >
+                @if (isApplyingPromo) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else if (promoApplied) {
+                  Remove
+                } @else {
+                  Apply
+                }
+              </button>
+            </div>
+            <div *ngIf="promoMessage" class="promo-msg" [class.success]="promoApplied" [class.error]="!promoApplied">
+              {{ promoMessage }}
+            </div>
+          </div>
+
+          <!-- Discount Row (if valid and applied) -->
+          <div class="breakdown-line discount-row" *ngIf="promoApplied && discountAmount > 0">
+            <span>Discount ({{ promoCode | uppercase }})</span>
+            <span class="breakdown-amount discount-val">-₹{{ discountAmount }}</span>
+          </div>
+
           <div class="breakdown-divider"></div>
           <div class="breakdown-line breakdown-total">
             <span>Total to Pay</span>

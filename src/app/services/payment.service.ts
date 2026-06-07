@@ -21,6 +21,7 @@ export interface VerifyRequest {
   diet_type:  string;
   slot_combo: string;
   duration:   string;
+  promo_code?: string;
 }
 
 declare const Razorpay: any;
@@ -59,6 +60,7 @@ export class PaymentService {
     duration:   string;
     display_name?: string;
     total?: number;
+    promo_code?: string;
   }, userName: string, userEmail: string, userPhone: string): Observable<any> {
 
     return from(this.loadScript()).pipe(
@@ -68,6 +70,7 @@ export class PaymentService {
           diet_type:  plan.diet_type,
           slot_combo: plan.slot_combo,
           duration:   plan.duration,
+          promo_code: plan.promo_code,
         })
       ),
       switchMap((order) =>
@@ -100,6 +103,7 @@ export class PaymentService {
                 diet_type:  plan.diet_type,
                 slot_combo: plan.slot_combo,
                 duration:   plan.duration,
+                promo_code: plan.promo_code,
               } as VerifyRequest).subscribe({
                 next: (sub) => { observer.next(sub); observer.complete(); },
                 error: (err) => observer.error(err),

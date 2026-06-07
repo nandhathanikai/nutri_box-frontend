@@ -59,6 +59,8 @@ export interface AdminUserPayload {
   landmark?: string;
   location_link?: string;
   role: 'customer' | 'admin';
+  plan_id?: string;
+  subscription_start_date?: string;
 }
 
 export interface DishPayload {
@@ -127,6 +129,10 @@ export class AdminService {
 
   getTiers(): Observable<Tier[]> {
     return this.http.get<Tier[]>(`${this.menuApiUrl}/tiers`);
+  }
+
+  getPlanCombinations(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.menuApiUrl}/plan-combinations`);
   }
 
   uploadDishImage(formData: FormData): Observable<{image_url: string}> {

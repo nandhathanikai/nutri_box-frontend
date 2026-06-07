@@ -1,4 +1,5 @@
-<div class="home-page">
+<div class="home-page brand-watermark-container">
+  <div class="brand-watermark-bg"></div>
 
   <!-- HERO SECTION -->
   <section class="hero" #parallaxHero>
@@ -7,6 +8,11 @@
         <source src="background_video.mp4" type="video/mp4">
       </video>
       <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Floating Brand Logo — Top Right -->
+    <div class="hero-floating-logo">
+      <img src="/logo1.png" alt="NutriBox" class="hero-floating-logo-img" />
     </div>
 
     <div class="hero-content container" [style.transform]="'translateY(' + heroTextY + 'px)'" [style.opacity]="heroOpacity">
@@ -163,27 +169,41 @@
     <div class="container">
       <div class="section-header">
         <h2>Real People. Real Results.</h2>
-        <p>Customer reviews appear here as soon as they're submitted.</p>
+        <p>Our customers share their healthy dining experiences.</p>
       </div>
 
       @if (reviews.length > 0) {
         <div class="testimonials-grid">
           @for (t of reviews; track t.id) {
-            <div class="testimonial-card">
-              <div class="quote-icon">"</div>
-              <p class="t-text">{{ t.text }}</p>
-              <div class="t-author">
-                <div class="t-avatar">{{ t.avatar }}</div>
-                <div class="t-info">
-                  <strong>{{ t.name }}</strong>
-                  <span>{{ t.role }}</span>
-                </div>
-                <div class="t-rating">
-                  @for (_ of [].constructor(t.rating); track $index) { ★ }
-                </div>
+            <div class="testimonial-card premium-review-card">
+              <div class="review-customer-name">{{ t.name }}</div>
+              <div class="review-card-stars">
+                @for (_ of [].constructor(t.rating); track $index) { ★ }
+              </div>
+              <div class="review-card-body">
+                <p class="review-message">"{{ t.text }}"</p>
               </div>
             </div>
           }
+        </div>
+
+        <!-- Scroll Stats Bottom Row -->
+        <div class="reviews-bottom-stats-container">
+          <div class="reviews-bottom-stats">
+            <div class="scroll-stat-item">
+              <div class="stat-val">⭐ {{ reviewStats.happy_customers }}</div>
+              <div class="stat-lbl">Happy Customers</div>
+            </div>
+            <div class="scroll-stat-divider"></div>
+            <div class="scroll-stat-item">
+              <div class="stat-val">🤝 {{ reviewStats.total_reviews }}</div>
+              <div class="stat-lbl">Trusted by Customers</div>
+            </div>
+          </div>
+          
+          <div class="infinite-scroll-indicator" *ngIf="loadingReviews">
+            <i class="pi pi-spin pi-spinner"></i> Loading more reviews...
+          </div>
         </div>
       } @else {
         <div class="testimonials-grid">
@@ -197,17 +217,8 @@
     </div>
   </section>
 
-  <!-- CTA BANNER -->
-  <section class="cta-section">
-    <div class="container cta-content">
-      <div class="cta-bag">
-        <img src="hero_bag.png" alt="Nutribox Bag">
-      </div>
-      <div class="cta-text">
-        <h2>Ready to transform your diet?</h2>
-        <p>Start with a 7-day trial — no commitments, cancel anytime.</p>
-      </div>
-    </div>
-  </section>
+  <!-- GALLERY SHOWCASE CAROUSEL -->
+  <app-gallery-carousel></app-gallery-carousel>
+
 
 </div>

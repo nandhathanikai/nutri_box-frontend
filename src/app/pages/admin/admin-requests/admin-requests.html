@@ -1,17 +1,35 @@
 <p-toast></p-toast>
 <div class="admin-page">
-  <div class="page-header">
-    <div class="header-titles">
-      <h1>Custom Plan Requests</h1>
-      <p class="subtitle">Review customer custom requests and set custom pricing.</p>
-    </div>
-    <div class="header-actions">
-      <button pButton icon="pi pi-refresh" label="Refresh" (click)="loadRequests()"></button>
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-compass"></i> Custom Plan Requests</h1>
+        <p>Review customer custom requests, set pricing, and manage requests.</p>
+      </div>
+      <button class="btn-refresh-unified" (click)="loadRequests()" [disabled]="isLoading">
+        @if (isLoading) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-refresh"></i> }
+        Refresh
+      </button>
     </div>
   </div>
 
   <div class="admin-card">
-    <p-table [value]="requests" [loading]="isLoading" responsiveLayout="scroll" [paginator]="true" [rows]="10">
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by customer name, email, or requirements..."
+          [(ngModel)]="searchQuery"
+          id="custom-request-search"
+        />
+        @if (searchQuery) {
+          <button class="clear-btn" (click)="searchQuery = ''"><i class="pi pi-times"></i></button>
+        }
+      </div>
+    </div>
+
+    <p-table [value]="filteredRequests" [loading]="isLoading" responsiveLayout="scroll" [paginator]="true" [rows]="10">
       <ng-template pTemplate="header">
         <tr>
           <th>Date</th>
@@ -23,24 +41,41 @@
       </ng-template>
       <ng-template pTemplate="body" let-req>
         <tr>
-          <td>{{ req.created_at | date:'MMM d, y, h:mm a' }}</td>
-          <td>
-            <strong>{{ req.customer_name }}</strong><br>
-            <small>{{ req.customer_email }}</small>
-          </td>
-          <td>
-            <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
-              <strong>Diet:</strong> {{ req.diet_type }} | <strong>Slots:</strong> {{ req.slot_combo }} | <strong>Duration:</strong> {{ req.duration }}<br>
-              <em>"{{ req.custom_requirements }}"</em>
+          <td data-label="Date" class="date-cell">{{ req.created_at | date:'MMM d, y, h:mm a' }}</td>
+          <td data-label="Customer">
+            <div class="customer-cell">
+              <div class="avatar">
+                {{ getInitials(req.customer_name) }}
+              </div>
+              <div class="info">
+                <strong class="cust-name">{{ req.customer_name }}</strong>
+                <span class="cust-email">{{ req.customer_email }}</span>
+              </div>
             </div>
           </td>
-          <td>
-            <p-tag [value]="req.status | uppercase" [severity]="getStatusSeverity(req.status)"></p-tag>
+          <td data-label="Requirements">
+            <div class="req-details">
+              <div class="req-row">
+                <span class="req-badge diet">{{ req.diet_type }}</span>
+                <span class="req-badge slots">{{ req.slot_combo }}</span>
+                <span class="req-badge duration">{{ req.duration }}</span>
+              </div>
+              <div class="req-text">"{{ req.custom_requirements }}"</div>
+            </div>
           </td>
-          <td>
-            <div class="flex gap-2">
-              <button *ngIf="req.status === 'pending' || req.status === 'priced'" pButton icon="pi pi-dollar" class="p-button-sm p-button-success" pTooltip="Set Price" (click)="openPriceDialog(req)"></button>
-              <button *ngIf="req.status === 'pending' || req.status === 'priced'" pButton icon="pi pi-times" class="p-button-sm p-button-danger" pTooltip="Reject" (click)="updateStatus(req, 'rejected')"></button>
+          <td data-label="Status">
+            <span class="badge-unified" [class]="getStatusClass(req.status)">
+              {{ req.status }}
+            </span>
+          </td>
+          <td data-label="Actions">
+            <div class="action-icons">
+              <button *ngIf="req.status === 'pending' || req.status === 'priced'" class="btn-unified btn-sm btn-primary" title="Set Price" (click)="openPriceDialog(req)">
+                <i class="pi pi-dollar"></i> Set Price
+              </button>
+              <button *ngIf="req.status === 'pending' || req.status === 'priced'" class="btn-unified btn-sm btn-danger" title="Reject" (click)="updateStatus(req, 'rejected')">
+                <i class="pi pi-times"></i> Reject
+              </button>
             </div>
           </td>
         </tr>
@@ -53,24 +88,26 @@
     </p-table>
   </div>
 
-  <p-dialog header="Set Price for Custom Plan" [(visible)]="displayPriceDialog" [modal]="true" [style]="{width: '450px'}" [draggable]="false" [resizable]="false">
+  <p-dialog header="Set Price for Custom Plan" [(visible)]="displayPriceDialog" [modal]="true" [style]="{width: '450px', maxWidth: '94vw'}" [draggable]="false" [resizable]="false" styleClass="credits-dialog">
     <ng-container *ngIf="selectedRequest">
-      <p class="mb-4">Setting price for <strong>{{ selectedRequest.customer_name }}</strong>'s custom {{ selectedRequest.duration }} plan.</p>
+      <div class="dialog-info-box">
+        Setting price for <strong>{{ selectedRequest.customer_name }}</strong>'s custom <strong>{{ selectedRequest.duration }}</strong> plan.
+      </div>
       
-      <div class="field mb-3">
-        <label class="block font-bold mb-2">Price Per Meal (₹)</label>
-        <p-inputNumber [(ngModel)]="pricePerMeal" mode="currency" currency="INR" locale="en-IN" class="w-full"></p-inputNumber>
+      <div class="dlg-field">
+        <label>Price Per Meal (₹) <span class="req">*</span></label>
+        <p-inputNumber [(ngModel)]="pricePerMeal" mode="currency" currency="INR" locale="en-IN" styleClass="w-full"></p-inputNumber>
       </div>
 
-      <div class="field mb-4">
-        <label class="block font-bold mb-2">Delivery Charge (₹)</label>
-        <p-inputNumber [(ngModel)]="deliveryCharge" mode="currency" currency="INR" locale="en-IN" class="w-full"></p-inputNumber>
-      </div>
-      
-      <div class="flex justify-content-end gap-2">
-        <button pButton label="Cancel" class="p-button-text" (click)="displayPriceDialog = false"></button>
-        <button pButton label="Save Price" class="p-button-primary" (click)="submitPrice()"></button>
+      <div class="dlg-field">
+        <label>Delivery Charge (₹)</label>
+        <p-inputNumber [(ngModel)]="deliveryCharge" mode="currency" currency="INR" locale="en-IN" styleClass="w-full"></p-inputNumber>
       </div>
     </ng-container>
+    
+    <ng-template pTemplate="footer">
+      <button class="btn-unified btn-ghost" (click)="displayPriceDialog = false">Cancel</button>
+      <button class="btn-unified btn-primary" (click)="submitPrice()">Save Price</button>
+    </ng-template>
   </p-dialog>
 </div>

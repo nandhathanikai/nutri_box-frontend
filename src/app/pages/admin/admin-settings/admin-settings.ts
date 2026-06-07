@@ -195,4 +195,24 @@ export class AdminSettingsComponent {
   logout() {
     this.auth.logout();
   }
+
+  confirmClearDashboard() {
+    if (confirm("⚠️ WARNING: This will permanently delete all customer subscriptions, active orders, custom requests, delivery cancellations, and credits. This action is irreversible. Are you sure you want to reset the dashboard statistics?")) {
+      this.clearDashboard();
+    }
+  }
+
+  clearDashboard() {
+    this.isLoading = true;
+    this.http.post<any>(`${environment.apiBaseUrl}/api/settings/clear-dashboard`, {}).subscribe({
+      next: (resp) => {
+        this.msg.add({ severity: 'success', summary: 'Reset Complete', detail: resp.message || 'Dashboard statistics have been successfully reset.' });
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.msg.add({ severity: 'error', summary: 'Error', detail: err.error?.detail || 'Failed to reset dashboard statistics.' });
+        this.isLoading = false;
+      }
+    });
+  }
 }

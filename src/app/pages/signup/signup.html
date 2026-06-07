@@ -7,8 +7,7 @@
     <div class="panel-overlay"></div>
 
     <div class="visual-header">
-      <span class="logo-mark">N</span>
-      <span class="brand-name">Nutribox</span>
+      <img src="/logo1.png" alt="NutriBox" class="visual-logo-img" />
     </div>
 
     <div class="visual-body">
@@ -137,35 +136,57 @@
       <!-- STEP 2: Address Details -->
       @if (currentStep === 2) {
         <div class="step-content">
-          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
+          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form address-step-form">
 
-            <div class="field">
+            <!-- Address Line 1 (Full Width) -->
+            <div class="field full-width-field">
               <label for="addressLine1">ADDRESS LINE 1</label>
-              <input id="addressLine1" type="text" pInputText formControlName="addressLine1" placeholder="House / Flat no., Street name" />
+              <div class="premium-input-wrapper">
+                <i class="pi pi-home premium-input-icon"></i>
+                <input id="addressLine1" type="text" pInputText formControlName="addressLine1" placeholder="House / Flat no., Building name, Street name" />
+              </div>
             </div>
 
-            <div class="field">
-              <label for="addressLine2">ADDRESS LINE 2 <span class="optional">(optional)</span></label>
-              <input id="addressLine2" type="text" pInputText formControlName="addressLine2" placeholder="Area, Colony, Sector, Village" />
+            <!-- Address Line 2 & Landmark (50 / 50 Grid) -->
+            <div class="field-row">
+              <div class="field">
+                <label for="addressLine2">ADDRESS LINE 2 <span class="optional">(optional)</span></label>
+                <div class="premium-input-wrapper">
+                  <i class="pi pi-map premium-input-icon"></i>
+                  <input id="addressLine2" type="text" pInputText formControlName="addressLine2" placeholder="Area, Colony, Sector" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="landmark">LANDMARK <span class="optional">(optional)</span></label>
+                <div class="premium-input-wrapper">
+                  <i class="pi pi-compass premium-input-icon"></i>
+                  <input id="landmark" type="text" pInputText formControlName="landmark" placeholder="e.g. Near City Mall, Opposite Park" />
+                </div>
+              </div>
             </div>
 
-            <div class="field">
-              <label for="landmark">LANDMARK</label>
-              <input id="landmark" type="text" pInputText formControlName="landmark" placeholder="e.g. Near City Mall, Opposite Park" />
+            <!-- Live Location (Full Width) -->
+            <div class="field full-width-field">
+              <label for="locationLink">LIVE LOCATION <span class="optional">(optional)</span></label>
+              <div class="premium-input-wrapper live-location-wrapper">
+                <i class="pi pi-map-marker premium-input-icon"></i>
+                <input id="locationLink" type="url" pInputText formControlName="locationLink" placeholder="Paste your Google Maps link" />
+                <button type="button" (click)="fetchCurrentLocation()" title="Fetch current location" class="premium-locate-btn">
+                  <i class="pi pi-compass"></i> Locate Me
+                </button>
+              </div>
             </div>
 
-            <div class="field">
-              <label for="locationLink">LOCATION LINK <span class="optional">(optional)</span></label>
-              <input id="locationLink" type="url" pInputText formControlName="locationLink" placeholder="Paste your Google Maps link" />
-            </div>
-
-            <div class="action-row">
-              <p-button type="button" label="Back" icon="pi pi-arrow-left" [outlined]="true"
-                (onClick)="goBack()" styleClass="back-btn">
-              </p-button>
-              <p-button type="submit" label="Create Account" icon="pi pi-check" iconPos="right"
-                [disabled]="!step2Valid || isLoading" [loading]="isLoading" styleClass="submit-btn flex-1">
-              </p-button>
+            <!-- Action Buttons -->
+            <div class="action-row" style="margin-top: 0.5rem;">
+              <button type="button" class="back-pill-btn" (click)="goBack()">
+                <i class="pi pi-arrow-left"></i> Back
+              </button>
+              <button type="submit" class="submit-pill-btn" [disabled]="!step2Valid || isLoading">
+                <span *ngIf="isLoading"><i class="pi pi-spin pi-spinner"></i> Creating...</span>
+                <span *ngIf="!isLoading">Create Account <i class="pi pi-check"></i></span>
+              </button>
             </div>
 
           </form>

@@ -174,7 +174,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let cr of filteredAllCredits">
-            <td>
+            <td data-label="Customer">
               <div class="customer-cell">
                 <div class="avatar">{{ getInitials(cr.customer_name) }}</div>
                 <div class="info">
@@ -183,21 +183,21 @@
                 </div>
               </div>
             </td>
-            <td>
+            <td data-label="Session">
               <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
             </td>
-            <td>{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
-            <td>
+            <td data-label="Cancelled Date">{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
+            <td data-label="Deliver On">
               <span *ngIf="cr.delivery_on" class="delivery-date">{{ cr.delivery_on | date:'MMM d, y' }}</span>
               <span *ngIf="!cr.delivery_on" class="after-plan">After plan ends</span>
             </td>
-            <td class="credit-val">{{ cr.credit_days }}</td>
-            <td class="muted-text">{{ cr.plan_end_date | date:'MMM d, y' }}</td>
-            <td>
+            <td data-label="Credits" class="credit-val">{{ cr.credit_days }}</td>
+            <td data-label="Plan Ends" class="muted-text">{{ cr.plan_end_date | date:'MMM d, y' }}</td>
+            <td data-label="Status">
               <span class="c-badge" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
               <span *ngIf="cr.is_manual" class="c-badge mini badge-manual">Manual</span>
             </td>
-            <td>
+            <td data-label="Actions">
               <button pButton icon="pi pi-pencil" pTooltip="Override status"
                 class="p-button-text p-button-sm"
                 style="color:#6b7280"
@@ -248,26 +248,26 @@
         </thead>
         <tbody>
           <tr *ngFor="let cr of filteredLogCredits">
-            <td class="muted-text">
+            <td data-label="Date/Time" class="muted-text">
               {{ cr.created_at | date:'MMM d, y' }}<br/>
               <span class="time-sub">{{ cr.cancelled_at | date:'h:mm a' }}</span>
             </td>
-            <td class="bold-text">{{ cr.customer_name }}</td>
-            <td>
+            <td data-label="Customer" class="bold-text">{{ cr.customer_name }}</td>
+            <td data-label="Type">
               <span class="c-badge mini" [ngClass]="cr.is_manual ? 'badge-manual' : 'badge-auto'">
                 {{ cr.is_manual ? 'Manual' : 'Auto' }}
               </span>
             </td>
-            <td>
+            <td data-label="Session">
               <span class="session-chip" [ngClass]="'chip-' + cr.session?.toLowerCase()">{{ sessionLabel(cr.session) }}</span>
             </td>
-            <td class="muted-text">{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
-            <td>
+            <td data-label="Cancelled Date" class="muted-text">{{ cr.original_delivery_date | date:'MMM d, y' }}</td>
+            <td data-label="Deliver On">
               <span *ngIf="cr.delivery_on" class="delivery-date">{{ cr.delivery_on | date:'MMM d, y' }}</span>
               <span *ngIf="!cr.delivery_on" class="after-plan">TBD after plan ends</span>
             </td>
-            <td class="note-text">{{ cr.notes || '—' }}</td>
-            <td>
+            <td data-label="Note" class="note-text">{{ cr.notes || '—' }}</td>
+            <td data-label="Status">
               <span class="c-badge" [ngClass]="'badge-' + cr.status">{{ cr.status | uppercase }}</span>
             </td>
           </tr>

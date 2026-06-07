@@ -8,6 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AdminService, Customer } from '../../../services/admin.service';
 import { PaginatorModule } from 'primeng/paginator';
@@ -23,6 +25,7 @@ type FilterTab = 'All' | 'Active' | 'Expiring Soon' | 'Expired';
     CommonModule, FormsModule, ReactiveFormsModule,
     ToastModule, ConfirmDialogModule, DialogModule, ButtonModule,
     InputTextModule, PasswordModule, SelectModule, PaginatorModule,
+    CheckboxModule, DatePickerModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-customers.html',
@@ -51,6 +54,7 @@ export class AdminCustomersComponent implements OnInit {
     { label: 'Customer', value: 'customer' },
     { label: 'Admin',    value: 'admin' },
   ];
+  planOptions: any[] = [];
 
   constructor(
     private adminService: AdminService,
@@ -68,16 +72,57 @@ export class AdminCustomersComponent implements OnInit {
       address_line_2: [''],
       landmark:       [''],
       location_link:  [''],
+      add_subscription:        [false],
+      plan_id:                 [''],
+      subscription_start_date: [new Date()],
+    });
+
+    this.addForm.get('add_subscription')?.valueChanges.subscribe(val => {
+      const planControl = this.addForm.get('plan_id');
+      const startControl = this.addForm.get('subscription_start_date');
+      if (val) {
+        planControl?.setValidators([Validators.required]);
+        startControl?.setValidators([Validators.required]);
+      } else {
+        planControl?.clearValidators();
+        startControl?.clearValidators();
+      }
+      planControl?.updateValueAndValidity();
+      startControl?.updateValueAndValidity();
     });
   }
 
   ngOnInit() {
     this.load();
+    this.loadPlans();
     // Debounce keystrokes so we don't hammer the API on every keypress.
     this.searchInput$.pipe(debounceTime(250), distinctUntilChanged()).subscribe(() => {
       this.page = 1;
       this.load();
     });
+  }
+
+  loadPlans() {
+    this.adminService.getPlanCombinations().subscribe({
+      next: (plans) => {
+        this.planOptions = plans.filter(p => p.is_active).map(p => ({
+          id: p.id,
+          display_name: `${p.display_name} (₹${p.total_price})`
+        }));
+      },
+      error: () => {
+        this.msg.add({ severity: 'error', summary: 'Error', detail: 'Could not load plan combinations.' });
+      }
+    });
+  }
+
+  formatDate(d: Date | string | null | undefined): string | null {
+    if (!d) return null;
+    if (typeof d === 'string') return d;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   load() {
@@ -135,7 +180,7 @@ export class AdminCustomersComponent implements OnInit {
   // ── Add User ────────────────────────────────────────────────────────────
 
   openAddDialog() {
-    this.addForm.reset({ role: 'customer' });
+    this.addForm.reset({ role: 'customer', add_subscription: false, subscription_start_date: new Date() });
     this.showAddDialog = true;
   }
 
@@ -149,7 +194,23 @@ export class AdminCustomersComponent implements OnInit {
       return;
     }
     this.isCreating = true;
-    this.adminService.addCustomer(this.addForm.value).subscribe({
+    const formVal = this.addForm.value;
+    const payload: any = {
+      full_name: formVal.full_name,
+      email: formVal.email,
+      phone: formVal.phone,
+      password: formVal.password,
+      role: formVal.role,
+      address_line_1: formVal.address_line_1,
+      address_line_2: formVal.address_line_2,
+      landmark: formVal.landmark,
+      location_link: formVal.location_link,
+    };
+    if (formVal.add_subscription) {
+      payload.plan_id = formVal.plan_id;
+      payload.subscription_start_date = this.formatDate(formVal.subscription_start_date);
+    }
+    this.adminService.addCustomer(payload).subscribe({
       next: (res) => {
         this.isCreating = false;
         this.msg.add({

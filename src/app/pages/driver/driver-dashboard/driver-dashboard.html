@@ -1,0 +1,138 @@
+<div class="driver-dashboard">
+  <!-- Summary bar -->
+  <div class="summary-bar">
+    <div class="summary-date"><i class="pi pi-calendar"></i> {{ displayDate }}</div>
+    <div class="summary-stats">
+      <div class="stat">
+        <span class="stat-num">{{ totalDeliveries }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num delivered">{{ deliveredCount }}</span>
+        <span class="stat-label">Delivered</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num pending">{{ totalDeliveries - deliveredCount }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+    <button class="btn-reload" (click)="load()" [disabled]="loading">
+      <i class="pi" [class.pi-refresh]="!loading" [class.pi-spin]="loading" [class.pi-spinner]="loading"></i>
+    </button>
+  </div>
+
+  @if (loading && !data) {
+    <div class="loading-panel"><i class="pi pi-spin pi-spinner"></i><p>Loading your deliveries…</p></div>
+  }
+
+  @for (session of data?.sessions ?? []; track session.session_id) {
+    <div class="session-section">
+      <div class="session-heading">
+        <i class="pi {{ sessionIcon(session.slug) }}"></i>
+        <h2>{{ session.session_name }}</h2>
+        <span class="session-count">{{ session.deliveries.length }}</span>
+      </div>
+
+      <div class="delivery-cards">
+        @for (item of session.deliveries; track item.assignment_id) {
+          <div class="delivery-card" [class]="statusClass(item.status)">
+            <!-- Status ribbon -->
+            <div class="card-status-ribbon" [class]="statusClass(item.status)">
+              @if (item.status === 'on_the_way') { <i class="pi pi-directions"></i> On the Way }
+              @else if (item.status === 'delivered') { <i class="pi pi-check-circle"></i> Delivered }
+              @else { <i class="pi pi-clock"></i> Assigned }
+            </div>
+
+            <div class="card-body">
+              <div class="card-top">
+                <div class="customer-info">
+                  <div class="customer-avatar">{{ item.customer_name.charAt(0) }}</div>
+                  <div>
+                    <h3 class="customer-name">{{ item.customer_name }}</h3>
+                    <a class="customer-phone" [href]="'tel:' + item.customer_phone">
+                      <i class="pi pi-phone"></i> {{ item.customer_phone }}
+                    </a>
+                  </div>
+                </div>
+                <div class="tier-badge" [class]="tierClass(item.tier_slug)">
+                  {{ item.tier_name }}
+                </div>
+              </div>
+
+              <div class="card-address">
+                <i class="pi pi-map-marker"></i>
+                <span>{{ item.address }}</span>
+                @if (!item.latitude) {
+                  <span class="no-coords-warning" title="No GPS coordinates — map unavailable">
+                    <i class="pi pi-exclamation-triangle"></i>
+                  </span>
+                }
+              </div>
+
+              @if (item.delivered_at) {
+                <div class="delivered-time">
+                  <i class="pi pi-check"></i>
+                  Delivered at {{ item.delivered_at | date:'shortTime' }}
+                </div>
+              }
+            </div>
+
+            <!-- Action buttons -->
+            @if (item.status !== 'delivered') {
+              <div class="card-actions">
+                <button
+                  class="btn-route"
+                  (click)="openRoute(item)"
+                  [title]="(item.latitude || item.location_link) ? 'Open route map' : 'Open route details & address'"
+                  id="btn-route-{{ item.assignment_id }}"
+                >
+                  <i class="pi pi-map"></i> Open Route
+                </button>
+
+                @if (item.status === 'assigned') {
+                  <button
+                    class="btn-start"
+                    (click)="startDelivery(item)"
+                    [disabled]="actionLoading === item.assignment_id"
+                    id="btn-start-{{ item.assignment_id }}"
+                  >
+                    @if (actionLoading === item.assignment_id) {
+                      <i class="pi pi-spin pi-spinner"></i>
+                    } @else {
+                      <i class="pi pi-directions"></i>
+                    }
+                    Start Delivery
+                  </button>
+                }
+
+                @if (item.status === 'on_the_way') {
+                  <button
+                    class="btn-delivered"
+                    (click)="markDelivered(item)"
+                    [disabled]="actionLoading === item.assignment_id"
+                    id="btn-delivered-{{ item.assignment_id }}"
+                  >
+                    @if (actionLoading === item.assignment_id) {
+                      <i class="pi pi-spin pi-spinner"></i>
+                    } @else {
+                      <i class="pi pi-check-circle"></i>
+                    }
+                    Delivered
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading && totalDeliveries === 0) {
+    <div class="empty-dashboard">
+      <i class="pi pi-truck"></i>
+      <h3>No deliveries today</h3>
+      <p>You have no assignments for today. Check back later.</p>
+    </div>
+  }
+</div>

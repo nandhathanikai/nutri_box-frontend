@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<app-brand-bar></app-brand-bar>
 <div class="container profile-container">
 
   <!-- Loading state -->
@@ -54,11 +55,11 @@
 
         <h3 class="subsection-title">Delivery Address</h3>
         <div class="form-grid">
-          <div class="field field-wide">
+          <div class="field">
             <label for="addr1">Address Line 1</label>
             <input pInputText id="addr1" [(ngModel)]="user.address_line_1" class="w-full" />
           </div>
-          <div class="field field-wide">
+          <div class="field">
             <label for="addr2">Address Line 2 <span class="optional">(optional)</span></label>
             <input pInputText id="addr2" [(ngModel)]="user.address_line_2" class="w-full" />
           </div>
@@ -67,8 +68,11 @@
             <input pInputText id="landmark" [(ngModel)]="user.landmark" class="w-full" />
           </div>
           <div class="field">
-            <label for="locationLink">Google Maps Link <span class="optional">(optional)</span></label>
-            <input pInputText id="locationLink" [(ngModel)]="user.location_link" class="w-full" placeholder="https://maps.google.com/..." />
+            <label for="locationLink">Live Location <span class="optional">(optional)</span></label>
+            <div class="input-with-action">
+              <input pInputText id="locationLink" [(ngModel)]="user.location_link" class="w-full" placeholder="https://maps.google.com/..." />
+              <button pButton type="button" icon="pi pi-map-marker" (click)="fetchCurrentLocation()" title="Fetch current location" class="p-button-secondary locate-btn"></button>
+            </div>
           </div>
         </div>
 

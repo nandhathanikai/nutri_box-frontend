@@ -1,0 +1,93 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="reviews-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-comments"></i> Customer Reviews</h1>
+        <p>Manage customer feedback and choose which reviews to display on the homepage testimonials block.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid c3">
+    <div class="stat-card">
+      <div class="stat-label">Total Reviews</div>
+      <div class="stat-value">{{ totalCount }}</div>
+      <div class="stat-sub muted">Received reviews</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Shown on Homepage</div>
+      <div class="stat-value">{{ approvedCount }}</div>
+      <div class="stat-sub green">Live testimonials</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Average Rating</div>
+      <div class="stat-value">{{ averageRating }} <span style="font-size: 1.5rem; color: #fbbf24;">★</span></div>
+      <div class="stat-sub amber">Out of 5 stars</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="ftabs">
+      <button class="ftab" [class.active]="statusFilter === 'all'" (click)="statusFilter = 'all'">All</button>
+      <button class="ftab" [class.active]="statusFilter === 'approved'" (click)="statusFilter = 'approved'">Shown on Homepage</button>
+      <button class="ftab" [class.active]="statusFilter === 'pending'" (click)="statusFilter = 'pending'">Hidden / Pending</button>
+    </div>
+    <div class="search-bar">
+      <i class="pi pi-search"></i>
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search reviews…" />
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list">
+    <div class="review-item-card" *ngFor="let r of filteredReviews">
+      <div class="review-meta">
+        <div class="customer-info">
+          <span class="customer-avatar">{{ r.customer_name ? r.customer_name.charAt(0).toUpperCase() : 'C' }}</span>
+          <div>
+            <div class="customer-name-row">
+              <strong class="customer-name">{{ r.customer_name }}</strong>
+              <span class="customer-role">{{ r.customer_role }}</span>
+            </div>
+            <div class="review-stars-row">
+              <span class="star-rating">
+                <i class="pi pi-star-fill active-star" *ngFor="let star of [1,2,3,4,5].slice(0, r.rating)"></i>
+                <i class="pi pi-star" *ngFor="let star of [1,2,3,4,5].slice(r.rating)"></i>
+              </span>
+              <span class="review-date">{{ r.created_at | date:'MMM d, y, h:mm a' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="review-status-col">
+          <span class="status-badge" [class.status-approved]="r.status === 'approved'" [class.status-pending]="r.status !== 'approved'">
+            {{ r.status === 'approved' ? '✓ Displayed on Home' : 'Ø Hidden from Home' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="review-text-content">
+        <p>"{{ r.text }}"</p>
+      </div>
+
+      <div class="review-actions-row">
+        <button class="btn btn-sm" [class.btn-success]="r.status !== 'approved'" [class.btn-warning]="r.status === 'approved'" (click)="toggleApproved(r)">
+          <i class="pi" [ngClass]="r.status === 'approved' ? 'pi-eye-slash' : 'pi-eye'"></i>
+          {{ r.status === 'approved' ? 'Hide from Homepage' : 'Show on Homepage' }}
+        </button>
+        <button class="btn btn-danger btn-sm" (click)="deleteReview(r)">
+          <i class="pi pi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredReviews.length === 0">
+      <i class="pi pi-inbox"></i>
+      <p>No customer reviews found matching your filters.</p>
+    </div>
+  </div>
+</div>

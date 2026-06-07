@@ -1,0 +1,151 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="admin-page-container">
+  <!-- Dynamic Dashboard Header Banner -->
+  <div class="admin-header-banner">
+    <div class="header-text-group">
+      <h1>🖼️ Showcase Gallery Manager</h1>
+      <p class="subtitle">Upload and manage up to 10 promotional food pictures to display in the customer dashboard auto-scrolling marquee carousel.</p>
+    </div>
+    
+    <!-- Premium Image Count Progress Tracker -->
+    <div class="gallery-limit-tracker">
+      <div class="limit-status">
+        <span class="count-pill" [class.limit-full]="images.length >= 10">
+          {{ images.length }} / 10 Images Uploaded
+        </span>
+      </div>
+      <div class="limit-bar-wrapper">
+        <div class="limit-bar" [style.width.%]="images.length * 10" [class.limit-bar-full]="images.length >= 10"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-layout-grid">
+    <!-- Left Column: Add Showcase Image Form -->
+    <div class="admin-card upload-card">
+      <div class="card-header">
+        <h2>✨ Add Showcase Image</h2>
+        <span class="header-desc">Choose a lovely food photo to display. Max file size: 5MB.</span>
+      </div>
+
+      <div class="card-body">
+        <!-- Disabled Overlay when max reached -->
+        @if (images.length >= 10) {
+          <div class="limit-reached-overlay">
+            <i class="pi pi-exclamation-circle warning-icon"></i>
+            <h3>Upload Limit Reached</h3>
+            <p>You have reached the maximum allowed limit of 10 showcase images. Delete an existing image to upload a new one.</p>
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="galleryFileInput" class="form-label">Select Photo</label>
+          <div class="custom-file-upload-zone" [class.file-selected]="selectedFile">
+            <input 
+              type="file" 
+              id="galleryFileInput" 
+              accept="image/*" 
+              (change)="onFileSelected($event)" 
+              [disabled]="images.length >= 10"
+              class="hidden-file-input"
+            />
+            <label for="galleryFileInput" class="upload-zone-label">
+              <i class="pi pi-cloud-upload upload-icon"></i>
+              @if (selectedFile) {
+                <span class="file-name">{{ selectedFile.name }}</span>
+                <span class="file-size">({{ (selectedFile.size / 1024 / 1024) | number:'1.1-2' }} MB)</span>
+              } @else {
+                <span class="prompt-text">Drag & drop or <strong>browse</strong> to choose photo</span>
+                <span class="sub-prompt">JPEG, PNG, WebP or GIF formats only</span>
+              }
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="imageCaption" class="form-label">Image Name <span class="required-star">*</span></label>
+          <input 
+            type="text" 
+            id="imageCaption" 
+            [(ngModel)]="newCaption" 
+            placeholder="e.g. Dal Makhani Thali, Veg Special Tray…" 
+            class="form-control"
+            [disabled]="images.length >= 10"
+            maxlength="60"
+          />
+          <span class="field-hint">This name will appear on the showcase card in the customer dashboard.</span>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            pButton 
+            (click)="triggerUpload()" 
+            [disabled]="images.length >= 10 || !selectedFile || isUploading"
+            [loading]="isUploading"
+            label="Upload Image" 
+            icon="pi pi-upload" 
+            class="p-button-success btn-full-width"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Current Showcase Grid -->
+    <div class="admin-card grid-card">
+      <div class="card-header">
+        <h2>🔥 Live Showcase Slides</h2>
+        <span class="header-desc">These pictures are currently auto-scrolling on the customer dashboard.</span>
+      </div>
+
+      <div class="card-body">
+        @if (isLoading) {
+          <div class="loading-state">
+            <i class="pi pi-spin pi-spinner spinner-icon"></i>
+            <p>Loading gallery showcase images...</p>
+          </div>
+        } @else if (images.length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-image empty-icon"></i>
+            <h3>No Showcase Slides</h3>
+            <p>Your showcase gallery is empty. Upload your first picture on the left to show gorgeous visuals to your customers!</p>
+          </div>
+        } @else {
+          <div class="showcase-grid-list">
+            @for (img of images; track img.id) {
+              <div class="showcase-card">
+                <div class="image-wrapper">
+                  <img [src]="img.image_url" alt="Showcase Image" />
+                  <div class="card-overlay">
+                    <button 
+                      (click)="deleteImage(img)" 
+                      class="delete-overlay-btn" 
+                      title="Delete Slide"
+                    >
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-info">
+                  <div class="name-row">
+                    <i class="pi pi-tag name-icon"></i>
+                    @if (img.caption) {
+                      <span class="name-text">{{ img.caption }}</span>
+                    } @else {
+                      <span class="name-text no-name">No name set</span>
+                    }
+                  </div>
+                  <span class="date-tag">
+                    <i class="pi pi-calendar"></i>
+                    {{ img.created_at | date:'MMM d, y' }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

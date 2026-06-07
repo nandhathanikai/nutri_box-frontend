@@ -15,12 +15,13 @@ import { AuthService } from '../../services/auth.service';
 import { PaymentService } from '../../services/payment.service';
 import { environment } from '../../../environments/environment';
 import { StickyCtaComponent } from '../../components/sticky-cta/sticky-cta';
+import { BrandBarComponent } from '../../components/brand-bar/brand-bar';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-plans',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, ButtonModule, SelectButtonModule, SkeletonModule, TabsModule, TooltipModule, ToastModule, StickyCtaComponent],
+  imports: [CommonModule, FormsModule, CardModule, ButtonModule, SelectButtonModule, SkeletonModule, TabsModule, TooltipModule, ToastModule, StickyCtaComponent, BrandBarComponent],
   providers: [MessageService],
   templateUrl: './plans.html',
   styleUrl: './plans.scss',
@@ -62,6 +63,13 @@ export class PlansComponent implements OnInit {
   computedPrice: any = null;
   isComputingPrice = false;
   isPaymentLoading = false;
+
+  // ── Promo Code State ──────────────────────────────────────────────────
+  promoCode = '';
+  promoApplied = false;
+  isApplyingPromo = false;
+  promoMessage = '';
+  discountAmount = 0;
 
   // ── Logged-in user info (for Razorpay prefill) ────────────────────────
   currentUser: any = null;
@@ -108,6 +116,7 @@ export class PlansComponent implements OnInit {
   // ── Selection Handlers ────────────────────────────────────────────────
 
   selectTier(tier: any) {
+    this.removePromo();
     this.selectedTier = tier;
     this.selectedDiet = null;
     this.selectedSlot = null;
@@ -117,6 +126,7 @@ export class PlansComponent implements OnInit {
   }
 
   selectDiet(diet: string) {
+    this.removePromo();
     this.selectedDiet = diet;
     this.selectedSlot = null;
     this.selectedDuration = null;
@@ -125,12 +135,14 @@ export class PlansComponent implements OnInit {
   }
 
   selectSlot(slot: string) {
+    this.removePromo();
     this.selectedSlot = slot;
     this.selectedDuration = null;
     this.computedPrice = null;
   }
 
   selectDuration(duration: string) {
+    this.removePromo();
     this.selectedDuration = duration;
     this.computePrice();
   }
@@ -148,6 +160,51 @@ export class PlansComponent implements OnInit {
       },
       error: () => this.isComputingPrice = false,
     });
+  }
+
+  applyPromo() {
+    if (!this.promoCode || this.isApplyingPromo || !this.computedPrice) return;
+    this.isApplyingPromo = true;
+    this.promoMessage = '';
+
+    const orderTotal = this.computedPrice.subtotal + this.computedPrice.delivery_charge;
+
+    this.http.post<any>(`${environment.apiBaseUrl}/api/offers/validate`, {
+      code: this.promoCode.trim().toUpperCase(),
+      order_total: orderTotal
+    }).subscribe({
+      next: (res) => {
+        this.isApplyingPromo = false;
+        if (res.valid) {
+          this.promoApplied = true;
+          this.discountAmount = res.discount;
+          this.promoMessage = res.message || 'Promo code applied successfully!';
+          this.computedPrice.total = Math.max(0, orderTotal - this.discountAmount);
+          this.msg.add({ severity: 'success', summary: 'Promo Applied', detail: this.promoMessage });
+        } else {
+          this.promoApplied = false;
+          this.discountAmount = 0;
+          this.promoMessage = 'Invalid promo code.';
+        }
+      },
+      error: (err) => {
+        this.isApplyingPromo = false;
+        this.promoApplied = false;
+        this.discountAmount = 0;
+        this.promoMessage = err?.error?.detail || 'Invalid promo code.';
+        this.msg.add({ severity: 'error', summary: 'Invalid Code', detail: this.promoMessage });
+      }
+    });
+  }
+
+  removePromo() {
+    this.promoApplied = false;
+    this.promoCode = '';
+    this.discountAmount = 0;
+    this.promoMessage = '';
+    if (this.computedPrice) {
+      this.computedPrice.total = this.computedPrice.subtotal + this.computedPrice.delivery_charge;
+    }
   }
 
   fetchMenuImage() {
@@ -295,6 +352,7 @@ export class PlansComponent implements OnInit {
         duration:     this.selectedDuration!,
         display_name: this.computedPrice.display_name,
         total:        this.computedPrice.total,
+        promo_code:   this.promoApplied ? this.promoCode.trim().toUpperCase() : undefined,
       },
       this.currentUser?.full_name  || this.currentUser?.name || '',
       this.currentUser?.email      || '',
@@ -308,7 +366,7 @@ export class PlansComponent implements OnInit {
           detail: `${sub.tier_name} subscription starts ${sub.start_date}.`,
           life: 5000,
         });
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard'], { queryParams: { payment_success: 'true' } });
       },
       error: (err) => {
         this.isPaymentLoading = false;

@@ -207,7 +207,10 @@ export class LoginComponent {
 
         this.authService.getCurrentUser().subscribe({
           next: (user) => {
-            const dest = (user.role && user.role.toLowerCase() === 'admin') ? '/admin' : '/dashboard';
+            const role = (user.role || '').toLowerCase();
+            let dest = '/dashboard';
+            if (role === 'admin') dest = '/admin';
+            else if (role === 'driver') dest = '/driver/dashboard';
             this.router.navigate([dest]);
           },
           error: () => this.router.navigate(['/dashboard'])

@@ -20,8 +20,8 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg Open Rate</div>
-      <div class="stat-value">68%</div>
-      <div class="stat-sub green">↑ 5%</div>
+      <div class="stat-value">{{ avgOpenRate }}%</div>
+      <div class="stat-sub muted">Across published</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Now</div>
@@ -38,6 +38,20 @@
       <button class="ftab" [class.active]="annFilter === 'draft'" (click)="setFilter('draft')">Draft</button>
       <button class="ftab" [class.active]="annFilter === 'expired'" (click)="setFilter('expired')">Expired</button>
     </div>
+
+    <div class="search-bar">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Search announcements..."
+        [(ngModel)]="searchQuery"
+        id="announcements-search"
+      />
+      @if (searchQuery) {
+        <button class="clear-btn" (click)="searchQuery = ''"><i class="pi pi-times"></i></button>
+      }
+    </div>
+
     <span class="spacer"></span>
     <button class="btn btn-primary" (click)="showNewAnn = true">+ New Announcement</button>
   </div>
@@ -47,7 +61,7 @@
 
   <!-- List -->
   <div class="ann-list" *ngIf="!isLoading">
-    <div class="ann-card" *ngFor="let a of announcements">
+    <div class="ann-card" *ngFor="let a of filteredAnnouncements">
       <div class="ann-icon" [ngClass]="'ann-icon--' + a.status">{{ a.icon }}</div>
       <div class="ann-body">
         <div class="ann-title-row">
@@ -67,7 +81,10 @@
         <button class="btn btn-danger btn-sm" (click)="delete(a)">🗑</button>
       </div>
     </div>
-    <div class="empty" *ngIf="announcements.length === 0">No announcements found</div>
+    <div class="empty" *ngIf="filteredAnnouncements.length === 0">
+      <i class="pi pi-search" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:0.5rem;"></i>
+      <span>{{ announcements.length === 0 ? 'No announcements found' : 'No matching announcements found' }}</span>
+    </div>
   </div>
 </div>
 

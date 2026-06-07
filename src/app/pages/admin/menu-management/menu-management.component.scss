@@ -294,9 +294,10 @@
 .tier-row {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  padding: 0.65rem 1rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.45rem 1rem;
+  flex-wrap: nowrap;
+  min-height: 52px;
 }
 
 .tier-drag {
@@ -312,31 +313,92 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-width: 150px;
   flex-shrink: 0;
 }
 
-.tier-slug-label {
-  font-size: 0.7rem;
-  color: #9ca3af;
-  font-family: monospace;
-  background: #f3f4f6;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  border: 1px solid #e5e7eb;
-}
-
-.tier-diet {
-  min-width: 110px;
-  flex-shrink: 0;
-}
-
-.tier-pricing-badges {
+// Diet indicator dots
+.tier-diet-dots {
   display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 120px;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.diet-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: white;
+  cursor: default;
+
+  &--veg   { border: 1.5px solid #22c55e; }
+  &--nonveg{ border: 1.5px solid #ef4444; }
+
+  .dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &--veg    .dot-inner { background: #22c55e; }
+  &--nonveg .dot-inner { background: #ef4444; }
+}
+
+// Spacer pushes right-side elements to far right
+.tier-spacer { flex: 1; }
+
+// Inline compact delivery charge display
+.tier-delivery-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.delivery-inline-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.delivery-inline-prefix {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.delivery-inline-sep {
+  color: #d1d5db;
+  font-size: 0.8rem;
+  margin: 0 0.2rem;
+}
+
+.delivery-nano-input {
+  width: 42px !important;
+  height: 26px !important;
+  font-size: 0.78rem !important;
+  padding: 0 0.3rem !important;
+  border-radius: 5px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16,185,129,0.15) !important;
+    outline: none !important;
+  }
+
+  // Hide spinner arrows
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  -moz-appearance: textfield;
 }
 
 .tier-delivery {
@@ -360,17 +422,19 @@
 }
 
 .delivery-input {
-  width: 68px !important;
-  font-size: 0.85rem !important;
-  padding: 0.35rem 0.5rem !important;
+  width: 48px !important;
+  font-size: 0.8rem !important;
+  padding: 0.25rem 0.35rem !important;
   text-align: right;
+  height: 28px !important;
 }
 
 .compact-group .p-inputgroup-addon {
-  min-width: 28px !important;
-  padding: 0 0.4rem !important;
-  font-size: 0.85rem !important;
+  min-width: 20px !important;
+  padding: 0 0.25rem !important;
+  font-size: 0.8rem !important;
   background: var(--bg-subtle) !important;
+  height: 28px !important;
 }
 
 .tier-toggle { display: flex; align-items: center; flex-shrink: 0; }
@@ -381,6 +445,104 @@
   margin-left: auto;
   flex-shrink: 0;
   align-items: center;
+}
+
+// ── Compact base-price bar (inside expanded panel) ──────────────────────────
+.base-pricing-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  &__label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--heading-green);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    i { color: var(--primary-green); }
+  }
+
+  &__inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  &__sep {
+    color: #d1d5db;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+}
+
+.base-price-field {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &__tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  &__prefix {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+  }
+}
+
+.base-price-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--veg    { background: #22c55e; }
+  &--nonveg { background: #ef4444; }
+}
+
+.base-price-input {
+  width: 72px !important;
+  height: 30px !important;
+  font-size: 0.82rem !important;
+  padding: 0 0.4rem !important;
+  border-radius: 6px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  text-align: center;
+  font-weight: 600;
+
+  &:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16,185,129,0.15) !important;
+    outline: none !important;
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  -moz-appearance: textfield;
+}
+
+.base-price-btn {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
 }
 
 // ── Pricing Sub-Panel ──────────────────────────────────────────────────────────

@@ -30,16 +30,16 @@
           </ng-template>
           <ng-template pTemplate="body" let-menu>
             <tr>
-              <td>
+              <td data-label="Image">
                 <img *ngIf="menu.menu_image" [src]="menu.menu_image" [alt]="menu.menu_name" class="menu-img-preview shadow-2" />
                 <div *ngIf="!menu.menu_image" class="no-img">No Image</div>
               </td>
-              <td>{{ menu.menu_name }}</td>
-              <td>{{ menu.weekly_price ? (menu.weekly_price | currency:'INR') : 'N/A' }}</td>
-              <td>{{ menu.monthly_price ? (menu.monthly_price | currency:'INR') : 'N/A' }}</td>
-              <td>{{ menu.weekly_delivery_charge ? (menu.weekly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
-              <td>{{ menu.monthly_delivery_charge ? (menu.monthly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
-              <td>
+              <td data-label="Name">{{ menu.menu_name }}</td>
+              <td data-label="Weekly (INR)">{{ menu.weekly_price ? (menu.weekly_price | currency:'INR') : 'N/A' }}</td>
+              <td data-label="Monthly (INR)">{{ menu.monthly_price ? (menu.monthly_price | currency:'INR') : 'N/A' }}</td>
+              <td data-label="W-Del (INR)">{{ menu.weekly_delivery_charge ? (menu.weekly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
+              <td data-label="M-Del (INR)">{{ menu.monthly_delivery_charge ? (menu.monthly_delivery_charge | currency:'INR') : '₹0.00' }}</td>
+              <td data-label="Actions">
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editMenu(menu)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteMenu(menu)"></button>
               </td>

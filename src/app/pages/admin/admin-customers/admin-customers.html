@@ -56,30 +56,30 @@
         </thead>
         <tbody>
           <tr *ngFor="let c of filtered">
-            <td class="name-cell">
+            <td data-label="Name" class="name-cell">
               <div class="name-stack">
                 <span>{{ c.name }}</span>
                 <span class="email-line">{{ c.email }}</span>
               </div>
             </td>
-            <td class="phone-cell">{{ c.phone }}</td>
-            <td>
+            <td data-label="Phone" class="phone-cell">{{ c.phone }}</td>
+            <td data-label="Role">
               <select [value]="c.role" (change)="changeRole(c, $event)" class="role-select">
                 <option value="customer">Customer</option>
                 <option value="admin">Admin</option>
               </select>
             </td>
-            <td>{{ c.plan }}</td>
-            <td class="sessions-cell">{{ c.sessions }}</td>
-            <td>{{ c.startDate }}</td>
-            <td>{{ c.endDate }}</td>
-            <td>{{ c.credits }}</td>
-            <td>
+            <td data-label="Plan">{{ c.plan }}</td>
+            <td data-label="Sessions" class="sessions-cell">{{ c.sessions }}</td>
+            <td data-label="Start Date">{{ c.startDate }}</td>
+            <td data-label="End Date">{{ c.endDate }}</td>
+            <td data-label="Credits">{{ c.credits }}</td>
+            <td data-label="Status">
               <span class="status-badge" [class]="getStatusClass(c.status)">
                 {{ getStatusLabel(c.status) }}
               </span>
             </td>
-            <td>
+            <td data-label="Actions">
               <div class="action-icons">
                 <button class="action-btn action-danger" title="Delete customer" [disabled]="deletingId === c.id" (click)="deleteCustomer(c)">
                   @if (deletingId === c.id) {
@@ -155,25 +155,45 @@
         </div>
       </div>
 
-      <div class="dlg-field">
-        <label>Address Line 1</label>
-        <input pInputText type="text" formControlName="address_line_1" placeholder="House / Flat no., Street name" />
-      </div>
-
       <div class="dlg-row">
+        <div class="dlg-field">
+          <label>Address Line 1</label>
+          <input pInputText type="text" formControlName="address_line_1" placeholder="House / Flat no., Street name" />
+        </div>
         <div class="dlg-field">
           <label>Address Line 2</label>
           <input pInputText type="text" formControlName="address_line_2" placeholder="Area, Colony" />
         </div>
+      </div>
+
+      <div class="dlg-row">
         <div class="dlg-field">
           <label>Landmark</label>
           <input pInputText type="text" formControlName="landmark" placeholder="Nearby landmark" />
         </div>
+        <div class="dlg-field">
+          <label>Live Location</label>
+          <input pInputText type="url" formControlName="location_link" placeholder="https://maps.google.com/..." />
+        </div>
       </div>
 
-      <div class="dlg-field">
-        <label>Google Maps Link</label>
-        <input pInputText type="url" formControlName="location_link" placeholder="https://maps.google.com/..." />
+      <div class="checkbox-field" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <p-checkbox formControlName="add_subscription" [binary]="true" id="add_subscription"></p-checkbox>
+        <label for="add_subscription" style="margin: 0; font-weight: normal; cursor: pointer; display: inline-block;">Existing Customer?</label>
+      </div>
+
+      <div *ngIf="addForm.get('add_subscription')?.value" class="subscription-fields" style="border-top: 1px dashed var(--border-color, #e2e8f0); padding-top: 1rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+        <div class="dlg-row">
+          <div class="dlg-field">
+            <label>Plan Combination <span class="req">*</span></label>
+            <p-select formControlName="plan_id" [options]="planOptions" optionLabel="display_name" optionValue="id"
+              placeholder="Select plan" [style]="{ width: '100%' }" appendTo="body" [filter]="true" filterBy="display_name"></p-select>
+          </div>
+          <div class="dlg-field">
+            <label>Subscription Start Date <span class="req">*</span></label>
+            <p-datepicker formControlName="subscription_start_date" [style]="{ width: '100%' }" appendTo="body"></p-datepicker>
+          </div>
+        </div>
       </div>
 
       <div class="dlg-actions">

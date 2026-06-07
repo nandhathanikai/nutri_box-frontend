@@ -59,6 +59,29 @@ export class SignupComponent {
     });
   }
 
+  fetchCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.messageService.add({ severity: 'error', summary: 'Not Supported', detail: 'Geolocation is not supported by your browser.' });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        this.signupForm.patchValue({
+          locationLink: `https://maps.google.com/?q=${lat},${lng}`
+        });
+        this.messageService.add({ severity: 'success', summary: 'Location Fetched', detail: 'Google Maps link populated with your GPS coordinates.' });
+      },
+      (error) => {
+        console.error('Error fetching location:', error);
+        this.messageService.add({ severity: 'error', summary: 'Permission Denied', detail: 'Could not fetch your location. Please check browser permissions.' });
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
   isCheckingEmail = false;
 
   get step1Valid(): boolean {

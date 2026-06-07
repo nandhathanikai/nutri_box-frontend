@@ -22,7 +22,6 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { ErrorBannerComponent, ApiError } from '../../../components/error-banner/error-banner.component';
-import { EmptyStateComponent } from '../../../components/empty-state/empty-state';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -33,7 +32,7 @@ import { environment } from '../../../../environments/environment';
     DialogModule, InputTextModule, SelectModule, SelectButtonModule, DatePickerModule,
     InputGroupModule, InputGroupAddonModule, FileUploadModule, ToggleSwitchModule,
     ToastModule, ConfirmDialogModule, SkeletonModule, PaginatorModule, TooltipModule, TagModule,
-    ErrorBannerComponent, EmptyStateComponent,
+    ErrorBannerComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './menu-management.component.html',
@@ -45,6 +44,7 @@ export class MenuManagementComponent implements OnInit {
   // ── Data ─────────────────────────────────────────────────────────────
   tiers: any[] = [];
   planCombinations: any[] = [];
+  groupedPlansMap: Record<string, any[]> = {};
   isLoadingTiers = false;
   isLoadingPlans = false;
   isLoadingWeek = false;
@@ -54,6 +54,11 @@ export class MenuManagementComponent implements OnInit {
   pricingHistoryMap: Record<string, any[]> = {};
   pricingDialogTier: any = null;
   newPriceForm!: FormGroup;
+
+  combinationDialog = false;
+  isEditCombination = false;
+  combinationForm!: FormGroup;
+  selectedCombinationId: string | null = null;
 
   tierDialog = false;
   tierForm!: FormGroup;
@@ -134,6 +139,16 @@ export class MenuManagementComponent implements OnInit {
       diet_type:      ['both', Validators.required],
       week_start_date: [this.selectedWeekDate, Validators.required],
     });
+
+    this.combinationForm = this.fb.group({
+      tier_id: ['', Validators.required],
+      diet_type: ['veg', Validators.required],
+      duration: ['weekly', Validators.required],
+      slot_combo: ['breakfast_only', Validators.required],
+      meal_count: [null],
+      price: [null],
+      delivery_charge: [null],
+    });
   }
 
   // ── DATA LOADERS ──────────────────────────────────────────────────────
@@ -143,8 +158,15 @@ export class MenuManagementComponent implements OnInit {
     this.http.get<any[]>(`${this.apiUrl}/tiers`).subscribe({
       next: (data) => {
         this.tiers = data;
+        for (let t of this.tiers) {
+          const vegPrice = t.pricing.find((p: any) => p.diet_type === 'veg')?.price_per_meal;
+          const nonvegPrice = t.pricing.find((p: any) => p.diet_type === 'nonveg')?.price_per_meal;
+          t.veg_price_input = vegPrice || 0;
+          t.nonveg_price_input = nonvegPrice || 0;
+        }
         this.isLoadingTiers = false;
         this.buildCoverageGrid();
+        this.groupAllPlans();
       },
       error: () => this.isLoadingTiers = false,
     });
@@ -156,6 +178,7 @@ export class MenuManagementComponent implements OnInit {
       next: (data) => {
         this.planCombinations = data;
         this.isLoadingPlans = false;
+        this.groupAllPlans();
       },
       error: () => this.isLoadingPlans = false,
     });
@@ -375,7 +398,206 @@ export class MenuManagementComponent implements OnInit {
     });
   }
 
-  // ── PLAN COMBINATIONS ─────────────────────────────────────────────────
+  updateBasePrice(tier: any, dietType: 'veg' | 'nonveg') {
+    const price = dietType === 'veg' ? tier.veg_price_input : tier.nonveg_price_input;
+    if (price === undefined || price === null || price <= 0) {
+      this.messageService.add({ severity: 'error', summary: 'Invalid Price', detail: 'Price must be greater than 0' });
+      return;
+    }
+    const payload = {
+      diet_type: dietType,
+      price_per_meal: price,
+      effective_from: this.formatDate(new Date())
+    };
+    this.http.post(`${this.apiUrl}/tiers/${tier.id}/pricing`, payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Price Updated', detail: `Successfully updated ${dietType === 'veg' ? 'Veg' : 'Non-Veg'} price to ₹${price}` });
+        this.loadTiers();
+        this.loadPlans();
+      },
+      error: (err) => {
+        const msg = err.error?.detail || 'Failed to update price';
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+      }
+    });
+  }
+
+  groupAllPlans() {
+    if (!this.tiers.length || !this.planCombinations.length) return;
+    this.groupedPlansMap = {};
+    for (let tier of this.tiers) {
+      this.groupedPlansMap[tier.id] = this.calculateGroupedPlansForTier(tier.id);
+    }
+  }
+
+  calculateGroupedPlansForTier(tierId: string) {
+    const plans = this.planCombinations.filter(p => p.tier_id === tierId);
+    const grouped: any[] = [];
+    const diets = ['veg', 'nonveg'];
+    const durations = ['weekly', 'monthly'];
+
+    for (let diet of diets) {
+      for (let duration of durations) {
+        // 1. Single Meal (Breakfast Only / Dinner Only)
+        const singlePlans = plans.filter(
+          p => p.tier_id === tierId && p.diet_type === diet && p.duration === duration &&
+               (p.slot_combo === 'breakfast_only' || p.slot_combo === 'dinner_only')
+        );
+        if (singlePlans.length > 0) {
+          const rep = singlePlans[0];
+          grouped.push({
+            id: rep.id,
+            diet_type: diet,
+            duration: duration,
+            meal_type: 'Single Meal',
+            meal_count: rep.meal_count || (duration === 'weekly' ? 6 : 24),
+            delivery_charge: rep.delivery_charge,
+            total_price: rep.total_price,
+            is_active: singlePlans.every(p => p.is_active),
+            linked_plans: singlePlans,
+            tier_id: rep.tier_id,
+            slot_combo: rep.slot_combo,
+            override_price: rep.override_price,
+            override_delivery_charge: rep.override_delivery_charge
+          });
+        }
+
+        // 2. Double Meal (Both)
+        const doublePlans = plans.filter(
+          p => p.tier_id === tierId && p.diet_type === diet && p.duration === duration &&
+               p.slot_combo === 'both'
+        );
+        if (doublePlans.length > 0) {
+          const rep = doublePlans[0];
+          grouped.push({
+            id: rep.id,
+            diet_type: diet,
+            duration: duration,
+            meal_type: 'Double Meal',
+            meal_count: rep.meal_count || (duration === 'weekly' ? 12 : 48),
+            delivery_charge: rep.delivery_charge,
+            total_price: rep.total_price,
+            is_active: rep.is_active,
+            linked_plans: doublePlans,
+            tier_id: rep.tier_id,
+            slot_combo: rep.slot_combo,
+            override_price: rep.override_price,
+            override_delivery_charge: rep.override_delivery_charge
+          });
+        }
+      }
+    }
+    return grouped;
+  }
+
+  toggleGroupedPlanActive(group: any) {
+    let successCount = 0;
+    const total = group.linked_plans.length;
+    group.linked_plans.forEach((plan: any) => {
+      plan.is_active = group.is_active;
+      this.http.patch(`${this.apiUrl}/plan-combinations/${plan.id}`, { is_active: plan.is_active }).subscribe({
+        next: () => {
+          successCount++;
+          if (successCount === total) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Plan Status Updated',
+              detail: `Updated availability status for ${group.diet_type === 'veg' ? 'Veg' : 'Non-Veg'} ${group.duration} ${group.meal_type}`
+            });
+          }
+        },
+        error: () => plan.is_active = !plan.is_active
+      });
+    });
+  }
+
+  openNewCombination(tierId: string) {
+    this.isEditCombination = false;
+    this.selectedCombinationId = null;
+    this.combinationForm.reset({
+      tier_id: tierId,
+      diet_type: 'veg',
+      duration: 'weekly',
+      slot_combo: 'breakfast_only',
+      meal_count: null,
+      price: null,
+      delivery_charge: null,
+    });
+    this.combinationDialog = true;
+  }
+
+  editCombination(group: any) {
+    this.isEditCombination = true;
+    this.selectedCombinationId = group.id;
+
+    const rep = group.linked_plans[0];
+    this.combinationForm.patchValue({
+      tier_id: rep.tier_id,
+      diet_type: rep.diet_type,
+      duration: rep.duration,
+      slot_combo: rep.slot_combo,
+      meal_count: rep.meal_count,
+      price: rep.override_price !== undefined ? rep.override_price : null,
+      delivery_charge: rep.override_delivery_charge !== undefined ? rep.override_delivery_charge : null,
+    });
+
+    this.combinationDialog = true;
+  }
+
+  saveCombination() {
+    if (this.combinationForm.invalid) return;
+    const formVals = this.combinationForm.value;
+
+    if (this.isEditCombination && this.selectedCombinationId) {
+      // Find the group we are editing
+      const groupedPlans = this.groupedPlansMap[formVals.tier_id] || [];
+      const group = groupedPlans.find((g: any) => g.id === this.selectedCombinationId);
+      if (group) {
+        let successCount = 0;
+        const total = group.linked_plans.length;
+        group.linked_plans.forEach((plan: any) => {
+          const payload = {
+            price: formVals.price === null || formVals.price === '' ? -1 : formVals.price,
+            delivery_charge: formVals.delivery_charge === null || formVals.delivery_charge === '' ? -1 : formVals.delivery_charge,
+            meal_count: formVals.meal_count
+          };
+          this.http.patch(`${this.apiUrl}/plan-combinations/${plan.id}`, payload).subscribe({
+            next: () => {
+              successCount++;
+              if (successCount === total) {
+                this.messageService.add({ severity: 'success', summary: 'Combination Updated', detail: 'Successfully updated combination settings' });
+                this.combinationDialog = false;
+                this.loadPlans();
+              }
+            }
+          });
+        });
+      }
+    } else {
+      // Creating a new combination
+      const payload = {
+        tier_id: formVals.tier_id,
+        diet_type: formVals.diet_type,
+        duration: formVals.duration,
+        slot_combo: formVals.slot_combo,
+        meal_count: formVals.meal_count || (formVals.slot_combo === 'both' ? (formVals.duration === 'weekly' ? 12 : 48) : (formVals.duration === 'weekly' ? 6 : 24)),
+        price: formVals.price === '' ? null : formVals.price,
+        delivery_charge: formVals.delivery_charge === '' ? null : formVals.delivery_charge
+      };
+
+      this.http.post(`${this.apiUrl}/plan-combinations`, payload).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Combination Created', detail: 'Successfully created plan combination' });
+          this.combinationDialog = false;
+          this.loadPlans();
+        },
+        error: (err) => {
+          const msg = err.error?.detail || 'Failed to create plan combination';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+        }
+      });
+    }
+  }
 
   getPlansForTierDiet(tierId: string, diet: string, duration: string) {
     return this.planCombinations.filter(

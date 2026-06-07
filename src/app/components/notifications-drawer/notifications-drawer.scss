@@ -4,14 +4,43 @@
 
 :host { display: block; font-family: var(--font-family); }
 
+::ng-deep .p-drawer-mask {
+  background-color: rgba(10, 10, 10, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease !important;
+}
+
+::ng-deep .notif-drawer {
+  background: #ffffff !important;
+  border-left: 1px solid var(--border-color) !important;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.15) !important;
+}
+
 ::ng-deep .notif-drawer .p-drawer-content {
   padding: 0 !important;
   font-family: var(--font-family);
+  background: #ffffff !important;
 }
 
 ::ng-deep .notif-drawer .p-drawer-header {
   padding: 1.25rem 1.25rem 0.5rem;
   border-bottom: 1px solid var(--border-light);
+  background: #ffffff !important;
+}
+
+::ng-deep .notif-drawer .p-drawer-close-button {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    background: var(--bg-hover) !important;
+    color: var(--primary-green) !important;
+  }
 }
 
 .drawer-header {

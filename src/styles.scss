@@ -1,5 +1,5 @@
 @import "primeicons/primeicons.css";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
 
 $bp-sm: 480px;   // small phone landscape / phablet
 $bp-md: 768px;   // tablet portrait — the bottom of "desktop-ish"
@@ -28,6 +28,7 @@ $tap-large: 56px;     // bottom-bar nav items
   --green-light:      #f0fdf4;
   --green-mid:        #4caf80;
   --green-border:     #a7f3d0;
+  --brand-gold:       #ffd700;
 
   // ── Neutral Palette ─────────────────────────────────────────────────────────
   --bg-page:          #f0f0eb;
@@ -54,7 +55,11 @@ $tap-large: 56px;     // bottom-bar nav items
   --color-purple-bg:  #f3e8ff;
 
   // ── Typography ──────────────────────────────────────────────────────────────
-  --font-family:      'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family:            'Winky Rough', cursive;
+  --font-family-heading:    'Winky Rough', cursive;
+  --font-family-subheading: 'Winky Rough', cursive;
+  --font-family-display:    'Winky Rough', cursive;
+  --font-family-accent:     'Winky Rough', cursive;
   --fs-display: 28px;
   --fs-h1: 22px;
   --fs-h2: 18px;
@@ -109,10 +114,11 @@ $tap-large: 56px;     // bottom-bar nav items
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Winky Rough', cursive;
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: 'Winky Rough', cursive;
   background-color: var(--bg-page);
   color: var(--text-main);
   line-height: 1.5;
@@ -121,7 +127,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family);
+  font-family: 'Winky Rough', cursive;
   color: var(--heading-green);
   font-weight: 700;
   margin: 0;
@@ -239,17 +245,9 @@ a {
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 
-  // Make wide admin tables scroll horizontally on mobile rather than blowing out the layout.
   table {
     width: 100%;
     border-collapse: collapse;
-
-    @media (max-width: 720px) {
-      display: block;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      white-space: nowrap;
-    }
   }
 
   th {
@@ -276,6 +274,114 @@ a {
 
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: #fafcf8; }
+}
+
+// Global responsive tables to stacked cards conversion on mobile
+@media (max-width: 767px) {
+  .table-wrapper, .table-card-unified, .table-card, .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  table.p-datatable-table,
+  table {
+    display: block !important;
+    width: 100% !important;
+    min-width: unset !important;
+    border: none !important;
+    background: transparent !important;
+
+    thead, .p-datatable-thead {
+      display: none !important;
+    }
+
+    tbody, .p-datatable-tbody {
+      display: block !important;
+      width: 100% !important;
+    }
+
+    tr, .p-datatable-row {
+      display: block !important;
+      width: 100% !important;
+      max-width: 380px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      background: #ffffff !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: var(--radius-lg) !important;
+      padding: 1.25rem !important;
+      margin-bottom: 1.25rem !important;
+      box-shadow: var(--shadow-sm) !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      
+      &:hover {
+        background: #ffffff !important;
+      }
+
+      &.selected {
+        border-color: var(--primary-green) !important;
+        background: var(--green-light) !important;
+      }
+    }
+
+    td, .p-datatable-cell {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 0.65rem 0 !important;
+      border: none !important;
+      border-bottom: 1px dashed var(--border-light) !important;
+      text-align: right !important;
+      font-size: 0.9rem !important;
+      color: var(--text-main) !important;
+      box-sizing: border-box !important;
+      min-height: 42px !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+
+      &:last-child {
+        border-bottom: none !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.75rem !important;
+        justify-content: flex-end !important;
+        gap: 0.5rem !important;
+      }
+
+      &::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-muted);
+        text-align: left;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      // Ensure any direct child wraps and aligns nicely to the right
+      > * {
+        text-align: right !important;
+        max-width: 65% !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+    }
+
+    td.empty-state, td.empty-cell, td[colspan] {
+      display: block !important;
+      text-align: center !important;
+      justify-content: center !important;
+      border: none !important;
+      color: var(--text-muted) !important;
+      padding: 2.5rem 1rem !important;
+
+      &::before {
+        display: none !important;
+      }
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -645,10 +751,10 @@ p-tabs, p-tablist {
   }
 }
 
-// Table - hidden on mobile by default
+// Table - responsive on mobile
 p-table {
   @media (max-width: 767px) {
-    display: none;
+    display: block;
   }
 }
 
@@ -759,4 +865,41 @@ p-drawer {
 @keyframes ntb-sheet-up {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  OPTION 2 — Parallax Brand Watermark Background Styles
+// ─────────────────────────────────────────────────────────────────────────────
+.brand-watermark-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-watermark-bg {
+  position: absolute;
+  top: 8%;
+  right: -50px;
+  width: 450px;
+  height: 450px;
+  opacity: 0.035; /* Subtle background texture */
+  pointer-events: none;
+  background-image: url('/logo1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  border-radius: 50%;
+  filter: grayscale(1);
+  
+  // Dynamic offset driven by mouse position via global CSS properties
+  transform: translate3d(var(--mouse-x, 0px), var(--mouse-y, 0px), 0) rotate(5deg);
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  
+  @media (max-width: 768px) {
+    width: 250px;
+    height: 250px;
+    right: -20px;
+    top: 12%;
+    transform: rotate(5deg);
+  }
 }

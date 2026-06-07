@@ -52,7 +52,7 @@ export class NotificationsDrawerComponent implements OnChanges {
 
   ngOnChanges(c: SimpleChanges) {
     // Refetch every time the drawer is opened so the customer always sees current state
-    if (c['visible'] && c['visible'].currentValue === true) {
+    if (c['visible'] && c['visible'].currentValue === true && c['visible'].previousValue !== true) {
       this.refresh();
     }
   }
@@ -67,7 +67,16 @@ export class NotificationsDrawerComponent implements OnChanges {
   refresh() {
     this.loading = true;
     let pending = 2;
-    const done = () => { if (--pending === 0) this.loading = false; };
+    const done = () => {
+      if (--pending === 0) {
+        this.loading = false;
+        if (this.announcements.length === 0 && this.offers.length > 0) {
+          this.activeTab = 'offers';
+        } else {
+          this.activeTab = 'announcements';
+        }
+      }
+    };
 
     this.http.get<Announcement[]>(`${environment.apiBaseUrl}/api/announcements?status=active`).subscribe({
       next: (data) => { this.announcements = data; done(); },

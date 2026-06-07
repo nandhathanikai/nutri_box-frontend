@@ -11,3 +11,27 @@
 @if (showBottomNav) {
   <app-bottom-nav></app-bottom-nav>
 }
+
+<!-- Premium Brand Transition Loader Overlay (Option 1) -->
+<div class="premium-brand-transition-loader" [class.active]="showGlobalLoader">
+  <div class="loader-backdrop"></div>
+  <div class="loader-content">
+    <div class="logo-outer-glow">
+      <div class="loader-video-wrap">
+        <img src="/logo1.png" alt="Nutribox" class="loader-logo-top" />
+        <video autoplay muted loop playsinline class="loader-brand-video">
+          <source src="/loading.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="loader-halo"></div>
+      <div class="loader-halo-outer"></div>
+    </div>
+    <div class="loader-text-row">
+      <span class="loader-text">N U T R I B O X</span>
+      <span class="loader-pulse-dots">
+        <span>.</span><span>.</span><span>.</span>
+      </span>
+    </div>
+  </div>
+</div>
+

@@ -1,7 +1,7 @@
 .plans-page {
   min-height: 100vh;
   background: var(--background, #f8f9fa);
-  font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
+  font-family: var(--font-family, 'Josefin Sans', sans-serif);
 }
 
 // ── Header ────────────────────────────────────────────────────────────────
@@ -592,4 +592,103 @@
 
 @media (max-width: 400px) {
   .tier-grid { grid-template-columns: 1fr; }
+}
+
+// ── Promo Code Styles ───────────────────────────────────────────────────
+.promo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+}
+
+.promo-input-group {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.promo-input {
+  flex: 1;
+  height: 38px;
+  padding: 0 0.75rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #1f2937;
+  outline: none;
+  font-family: var(--font-family, inherit);
+  transition: all 0.2s;
+
+  &:focus {
+    border-color: var(--primary-green, #2d6a4f);
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+  }
+
+  &:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border-color: #e5e7eb;
+  }
+}
+
+.btn-promo-apply {
+  height: 38px;
+  padding: 0 1.25rem;
+  background: #f3f4f6;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family, inherit);
+
+  &:hover:not(:disabled) {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Active state style when a promo is applied (turns into a red "Remove" action)
+  &.applied {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+
+    &:hover:not(:disabled) {
+      background: #fca5a5;
+      color: #7f1d1d;
+    }
+  }
+}
+
+.promo-msg {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.1rem;
+
+  &.success {
+    color: #16a34a;
+  }
+
+  &.error {
+    color: #dc2626;
+  }
+}
+
+.discount-row {
+  color: #16a34a !important;
+  font-weight: 700;
+
+  .discount-val {
+    color: #16a34a !important;
+    font-weight: 800;
+  }
 }

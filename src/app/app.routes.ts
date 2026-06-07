@@ -10,6 +10,7 @@ import { NotFoundComponent } from './pages/not-found/not-found';
 import { CustomPlanComponent } from './pages/plans/custom-plan/custom-plan';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { driverGuard } from './guards/driver.guard';
 
 // Admin components
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout';
@@ -23,6 +24,19 @@ import { AdminOffersComponent } from './pages/admin/admin-offers/admin-offers';
 import { AdminReportsComponent } from './pages/admin/admin-reports/admin-reports';
 import { AdminSettingsComponent } from './pages/admin/admin-settings/admin-settings';
 import { AdminRequestsComponent } from './pages/admin/admin-requests/admin-requests';
+import { AdminGalleryComponent } from './pages/admin/admin-gallery/admin-gallery';
+import { AdminDeliveryPartnersComponent } from './pages/admin/admin-delivery-partners/admin-delivery-partners';
+import { AdminDeliveryMonitorComponent } from './pages/admin/admin-delivery-monitor/admin-delivery-monitor';
+import { AdminReviewsComponent } from './pages/admin/admin-reviews/admin-reviews';
+
+// Driver components
+import { DriverLayoutComponent } from './pages/driver/driver-layout/driver-layout';
+import { DriverDashboardComponent } from './pages/driver/driver-dashboard/driver-dashboard';
+import { DriverRouteComponent } from './pages/driver/driver-route/driver-route';
+
+// Customer Tracking component
+import { CustomerTrackingComponent } from './pages/customer-tracking/customer-tracking';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -31,6 +45,7 @@ export const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'dashboard/credits', component: CreditsComponent, canActivate: [authGuard] },
+  { path: 'dashboard/track/:assignmentId', component: CustomerTrackingComponent, canActivate: [authGuard] },
   { path: 'plans', component: PlansComponent, canActivate: [authGuard] },
   { path: 'plans/custom', component: CustomPlanComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
@@ -51,6 +66,22 @@ export const routes: Routes = [
       { path: 'reports', component: AdminReportsComponent },
       { path: 'settings', component: AdminSettingsComponent },
       { path: 'custom-requests', component: AdminRequestsComponent },
+      { path: 'gallery', component: AdminGalleryComponent },
+      { path: 'delivery-partners', component: AdminDeliveryPartnersComponent },
+      { path: 'delivery-monitor', component: AdminDeliveryMonitorComponent },
+      { path: 'reviews', component: AdminReviewsComponent },
+    ]
+  },
+
+  // Driver section
+  {
+    path: 'driver',
+    component: DriverLayoutComponent,
+    canActivate: [driverGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DriverDashboardComponent },
+      { path: 'route/:assignmentId', component: DriverRouteComponent },
     ]
   },
 

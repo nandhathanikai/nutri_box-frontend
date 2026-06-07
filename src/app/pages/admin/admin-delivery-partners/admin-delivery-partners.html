@@ -1,0 +1,214 @@
+<div class="dp-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-id-card"></i> Delivery Partners</h1>
+        <p>Manage driver accounts, view assignments, and control availability.</p>
+      </div>
+      <button class="btn-primary" id="btn-add-driver" (click)="openCreate()">
+        <i class="pi pi-plus"></i> Add Driver
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="table-card">
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by name, email, or phone..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          id="driver-search"
+        />
+        @if (searchQuery) {
+          <button class="clear-btn" (click)="clearSearch()"><i class="pi pi-times"></i></button>
+        }
+      </div>
+      <button class="btn-refresh" (click)="load()" [disabled]="loading">
+        @if (loading) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-refresh"></i> }
+        Refresh
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Mobile</th>
+            <th>Status</th>
+            <th>Today's Orders</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of drivers" [class.row-inactive]="!d.is_active">
+            <td data-label="Driver">
+              <div class="name-stack">
+                <div class="driver-avatar">{{ d.full_name.charAt(0) }}</div>
+                <div>
+                  <span class="driver-name">{{ d.full_name }}</span>
+                  <span class="driver-email">{{ d.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td data-label="Mobile">{{ d.phone }}</td>
+            <td data-label="Status">
+              <span class="status-badge" [class]="statusClass(d)">
+                <span class="status-dot"></span>
+                {{ statusLabel(d) }}
+              </span>
+            </td>
+            <td data-label="Today's Orders">
+              <span class="order-count">{{ d.today_assignments }}</span>
+            </td>
+            <td data-label="Joined" class="date-cell">{{ d.created_at | date:'mediumDate' }}</td>
+            <td data-label="Actions">
+              <div class="action-btns">
+                <button class="btn-icon btn-edit" (click)="openEdit(d)" title="Edit driver">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  [class]="d.is_active ? 'btn-deactivate' : 'btn-activate'"
+                  (click)="toggleActive(d)"
+                  [title]="d.is_active ? 'Deactivate' : 'Activate'"
+                >
+                  <i [class]="d.is_active ? 'pi pi-ban' : 'pi pi-check-circle'"></i>
+                </button>
+                <button class="btn-icon btn-delete-partner" (click)="deleteDriver(d)" title="Delete partner">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="drivers.length === 0 && !loading">
+            <td colspan="6" class="empty-state">
+              <i class="pi pi-users" style="font-size:2rem; opacity:0.3"></i>
+              <p>No delivery partners found.</p>
+              <button class="btn-primary" (click)="openCreate()">Create First Driver</button>
+            </td>
+          </tr>
+          <tr *ngIf="loading">
+            <td colspan="6" class="empty-state"><i class="pi pi-spin pi-spinner"></i> Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Create Driver Modal ────────────────────────────────────────────────── -->
+@if (showCreateModal) {
+  <div class="modal-overlay" (click)="closeCreate()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="pi pi-user-plus"></i> Add Delivery Partner</h2>
+        <button class="modal-close" (click)="closeCreate()"><i class="pi pi-times"></i></button>
+      </div>
+      <form [formGroup]="createForm" (ngSubmit)="submitCreate()" class="modal-body">
+        @if (createError) {
+          <div class="form-error-banner">{{ createError }}</div>
+        }
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" formControlName="full_name" placeholder="e.g. Arjun Kumar" id="driver-full-name" />
+            @if (createForm.get('full_name')?.invalid && createForm.get('full_name')?.touched) {
+              <span class="field-error">Name is required (min 2 chars)</span>
+            }
+          </div>
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" formControlName="phone" placeholder="e.g. +91 9876543210" id="driver-phone" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" formControlName="email" placeholder="driver@nutribox.in" id="driver-email" />
+          @if (createForm.get('email')?.invalid && createForm.get('email')?.touched) {
+            <span class="field-error">Valid email is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Min 8 chars, uppercase + number"
+              id="driver-password"
+            />
+            <button type="button" class="pwd-toggle" (click)="showPassword = !showPassword">
+              <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+            </button>
+          </div>
+          @if (createForm.get('password')?.invalid && createForm.get('password')?.touched) {
+            <span class="field-error">Password must be at least 8 characters</span>
+          }
+        </div>
+        <div class="form-group toggle-group">
+          <label>Active Status</label>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="is_active" id="driver-is-active" />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">{{ createForm.get('is_active')?.value ? 'Active' : 'Inactive' }}</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeCreate()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="createForm.invalid || createLoading" id="btn-create-driver-submit">
+            @if (createLoading) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-check"></i> }
+            Create Driver
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ── Edit Driver Modal ──────────────────────────────────────────────────── -->
+@if (showEditModal && editingDriver) {
+  <div class="modal-overlay" (click)="closeEdit()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="pi pi-pencil"></i> Edit Driver — {{ editingDriver.full_name }}</h2>
+        <button class="modal-close" (click)="closeEdit()"><i class="pi pi-times"></i></button>
+      </div>
+      <form [formGroup]="editForm" (ngSubmit)="submitEdit()" class="modal-body">
+        @if (editError) {
+          <div class="form-error-banner">{{ editError }}</div>
+        }
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" formControlName="full_name" id="edit-driver-name" />
+          </div>
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" formControlName="phone" id="edit-driver-phone" />
+          </div>
+        </div>
+        <div class="form-group toggle-group">
+          <label>Active Status</label>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="is_active" id="edit-driver-active" />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">{{ editForm.get('is_active')?.value ? 'Active' : 'Inactive' }}</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeEdit()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="editForm.invalid || editLoading" id="btn-edit-driver-submit">
+            @if (editLoading) { <i class="pi pi-spin pi-spinner"></i> }
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

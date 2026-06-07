@@ -1,0 +1,74 @@
+<div class="instagram-marquee-section">
+  <div class="insta-top-glow"></div>
+  <div class="carousel-container">
+
+    <!-- Header -->
+    <div class="instagram-header">
+      <div class="inst-brand-info">
+        <div class="inst-icon-wrap">
+          <i class="pi pi-instagram instagram-brand-icon"></i>
+        </div>
+        <div class="inst-brand-text">
+          <h2>Follow Our Journey</h2>
+          <a href="https://www.instagram.com/nutri_box_kanchi/"
+             target="_blank" rel="noopener noreferrer"
+             class="inst-handle">&#64;nutri_box_kanchi</a>
+        </div>
+      </div>
+      <a href="https://www.instagram.com/nutri_box_kanchi/"
+         target="_blank" rel="noopener noreferrer"
+         class="inst-follow-btn">
+        <i class="pi pi-instagram"></i> Follow Us
+      </a>
+    </div>
+
+    <!-- Coverflow Carousel -->
+    <div class="showcase-carousel-wrapper">
+      <button class="carousel-nav-btn" (click)="prev()" aria-label="Previous">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="coverflow-stage">
+        @for (card of covercards; track card.absIdx) {
+          <div class="coverflow-card"
+               [class.cf-center]="absFromCenter(card.absIdx) === 0"
+               [class.cf-near]="absFromCenter(card.absIdx) === 1"
+               [class.cf-far]="absFromCenter(card.absIdx) === 2"
+               [class.cf-left]="card.absIdx < virtualCenterIndex"
+               [class.cf-right]="card.absIdx > virtualCenterIndex"
+               (click)="goToCard(((card.absIdx % baseImages.length) + baseImages.length) % baseImages.length)">
+            <div class="showcase-card">
+              @if (!card.img.isPlaceholder) {
+                <img [src]="card.img.image_url" alt="NutriBox" class="showcase-img" />
+              } @else {
+                <div class="showcase-placeholder">
+                  <i class="pi pi-image"></i>
+                  <span>NutriBox</span>
+                </div>
+              }
+              <div class="showcase-card-overlay">
+                <span class="showcase-caption">{{ card.img.caption || '' }}</span>
+                <span class="showcase-brand-tag">NutriBox</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <button class="carousel-nav-btn" (click)="next()" aria-label="Next">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="showcase-dots">
+      @for (img of baseImages; track $index) {
+        <span class="showcase-dot"
+              [class.active]="$index === activeDotIndex"
+              (click)="goToCard($index)">
+        </span>
+      }
+    </div>
+
+  </div>
+</div>

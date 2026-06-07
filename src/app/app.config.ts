@@ -7,11 +7,12 @@ import Aura from '@primeng/themes/aura';
 import { MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { loadingInterceptor } from './interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
     provideAnimationsAsync(),
     MessageService,
     providePrimeNG({

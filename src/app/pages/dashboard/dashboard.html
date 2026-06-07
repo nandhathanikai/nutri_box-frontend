@@ -1,6 +1,24 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
+<!-- Payment Success Premium Overlay Dialog -->
+<div class="payment-success-overlay-backdrop" *ngIf="showPaymentSuccess">
+  <div class="payment-success-modal-card">
+    <div class="modal-decoration">✨</div>
+    <h2>Thank You for choosing us !!</h2>
+    <p>Your subscription has been successfully activated. We're excited to be part of your health journey.</p>
+    <button type="button" class="btn-close-payment-success" (click)="showPaymentSuccess = false">
+      Get Started
+    </button>
+  </div>
+</div>
+
+<div class="dashboard-wrapper brand-watermark-container">
+  <div class="brand-watermark-bg"></div>
+
+  <!-- Brand Bar -->
+  <app-brand-bar></app-brand-bar>
+
 @if (loading) {
   <div class="container dashboard-container">
     <div class="header-section">
@@ -29,34 +47,76 @@
               Your account will be deleted in {{ user.days_until_auto_delete }} days
             }
           </strong>
-          <p>Subscribe to a plan to keep your account active. Once you subscribe, this warning goes away permanently.</p>
+          <p>🍱 Don't miss your daily NutriBox — subscribe to keep your account active and start receiving fresh meals.</p>
         </div>
         <p-button routerLink="/plans" label="Choose a Plan" icon="pi pi-arrow-right" iconPos="right"></p-button>
       </div>
     }
 
+    <!-- Active Offers Banner for New Users -->
+    @if (offers.length > 0) {
+      <div class="offers-section">
+        @for (offer of offers; track offer.id) {
+          <div class="offer-banner offer-banner--new-user">
+            <div class="offer-banner-left">
+              <span class="offer-emoji">🎁</span>
+              <div class="offer-info">
+                <span class="offer-badge">{{ offerValueLabel(offer) }}</span>
+                <p class="offer-desc">{{ offer.description }}</p>
+                <span class="offer-expiry" *ngIf="daysLeft(offer.valid_until) > 0">
+                  ⏳ Expires in {{ daysLeft(offer.valid_until) }} day{{ daysLeft(offer.valid_until) === 1 ? '' : 's' }}
+                </span>
+              </div>
+            </div>
+            <div class="offer-banner-right">
+              <div class="offer-code-chip" (click)="copyOfferCode(offer.code)">
+                <span class="offer-code">{{ offer.code }}</span>
+                <i class="pi" [class.pi-copy]="copiedCode !== offer.code" [class.pi-check]="copiedCode === offer.code"></i>
+              </div>
+              <small class="offer-copy-hint">{{ copiedCode === offer.code ? 'Copied!' : 'Tap to copy' }}</small>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
     <div class="welcome-hero">
+      <img src="/logo1.png" alt="Nutribox" class="hero-logo" />
       <h1>Welcome to Nutribox, {{ firstName }} 👋</h1>
-      <p class="welcome-sub">Fresh, chef-curated meals delivered Monday through Friday.<br/>Pick a plan to get started.</p>
+      <p class="welcome-sub">Fresh, chef-curated meals delivered Monday through Saturday.<br/>Pick a plan to get started on your healthy journey.</p>
       <div class="welcome-cta">
         <p-button routerLink="/plans" label="View Meal Plans" icon="pi pi-shopping-cart" size="large"></p-button>
         <a routerLink="/profile" class="text-link">Complete your profile first →</a>
       </div>
     </div>
 
+    <!-- 💡 NutriBox Daily Wellness Tip Widget -->
+    <div class="wellness-tip-card">
+      <div class="wellness-tip-header">
+        <span class="wt-badge">💡 NutriBox Daily Tip</span>
+        <button class="wt-refresh-btn" (click)="showNextTip()" title="Get another tip">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+      <div class="wellness-tip-body">
+        <p class="wt-text">"{{ currentTip.text }}"</p>
+        <span class="wt-author">— {{ currentTip.author }}</span>
+      </div>
+    </div>
+
     <div class="benefits-grid">
       <div class="benefit-card">
-        <i class="pi pi-bolt"></i>
+        <span class="benefit-emoji">👨‍🍳</span>
         <h3>Chef-curated</h3>
         <p>Weekly menus designed by nutritionists. Macros that match your goals.</p>
       </div>
       <div class="benefit-card">
-        <i class="pi pi-truck"></i>
+        <span class="benefit-emoji">🚚</span>
         <h3>Delivered fresh</h3>
         <p>Mon–Sat delivery. Skip any day before 6 PM and earn credit days.</p>
       </div>
       <div class="benefit-card">
-        <i class="pi pi-heart-fill"></i>
+        <span class="benefit-emoji">💚</span>
         <h3>Built for habits</h3>
         <p>Weekly or monthly plans. Pause, skip, renew — it's your kitchen.</p>
       </div>
@@ -73,13 +133,54 @@
       <p class="subtitle">Your last subscription has ended. Ready for the next one?</p>
     </div>
 
+    <!-- Active Offers for Existing Users -->
+    @if (offers.length > 0) {
+      <div class="offers-section">
+        @for (offer of offers; track offer.id) {
+          <div class="offer-banner offer-banner--existing-user">
+            <div class="offer-banner-left">
+              <span class="offer-emoji">⭐</span>
+              <div class="offer-info">
+                <span class="offer-badge">{{ offerValueLabel(offer) }}</span>
+                <p class="offer-desc">{{ offer.description }}</p>
+                <span class="offer-expiry" *ngIf="daysLeft(offer.valid_until) > 0">
+                  ⏳ Expires in {{ daysLeft(offer.valid_until) }} day{{ daysLeft(offer.valid_until) === 1 ? '' : 's' }}
+                </span>
+              </div>
+            </div>
+            <div class="offer-banner-right">
+              <div class="offer-code-chip" (click)="copyOfferCode(offer.code)">
+                <span class="offer-code">{{ offer.code }}</span>
+                <i class="pi" [class.pi-copy]="copiedCode !== offer.code" [class.pi-check]="copiedCode === offer.code"></i>
+              </div>
+              <small class="offer-copy-hint">{{ copiedCode === offer.code ? 'Copied!' : 'Tap to copy' }}</small>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
     <div class="lapsed-card">
       <div class="lapsed-icon"><i class="pi pi-refresh"></i></div>
       <div class="lapsed-text">
-        <h2>Renew your meal plan</h2>
+        <h2>🍱 Renew your meal plan</h2>
         <p>You've subscribed before — your account is permanently active. Pick a plan when you're ready.</p>
       </div>
       <p-button routerLink="/plans" label="Browse Plans" icon="pi pi-arrow-right" iconPos="right"></p-button>
+    </div>
+
+    <!-- 💡 NutriBox Daily Wellness Tip Widget -->
+    <div class="wellness-tip-card" style="margin-top: 1.25rem;">
+      <div class="wellness-tip-header">
+        <span class="wt-badge">💡 NutriBox Daily Tip</span>
+        <button class="wt-refresh-btn" (click)="showNextTip()" title="Get another tip">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+      <div class="wellness-tip-body">
+        <p class="wt-text">"{{ currentTip.text }}"</p>
+        <span class="wt-author">— {{ currentTip.author }}</span>
+      </div>
     </div>
 
     <a routerLink="/dashboard/credits" class="lapsed-credits-link">
@@ -95,8 +196,25 @@
 
     <div class="header-section">
       <h1>{{ greeting }}, {{ firstName }} 👋</h1>
-      <p class="subtitle">Here's your week.</p>
+      <p class="subtitle">Here's your week. 🍽️</p>
     </div>
+
+    <!-- Active Delivery Tracking Banner -->
+    @for (delivery of activeDeliveries; track delivery.assignment_id) {
+      <div class="active-tracking-banner" [class.on-the-way]="delivery.status === 'on_the_way'">
+        <div class="banner-content">
+          <div class="banner-icon">
+            <i class="pi" [class.pi-truck]="delivery.status !== 'on_the_way'" [class.pi-spin]="delivery.status === 'on_the_way'" [class.pi-spinner]="delivery.status === 'on_the_way'"></i>
+          </div>
+          <div class="banner-text">
+            <strong>{{ delivery.session_name }} Delivery is {{ delivery.status === 'on_the_way' ? 'On The Way!' : 'Assigned' }}</strong>
+            <p *ngIf="delivery.status === 'on_the_way'">Your delivery partner is currently on their way. Track their live position now!</p>
+            <p *ngIf="delivery.status === 'assigned'">A delivery partner has been assigned for your meal. Live map tracking will start shortly.</p>
+          </div>
+        </div>
+        <p-button [routerLink]="['/dashboard/track', delivery.assignment_id]" label="Track Live" icon="pi pi-map-marker" severity="success" size="small"></p-button>
+      </div>
+    }
 
     @if (isExpiringSoon) {
       <div class="alert-banner">
@@ -111,10 +229,37 @@
       </div>
     }
 
+    <!-- Loyalty offers for active subscribers -->
+    @if (offers.length > 0) {
+      <div class="offers-section">
+        @for (offer of offers; track offer.id) {
+          <div class="offer-banner offer-banner--existing-user">
+            <div class="offer-banner-left">
+              <span class="offer-emoji">⭐</span>
+              <div class="offer-info">
+                <span class="offer-badge">{{ offerValueLabel(offer) }}</span>
+                <p class="offer-desc">{{ offer.description }}</p>
+                <span class="offer-expiry" *ngIf="daysLeft(offer.valid_until) > 0">
+                  ⏳ Expires in {{ daysLeft(offer.valid_until) }} day{{ daysLeft(offer.valid_until) === 1 ? '' : 's' }}
+                </span>
+              </div>
+            </div>
+            <div class="offer-banner-right">
+              <div class="offer-code-chip" (click)="copyOfferCode(offer.code)">
+                <span class="offer-code">{{ offer.code }}</span>
+                <i class="pi" [class.pi-copy]="copiedCode !== offer.code" [class.pi-check]="copiedCode === offer.code"></i>
+              </div>
+              <small class="offer-copy-hint">{{ copiedCode === offer.code ? 'Copied!' : 'Tap to copy' }}</small>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
     <!-- Plan summary -->
     <div class="section">
       <div class="section-header">
-        <h2>Your Plan</h2>
+        <h2>🍱 Your Plan</h2>
         <button class="text-link danger" (click)="cancelSubscription()" [disabled]="cancellingSub">
           @if (cancellingSub) { <i class="pi pi-spin pi-spinner"></i> Cancelling… }
           @else { Cancel subscription }
@@ -127,14 +272,14 @@
         </div>
         <div class="plan-summary-item">
           <span class="label">Diet</span>
-          <span class="value">{{ subscription.diet_type === 'veg' ? 'Veg' : 'Non-Veg' }}</span>
+          <span class="value">{{ subscription.diet_type === 'veg' ? '🌿 Veg' : '🍖 Non-Veg' }}</span>
         </div>
         <div class="plan-summary-item">
           <span class="label">Sessions</span>
           <span class="value">
-            @if (subscription.slot_combo === 'breakfast_only') { Breakfast }
-            @else if (subscription.slot_combo === 'dinner_only') { Dinner }
-            @else { Breakfast + Dinner }
+            @if (subscription.slot_combo === 'breakfast_only') { 🌅 Breakfast }
+            @else if (subscription.slot_combo === 'dinner_only') { 🌙 Dinner }
+            @else { 🌅🌙 Both }
           </span>
         </div>
         <div class="plan-summary-item">
@@ -144,10 +289,25 @@
       </div>
     </div>
 
+    <!-- 💡 NutriBox Daily Wellness Tip Widget -->
+    <div class="wellness-tip-card" style="margin-bottom: 1.5rem;">
+      <div class="wellness-tip-header">
+        <span class="wt-badge">💡 NutriBox Daily Tip</span>
+        <button class="wt-refresh-btn" (click)="showNextTip()" title="Get another tip">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+      <div class="wellness-tip-body">
+        <p class="wt-text">"{{ currentTip.text }}"</p>
+        <span class="wt-author">— {{ currentTip.author }}</span>
+      </div>
+    </div>
+
+
     <!-- Calendar with skip controls -->
     <div class="section">
       <div class="section-header">
-        <h2>Delivery Schedule</h2>
+        <h2>🗓️ Delivery Schedule</h2>
         <a routerLink="/dashboard/credits" class="text-link">View credits →</a>
       </div>
       <p class="section-help">
@@ -162,7 +322,7 @@
     <!-- This week's menu image -->
     <div class="section">
       <div class="section-header">
-        <h2>This Week's Menu</h2>
+        <h2>🍽️ This Week's Menu</h2>
       </div>
       @if (weekImageUrl) {
         <a [href]="weekImageUrl" target="_blank" rel="noopener noreferrer" class="weekly-menu-figure">
@@ -178,3 +338,54 @@
 
   </div>
 }
+
+<!-- Instagram Showcase Carousel Section -->
+@if (!loading) {
+  <!-- Customer Reviews Widget Section -->
+  <div class="container dashboard-container review-widget-container" style="margin-top: 1rem; margin-bottom: 2rem;" *ngIf="subscription && (!myReview || showReviewThanks)">
+    <div class="section review-widget-section">
+      <div class="section-header">
+        <h2>💬 Share Your Experience</h2>
+      </div>
+      <p class="section-help" *ngIf="!showReviewThanks">Your feedback helps us cook better! Write a review about Nutribox meals and services.</p>
+      
+      <!-- Option A: Submit a new review -->
+      <div class="review-box" *ngIf="!myReview && !showReviewThanks">
+        <div class="rating-picker">
+          <span class="rating-label">Your Rating:</span>
+          <div class="star-rating">
+            <button type="button" *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" class="star-btn" title="Rate {{ star }} stars">
+              <i class="pi" [ngClass]="star <= ratingVal ? 'pi-star-fill active-star' : 'pi-star'"></i>
+            </button>
+          </div>
+        </div>
+        <div class="review-text-wrapper">
+          <textarea 
+            [(ngModel)]="reviewText" 
+            placeholder="Tell us about the meal quality, delivery service, and menu selection..." 
+            rows="3" 
+            class="review-textarea"
+          ></textarea>
+        </div>
+        <div class="review-action-row">
+          <button type="button" class="btn-submit-review" (click)="submitReview()" [disabled]="!reviewText.trim() || submittingReview">
+            <span *ngIf="submittingReview"><i class="pi pi-spin pi-spinner"></i> Submitting...</span>
+            <span *ngIf="!submittingReview">Submit Review</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option B: Show Thanks Message -->
+      <div class="review-thanks-box" *ngIf="showReviewThanks">
+        <div class="thanks-icon">⭐</div>
+        <h3>Thank You for Your Feedback!</h3>
+        <p>Your review has been submitted successfully and helps us improve your healthy food experience. - Nutri Box</p>
+      </div>
+
+    </div>
+  </div>
+
+  <app-gallery-carousel></app-gallery-carousel>
+}
+</div>
+

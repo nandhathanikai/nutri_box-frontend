@@ -22,7 +22,19 @@ import { environment } from '../../../../environments/environment';
 export class AdminRequestsComponent implements OnInit {
   apiUrl = `${environment.apiBaseUrl}/api/custom-requests`;
   requests: any[] = [];
+  searchQuery = '';
   isLoading = false;
+
+  get filteredRequests(): any[] {
+    if (!this.searchQuery) return this.requests;
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.requests.filter(r =>
+      (r.customer_name && r.customer_name.toLowerCase().includes(q)) ||
+      (r.customer_email && r.customer_email.toLowerCase().includes(q)) ||
+      (r.diet_type && r.diet_type.toLowerCase().includes(q)) ||
+      (r.custom_requirements && r.custom_requirements.toLowerCase().includes(q))
+    );
+  }
 
   displayPriceDialog = false;
   selectedRequest: any = null;
@@ -96,6 +108,26 @@ export class AdminRequestsComponent implements OnInit {
       case 'rejected': return 'danger';
       case 'paid': return 'success';
       default: return 'info';
+    }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return 'N/A';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'pending': return 'badge-pending';
+      case 'priced': return 'badge-draft';
+      case 'accepted':
+      case 'paid': return 'badge-active';
+      case 'rejected': return 'badge-expired';
+      default: return 'badge-expired';
     }
   }
 }

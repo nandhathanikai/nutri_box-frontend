@@ -59,10 +59,10 @@
           </thead>
           <tbody>
             <tr *ngFor="let item of stats.topItems; let i = index">
-              <td class="muted">{{ i + 1 }}</td>
-              <td class="sm-text">{{ item.name }}</td>
-              <td class="bold">{{ item.orders }}</td>
-              <td class="green-text bold">{{ item.revenue }}</td>
+              <td data-label="Rank" class="muted">{{ i + 1 }}</td>
+              <td data-label="Item" class="sm-text">{{ item.name }}</td>
+              <td data-label="Orders" class="bold">{{ item.orders }}</td>
+              <td data-label="Revenue" class="green-text bold">{{ item.revenue }}</td>
             </tr>
             <tr *ngIf="stats.topItems.length === 0">
               <td colspan="4" class="empty text-center">No orders this period</td>

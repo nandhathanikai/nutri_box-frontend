@@ -342,3 +342,17 @@
   .profile-container .main-content .settings-section h2 { font-size: 1.15rem; }
   .avatar-initials.profile-avatar { width: 64px; height: 64px; font-size: 1.35rem; }
 }
+
+.input-with-action {
+  display: flex;
+  gap: 0.5rem;
+}
+.locate-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px !important;
+}

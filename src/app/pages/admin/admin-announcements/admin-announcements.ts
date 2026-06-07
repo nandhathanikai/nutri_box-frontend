@@ -34,9 +34,20 @@ export class AdminAnnouncementsComponent implements OnInit {
   private API = `${environment.apiBaseUrl}/api/announcements`;
 
   annFilter: 'all' | 'active' | 'draft' | 'expired' = 'all';
+  searchQuery = '';
   showNewAnn = false;
   isLoading = false;
   isSaving = false;
+
+  get filteredAnnouncements(): Announcement[] {
+    if (!this.searchQuery) return this.announcements;
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.announcements.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.body.toLowerCase().includes(q) ||
+      a.audience.toLowerCase().includes(q)
+    );
+  }
 
   today = new Date().toISOString().slice(0, 10);
 
@@ -71,6 +82,12 @@ export class AdminAnnouncementsComponent implements OnInit {
 
   get totalSent(): number { return this.announcements.filter(a => a.status !== 'draft').length; }
   get activeCount(): number { return this.announcements.filter(a => a.status === 'active').length; }
+  get avgOpenRate(): number {
+    const activeOrExpired = this.announcements.filter(a => a.status !== 'draft');
+    if (activeOrExpired.length === 0) return 0;
+    const totalOpens = activeOrExpired.reduce((sum, a) => sum + (a.opens || 0), 0);
+    return Math.round(totalOpens / activeOrExpired.length);
+  }
 
   setFilter(f: 'all' | 'active' | 'draft' | 'expired') {
     this.annFilter = f;

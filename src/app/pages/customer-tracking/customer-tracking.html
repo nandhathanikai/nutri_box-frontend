@@ -1,0 +1,123 @@
+<p-toast></p-toast>
+<div class="tracking-page">
+  <!-- Header -->
+  <div class="tracking-header">
+    <button class="btn-back" (click)="goBack()"><i class="pi pi-arrow-left"></i></button>
+    <div class="tracking-title">
+      <h1>Live Delivery Tracking</h1>
+      <p *ngIf="trackingInfo">Order Assignment #{{ assignmentId }}</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="tracking-loading"><i class="pi pi-spin pi-spinner"></i> Locating your delivery partner…</div>
+  }
+
+  @if (error) {
+    <div class="tracking-error">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error && trackingInfo) {
+    <!-- Timeline status indicator -->
+    <div class="tracking-status-timeline">
+      <div class="timeline-step" [class.completed]="true" [class.active]="trackingInfo.status === 'assigned'">
+        <div class="step-dot"><i class="pi pi-box"></i></div>
+        <span>Assigned</span>
+      </div>
+      <div class="timeline-line" [class.completed]="trackingInfo.status === 'on_the_way' || trackingInfo.status === 'delivered'"></div>
+      <div class="timeline-step" [class.completed]="trackingInfo.status === 'on_the_way' || trackingInfo.status === 'delivered'" [class.active]="trackingInfo.status === 'on_the_way'">
+        <div class="step-dot"><i class="pi pi-directions"></i></div>
+        <span>On the Way</span>
+      </div>
+      <div class="timeline-line" [class.completed]="trackingInfo.status === 'delivered'"></div>
+      <div class="timeline-step" [class.completed]="trackingInfo.status === 'delivered'" [class.active]="trackingInfo.status === 'delivered'">
+        <div class="step-dot"><i class="pi pi-check-circle"></i></div>
+        <span>Delivered</span>
+      </div>
+    </div>
+
+    <!-- Stats summary card -->
+    @if (trackingInfo.status === 'on_the_way' && (distance || duration)) {
+      <div class="stats-card">
+        <div class="stat-item">
+          <i class="pi pi-compass text-primary"></i>
+          <div class="stat-text">
+            <span class="stat-val">{{ distance }}</span>
+            <label class="stat-lbl">Distance Remaining</label>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="pi pi-clock text-primary"></i>
+          <div class="stat-text">
+            <span class="stat-val">{{ duration }}</span>
+            <label class="stat-lbl">Estimated Arrival</label>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Driver profile card -->
+    <div class="driver-card">
+      <div class="driver-avatar">
+        {{ trackingInfo.driver_name.charAt(0) }}
+      </div>
+      <div class="driver-details">
+        <h3>{{ trackingInfo.driver_name }}</h3>
+        <p>Your Delivery Partner</p>
+        @if (trackingInfo.status === 'delivered') {
+          <span class="status-badge delivered">Delivered</span>
+        } @else if (trackingInfo.status === 'on_the_way') {
+          <span class="status-badge live"><span class="pulse-dot"></span> On the Way</span>
+        } @else {
+          <span class="status-badge assigned">Preparing Order</span>
+        }
+      </div>
+      @if (trackingInfo.status !== 'delivered' && trackingInfo.driver_phone !== '—') {
+        <a [href]="'tel:' + trackingInfo.driver_phone" class="btn-call" title="Call delivery partner">
+          <i class="pi pi-phone"></i>
+        </a>
+      }
+    </div>
+
+    <!-- Map container -->
+    <div class="map-section">
+      @if (custLat && custLng) {
+        <div class="map-outer">
+          <div #mapContainer class="leaflet-map"></div>
+          <!-- Pin styles -->
+          <style>
+            .map-pin {
+              width: 40px; height: 40px;
+              border-radius: 50% 50% 50% 0;
+              display: flex; align-items: center; justify-content: center;
+              font-size: 1rem; color: white; transform: rotate(-45deg);
+              box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            }
+            .map-pin i { transform: rotate(45deg); }
+            .driver-pin { background: #f59e0b; }
+            .customer-pin { background: #2e7d32; }
+          </style>
+        </div>
+      } @else {
+        <div class="no-coords-card">
+          <i class="pi pi-exclamation-circle"></i>
+          <h4>Missing Coordinates</h4>
+          <p>We do not have your exact delivery coordinates. Please update your profile address and verify your location coordinates to view the live tracking map.</p>
+          <a routerLink="/profile" class="btn-profile">Update Profile Coordinates</a>
+        </div>
+      }
+    </div>
+
+    <!-- Helpful instruction banner -->
+    @if (trackingInfo.status === 'assigned') {
+      <div class="waiting-banner">
+        <i class="pi pi-info-circle"></i>
+        <span>Live tracking will become available on the map once your delivery partner starts the ride.</span>
+      </div>
+    }
+  }
+</div>

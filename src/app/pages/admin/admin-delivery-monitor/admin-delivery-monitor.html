@@ -1,0 +1,125 @@
+<div class="monitor-page">
+  <div class="page-header-banner">
+    <div class="banner-row">
+      <div>
+        <h1><i class="pi pi-map"></i> Live Delivery Monitor</h1>
+        <p>Real-time view of all driver statuses and active deliveries. Auto-refreshes every 10 seconds.</p>
+      </div>
+      <div class="header-meta">
+        @if (lastRefreshed) {
+          <span class="last-refresh"><i class="pi pi-clock"></i> {{ lastRefreshed | date:'mediumTime' }}</span>
+        }
+        <button class="btn-refresh" (click)="load()" [disabled]="loading">
+          @if (loading) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-refresh"></i> }
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stat-row">
+    <div class="stat-card on-delivery">
+      <i class="pi pi-truck"></i>
+      <div>
+        <span class="stat-num">{{ activeDrivers }}</span>
+        <span class="stat-label">On Delivery</span>
+      </div>
+    </div>
+    <div class="stat-card available">
+      <i class="pi pi-check-circle"></i>
+      <div>
+        <span class="stat-num">{{ availableDrivers }}</span>
+        <span class="stat-label">Available</span>
+      </div>
+    </div>
+    <div class="stat-card total">
+      <i class="pi pi-users"></i>
+      <div>
+        <span class="stat-num">{{ rows.length }}</span>
+        <span class="stat-label">Total Drivers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search by driver name or phone..."
+          [(ngModel)]="searchQuery"
+          id="driver-monitor-search"
+        />
+        @if (searchQuery) {
+          <button class="clear-btn" (click)="searchQuery = ''"><i class="pi pi-times"></i></button>
+        }
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Status</th>
+            <th>Current Session</th>
+            <th>Today's Orders</th>
+            <th>Last Location</th>
+            <th>Last Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of filteredRows" [class.row-inactive]="!r.is_active">
+            <td data-label="Driver">
+              <div class="name-stack">
+                <div class="driver-avatar">{{ r.driver_name.charAt(0) }}</div>
+                <div>
+                  <span class="driver-name">{{ r.driver_name }}</span>
+                  <span class="driver-phone">{{ r.phone }}</span>
+                </div>
+              </div>
+            </td>
+            <td data-label="Status">
+              <span class="status-badge" [class]="statusClass(r)">
+                <span class="status-dot"></span>
+                {{ statusLabel(r) }}
+              </span>
+            </td>
+            <td data-label="Current Session">
+              @if (r.current_session) {
+                <span class="session-chip">{{ r.current_session }}</span>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td data-label="Today's Orders">
+              <span class="order-count">{{ r.today_total }}</span>
+            </td>
+            <td data-label="Last Location">
+              @if (r.last_latitude) {
+                <a [href]="openMapLink(r)" target="_blank" class="loc-link">
+                  <i class="pi pi-map-marker"></i>
+                  {{ r.last_latitude | number:'1.4-4' }}, {{ r.last_longitude | number:'1.4-4' }}
+                </a>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td data-label="Last Update" class="date-cell">{{ timeSince(r.last_updated) }}</td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0 && !loading">
+            <td colspan="6" class="empty-state">
+              <i class="pi pi-search" style="font-size:1.5rem;opacity:0.3"></i>
+              <p>{{ rows.length === 0 ? 'No drivers found. Add delivery partners first.' : 'No matching drivers found.' }}</p>
+            </td>
+          </tr>
+          <tr *ngIf="loading && rows.length === 0">
+            <td colspan="6" class="empty-state"><i class="pi pi-spin pi-spinner"></i> Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

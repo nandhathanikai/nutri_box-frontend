@@ -9,6 +9,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+import { GalleryCarouselComponent } from '../../components/gallery-carousel/gallery-carousel';
 
 interface FeaturedPlan {
   name: string;
@@ -22,7 +23,7 @@ interface FeaturedPlan {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, ButtonModule, CardModule, RatingModule, AvatarModule, SkeletonModule, FormsModule],
+  imports: [CommonModule, RouterLink, ButtonModule, CardModule, RatingModule, AvatarModule, SkeletonModule, FormsModule, GalleryCarouselComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -35,6 +36,7 @@ export class HomeComponent implements OnInit {
   @HostListener('window:scroll', [])
   onScroll() {
     this.scrollY = window.scrollY;
+    this.checkScrollForMoreReviews();
   }
 
   get heroParallax() { return this.scrollY * 0.4; }
@@ -51,10 +53,103 @@ export class HomeComponent implements OnInit {
   plansLoading = true;
   plansLoadFailed = false;
 
-  reviews: { id: number; name: string; role: string; text: string; rating: number; avatar: string }[] = [];
+  reviews: { id: number; name: string; role: string; text: string; rating: number; avatar: string; dateStr: string }[] = [];
+  reviewsSkip = 0;
+  reviewsLimit = 10;
+  hasMoreReviews = true;
+  loadingReviews = false;
+  reviewStats = { total_reviews: 0, happy_customers: 0 };
 
   ngOnInit() {
     this.loadFeaturedPlans();
+    this.loadReviews(false);
+    this.loadReviewStats();
+  }
+
+  loadReviews(append = false) {
+    if (this.loadingReviews) return;
+    if (append && !this.hasMoreReviews) return;
+
+    if (!append) {
+      this.reviewsSkip = 0;
+      this.hasMoreReviews = true;
+    }
+
+    this.loadingReviews = true;
+    const url = `${environment.apiBaseUrl}/api/reviews?skip=${this.reviewsSkip}&limit=${this.reviewsLimit}`;
+    this.http.get<any[]>(url).subscribe({
+      next: (data) => {
+        const mapped = (data || []).map(r => {
+          const name = r.customer_name || 'Valued Customer';
+          const parts = name.trim().split(/\s+/);
+          let initials = '';
+          if (parts.length > 1) {
+            initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          } else if (parts.length > 0 && parts[0].length > 0) {
+            initials = parts[0][0].toUpperCase();
+          } else {
+            initials = 'C';
+          }
+
+          const date = r.created_at ? new Date(r.created_at) : new Date();
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const dateStr = `${months[date.getMonth()]} ${date.getFullYear()}`;
+
+          return {
+            id: r.id,
+            name: name,
+            role: r.customer_role || 'Customer',
+            text: r.text,
+            rating: r.rating,
+            avatar: initials,
+            dateStr: dateStr
+          };
+        });
+
+        if (append) {
+          this.reviews = [...this.reviews, ...mapped];
+        } else {
+          this.reviews = mapped;
+        }
+
+        if (mapped.length < this.reviewsLimit) {
+          this.hasMoreReviews = false;
+        }
+
+        this.reviewsSkip += mapped.length;
+        this.loadingReviews = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Failed to load reviews', err);
+        this.loadingReviews = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  loadReviewStats() {
+    this.http.get<any>(`${environment.apiBaseUrl}/api/reviews/stats`).subscribe({
+      next: (data) => {
+        this.reviewStats = data || { total_reviews: 0, happy_customers: 0 };
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Failed to load review stats', err);
+      }
+    });
+  }
+
+  private checkScrollForMoreReviews() {
+    if (this.loadingReviews || !this.hasMoreReviews) return;
+
+    const threshold = 300;
+    const position = window.scrollY + window.innerHeight;
+    const height = document.documentElement.scrollHeight;
+
+    if (position >= height - threshold) {
+      this.loadReviews(true);
+    }
   }
 
   private loadFeaturedPlans() {

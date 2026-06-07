@@ -6,21 +6,20 @@
     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
       <div>
         <h1>Menu Management</h1>
-        <p class="mm-subtitle">Configure meal tiers, pricing rules, weekly menu images, and plan availability.</p>
+        <p class="mm-subtitle">Configure meal tiers, pricing, and plan combinations in a single control panel.</p>
       </div>
     </div>
   </div>
 
   <p-tabs value="0" styleClass="custom-tabs">
     <p-tablist>
-      <p-tab value="0"><i class="pi pi-cog mr-1"></i> Tier Settings</p-tab>
+      <p-tab value="0"><i class="pi pi-cog mr-1"></i> Tiers &amp; Combinations Control</p-tab>
       <p-tab value="1"><i class="pi pi-image mr-1"></i> Weekly Images</p-tab>
-      <p-tab value="2"><i class="pi pi-th-large mr-1"></i> Plan Matrix</p-tab>
     </p-tablist>
 
     <p-tabpanels>
 
-      <!-- ==================== TAB 0: TIER SETTINGS ==================== -->
+      <!-- ==================== TAB 0: TIERS & COMBINATIONS ==================== -->
       <p-tabpanel value="0">
         <div class="section-header">
           <h2>Tiers &amp; Pricing</h2>
@@ -38,108 +37,155 @@
             <div class="tier-card" [class.tier-card--expanded]="isExpanded(tier)">
               <!-- Tier Row -->
               <div class="tier-row">
-                <div class="tier-drag">
-                  <i class="pi pi-bars drag-handle"></i>
-                </div>
 
-                <div class="tier-identity">
-                  <span class="plan-group-badge" [ngClass]="getTierBadgeClass(tier.slug)">
-                    <i class="pi" [ngClass]="getTierIcon(tier.slug)"></i>
-                    <span class="ml-1 font-bold">{{ tier.name }}</span>
+                <!-- LEFT: drag handle + badge + diet dots -->
+                <div class="tier-drag"><i class="pi pi-bars"></i></div>
+
+                <span class="plan-group-badge" [ngClass]="getTierBadgeClass(tier.slug)">
+                  <i class="pi" [ngClass]="getTierIcon(tier.slug)"></i>
+                  <span class="ml-1 font-bold">{{ tier.name }}</span>
+                </span>
+
+                <!-- Diet indicator dots -->
+                <div class="tier-diet-dots">
+                  <span *ngIf="tier.diet_support === 'both' || tier.diet_support === 'veg_only'"
+                        class="diet-dot diet-dot--veg" pTooltip="Vegetarian">
+                    <span class="dot-inner"></span>
                   </span>
-                  @if (tier.slug) {
-                    <span class="tier-slug-label">{{ tier.slug }}</span>
-                  }
+                  <span *ngIf="tier.diet_support === 'both' || tier.diet_support === 'nonveg_only'"
+                        class="diet-dot diet-dot--nonveg" pTooltip="Non-Vegetarian">
+                    <span class="dot-inner"></span>
+                  </span>
                 </div>
 
-                <div class="tier-diet">
-                  <span class="diet-badge diet-both"     *ngIf="tier.diet_support === 'both'">Veg &amp; Non-Veg</span>
-                  <span class="diet-badge diet-veg"      *ngIf="tier.diet_support === 'veg_only'">Veg Only</span>
-                  <span class="diet-badge diet-nonveg"   *ngIf="tier.diet_support === 'nonveg_only'">Non-Veg Only</span>
+                <!-- SPACER pushes everything below to the right -->
+                <div class="tier-spacer"></div>
+
+                <!-- RIGHT: delivery inputs -->
+                <div class="tier-delivery-inline">
+                  <span class="delivery-inline-label">W</span>
+                  <span class="delivery-inline-prefix">₹</span>
+                  <input pInputText type="number"
+                         [(ngModel)]="tier.delivery_charge_weekly"
+                         (blur)="updateTierDelivery(tier)"
+                         class="delivery-nano-input" />
+
+                  <span class="delivery-inline-sep">|</span>
+
+                  <span class="delivery-inline-label">M</span>
+                  <span class="delivery-inline-prefix">₹</span>
+                  <input pInputText type="number"
+                         [(ngModel)]="tier.delivery_charge_monthly"
+                         (blur)="updateTierDelivery(tier)"
+                         class="delivery-nano-input" />
                 </div>
 
-                <div class="tier-pricing-badges">
-                  @for (p of tier.pricing; track p.diet_type) {
-                    <span class="price-chip" [class.price-chip--veg]="p.diet_type === 'veg'" [class.price-chip--nonveg]="p.diet_type === 'nonveg'">
-                      {{ p.diet_type === 'veg' ? '🌿' : '🍖' }} ₹{{ p.price_per_meal }}
-                    </span>
-                  }
-                  @if (!tier.pricing?.length) {
-                    <span class="price-chip price-chip--none">No pricing</span>
-                  }
-                </div>
+                <!-- Toggle -->
+                <p-toggleSwitch [(ngModel)]="tier.is_active" (onChange)="toggleTierActive(tier)"></p-toggleSwitch>
 
-                <div class="tier-delivery">
-                  <div class="delivery-field">
-                    <span class="delivery-label">Weekly / meal</span>
-                    <div class="p-inputgroup compact-group">
-                      <span class="p-inputgroup-addon">₹</span>
-                      <input pInputText type="number" [(ngModel)]="tier.delivery_charge_weekly" (blur)="updateTierDelivery(tier)" class="delivery-input" />
-                    </div>
-                  </div>
-                  <div class="delivery-field">
-                    <span class="delivery-label">Monthly / meal</span>
-                    <div class="p-inputgroup compact-group">
-                      <span class="p-inputgroup-addon">₹</span>
-                      <input pInputText type="number" [(ngModel)]="tier.delivery_charge_monthly" (blur)="updateTierDelivery(tier)" class="delivery-input" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="tier-toggle">
-                  <p-toggleSwitch [(ngModel)]="tier.is_active" (onChange)="toggleTierActive(tier)"></p-toggleSwitch>
-                </div>
-
+                <!-- Action icons -->
                 <div class="tier-actions">
                   <button pButton type="button" icon="pi pi-pencil" (click)="editTier(tier)" class="p-button-text p-button-sm" pTooltip="Edit tier"></button>
-                  <button pButton type="button" icon="pi pi-money-bill" (click)="openPricingForm(tier)" class="p-button-text p-button-sm p-button-success" pTooltip="Manage pricing"></button>
                   <button pButton type="button" icon="pi pi-trash" (click)="confirmDeleteTier(tier)" class="p-button-text p-button-sm p-button-danger" pTooltip="Delete tier"></button>
                   <button pButton type="button"
                     [icon]="isExpanded(tier) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
                     (click)="toggleExpand(tier)"
                     class="p-button-text p-button-sm"
-                    [pTooltip]="isExpanded(tier) ? 'Hide pricing history' : 'Show pricing history'">
+                    [pTooltip]="isExpanded(tier) ? 'Hide details' : 'Show details & combinations'">
                   </button>
                 </div>
               </div>
 
-              <!-- Expanded Pricing Sub-Table -->
-              <div class="tier-pricing-panel" *ngIf="isExpanded(tier)">
-                <div class="pricing-panel-header">
-                  <span class="pricing-panel-title">Pricing History — {{ tier.name }}</span>
-                  <button pButton label="Add Price Rule" icon="pi pi-plus" class="p-button-sm p-button-outlined p-button-success" (click)="openPricingForm(tier)"></button>
+              <!-- Expanded Details and Combinations Matrix -->
+              <div class="tier-pricing-panel" *ngIf="isExpanded(tier)" style="padding: 1.5rem; border-top: 1px solid var(--border-color, #e2e8f0); background-color: var(--card-bg-alt, #f8fafc);">
+                
+                <!-- Base Pricing Settings Row — compact inline -->
+                <div class="base-pricing-bar">
+                  <span class="base-pricing-bar__label">
+                    <i class="pi pi-tag"></i> Base Price / Meal
+                  </span>
+
+                  <div class="base-pricing-bar__inputs">
+                    <!-- Veg -->
+                    <div class="base-price-field" *ngIf="tier.diet_support === 'both' || tier.diet_support === 'veg_only'">
+                      <span class="base-price-dot base-price-dot--veg"></span>
+                      <span class="base-price-field__tag">Veg</span>
+                      <span class="base-price-field__prefix">₹</span>
+                      <input pInputText type="number" [(ngModel)]="tier.veg_price_input" class="base-price-input" placeholder="0" />
+                      <button pButton icon="pi pi-check" (click)="updateBasePrice(tier, 'veg')"
+                              class="p-button-success p-button-text p-button-sm base-price-btn"
+                              pTooltip="Save Veg price"></button>
+                    </div>
+
+                    <span class="base-pricing-bar__sep" *ngIf="tier.diet_support === 'both'">|</span>
+
+                    <!-- Non-Veg -->
+                    <div class="base-price-field" *ngIf="tier.diet_support === 'both' || tier.diet_support === 'nonveg_only'">
+                      <span class="base-price-dot base-price-dot--nonveg"></span>
+                      <span class="base-price-field__tag">Non-Veg</span>
+                      <span class="base-price-field__prefix">₹</span>
+                      <input pInputText type="number" [(ngModel)]="tier.nonveg_price_input" class="base-price-input" placeholder="0" />
+                      <button pButton icon="pi pi-check" (click)="updateBasePrice(tier, 'nonveg')"
+                              class="p-button-success p-button-text p-button-sm base-price-btn"
+                              pTooltip="Save Non-Veg price"></button>
+                    </div>
+                  </div>
                 </div>
-                <p-table [value]="getPricingHistory(tier.id)" styleClass="p-datatable-sm pricing-sub-table">
-                  <ng-template pTemplate="header">
-                    <tr>
-                      <th>Diet</th>
-                      <th>Price / Meal</th>
-                      <th>Effective From</th>
-                      <th>Status</th>
-                      <th>Active</th>
-                      <th>Actions</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template pTemplate="body" let-p>
-                    <tr>
-                      <td><span class="diet-badge" [ngClass]="'diet-' + p.diet_type">{{ p.diet_type }}</span></td>
-                      <td class="font-bold">₹{{ p.price_per_meal }}</td>
-                      <td>{{ p.effective_from | date:'MMM d, yyyy' }}</td>
-                      <td>
-                        <span class="status-chip" [class.chip-active]="p.status === 'active'" [class.chip-scheduled]="p.status === 'scheduled'">{{ p.status }}</span>
-                      </td>
-                      <td>
-                        <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)"></p-toggleSwitch>
-                      </td>
-                      <td>
-                        <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger p-0" (click)="deletePricingRule(p, tier.id)" pTooltip="Delete price rule"></button>
-                      </td>
-                    </tr>
-                  </ng-template>
-                  <ng-template pTemplate="emptymessage">
-                    <tr><td colspan="6" class="text-center text-muted py-3">No pricing rows yet.</td></tr>
-                  </ng-template>
-                </p-table>
+
+                <!-- Plan Combinations List -->
+                <div class="plan-combinations-settings" style="background: white; padding: 1.25rem; border-radius: var(--border-radius-md, 8px); border: 1px solid var(--border-color, #e2e8f0);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h4 style="margin: 0; color: var(--text-color-heading, #1e293b); font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="pi pi-th-large" style="color: var(--primary-green, #10b981)"></i> Combination Availability & Pricing Matrix
+                    </h4>
+                    <button pButton label="Add Combination" icon="pi pi-plus" (click)="openNewCombination(tier.id)" class="p-button-outlined p-button-success p-button-sm"></button>
+                  </div>
+                  
+                  <p-table [value]="groupedPlansMap[tier.id] || []" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Diet</th>
+                        <th>Duration</th>
+                        <th>Meal Type</th>
+                        <th>Meals Count</th>
+                        <th>Delivery (Total)</th>
+                        <th>Dynamic Total Price</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-group>
+                      <tr>
+                        <td data-label="Diet">
+                          <span class="diet-badge" [ngClass]="'diet-' + group.diet_type">
+                            {{ group.diet_type === 'veg' ? '🌿 Veg' : '🍖 Non-Veg' }}
+                          </span>
+                        </td>
+                        <td data-label="Duration">{{ group.duration | titlecase }}</td>
+                        <td data-label="Meal Type">{{ group.meal_type }}</td>
+                        <td data-label="Meals Count" class="font-bold">{{ group.meal_count }}</td>
+                        <td data-label="Delivery (Total)">₹{{ group.delivery_charge }}</td>
+                        <td data-label="Dynamic Total Price" class="font-bold text-heading-green" style="font-size: 1.05rem;">₹{{ group.total_price }}</td>
+                        <td data-label="Availability">
+                          <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <p-toggleSwitch [(ngModel)]="group.is_active" (onChange)="toggleGroupedPlanActive(group)"></p-toggleSwitch>
+                            <span class="text-xs font-semibold" [class.text-green-600]="group.is_active" [class.text-gray-500]="!group.is_active">
+                              {{ group.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                          </div>
+                        </td>
+                        <td data-label="Actions">
+                          <button pButton type="button" icon="pi pi-pencil" (click)="editCombination(group)" class="p-button-text p-button-sm p-button-success" pTooltip="Edit combination settings & overrides"></button>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="8" class="text-center text-muted py-3">No combinations registered yet. Add a pricing rule to see combinations.</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
               </div>
             </div>
           }
@@ -180,8 +226,7 @@
               </div>
             </div>
 
-
-            <!-- ── Supabase / Storage Error Banner ──────────────────── -->
+            <!-- Supabase / Storage Error Banner -->
             <app-error-banner
               [error]="uploadError"
               (dismissed)="clearUploadError()"
@@ -211,7 +256,6 @@
               </ng-container>
               <input type="file" id="weeklyImageInput" accept="image/*" (change)="onFileInputChange($event)" class="hidden-file-input" />
             </div>
-
 
             <button pButton label="Publish" icon="pi pi-check" (click)="publishMenuImage()"
               class="p-button-success w-full mt-3"
@@ -260,213 +304,9 @@
         </div>
       </p-tabpanel>
 
-      <!-- ==================== TAB 2: PLAN MATRIX ==================== -->
-      <p-tabpanel value="2">
-        <div class="section-header">
-          <h2>Plan Availability Matrix</h2>
-          <p class="text-muted text-sm m-0">Toggle which combinations are visible to customers. Prices are computed dynamically.</p>
-        </div>
-
-        <div *ngIf="isLoadingPlans" class="skeleton-wrap">
-          <p-skeleton height="20rem"></p-skeleton>
-        </div>
-
-        <div *ngIf="!isLoadingPlans" class="mobile-plan-list">
-          <!-- Filter Chips -->
-          <div class="mobile-filters horizontal-scroll">
-            <select [(ngModel)]="mobileFilters.tier_id" class="filter-chip">
-              <option value="">All Tiers</option>
-              <option *ngFor="let t of tiers" [value]="t.id">{{ t.name }}</option>
-            </select>
-            <select [(ngModel)]="mobileFilters.diet_type" class="filter-chip">
-              <option value="">All Diets</option>
-              <option value="veg">Veg</option>
-              <option value="nonveg">Non-Veg</option>
-            </select>
-            <select [(ngModel)]="mobileFilters.duration" class="filter-chip">
-              <option value="">All Durations</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-            <select [(ngModel)]="mobileFilters.slot_combo" class="filter-chip">
-              <option value="">All Slots</option>
-              <option value="breakfast_only">Breakfast Only</option>
-              <option value="dinner_only">Dinner Only</option>
-              <option value="both">Both</option>
-            </select>
-          </div>
-
-          <div class="mobile-plan-cards">
-            @for (group of getFilteredPlansGroupedByTier(); track group.tier.id) {
-              <div class="pm-tier-group">
-                <h4 class="pm-tier-group-title">
-                  <span class="plan-group-badge" [ngClass]="getTierBadgeClass(group.tier.slug)">
-                    <i class="pi" [ngClass]="getTierIcon(group.tier.slug)"></i>
-                    <span>{{ group.tier.name }}</span>
-                  </span>
-                </h4>
-                <div class="pm-tier-group-cards">
-                  @for (plan of group.plans; track plan.id) {
-                    <div class="plan-mobile-card">
-                      <div class="pm-header">
-                        <span class="diet-badge" [ngClass]="'diet-' + plan.diet_type">{{ plan.diet_type === 'veg' ? '🌿 Veg' : '🍖 Non-Veg' }}</span>
-                      </div>
-                      <div class="pm-body">
-                        <div class="pm-title">{{ getComboTitle(plan) }}</div>
-                        <div class="pm-price">{{ getPlanPrice(plan) }}</div>
-                      </div>
-                      <div class="pm-footer">
-                        <p-toggleSwitch [(ngModel)]="plan.is_active" (onChange)="togglePlanActive(plan)"></p-toggleSwitch>
-                        <span class="pm-status" [class.status-active]="plan.is_active">{{ plan.is_active ? 'Active' : 'Inactive' }}</span>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-            @if (getFilteredPlansGroupedByTier().length === 0) {
-              <app-empty-state 
-                icon="pi-filter" 
-                title="No plans found" 
-                description="Try adjusting your filters to see more plan combinations.">
-              </app-empty-state>
-            }
-          </div>
-        </div>
-
-        <div class="matrix-scroll-wrapper" *ngIf="!isLoadingPlans">
-          @for (tier of tiers; track tier.id) {
-            <div class="brand-card mb-4">
-              <div class="matrix-tier-header">
-                <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-                  <span class="plan-group-badge" [ngClass]="getTierBadgeClass(tier.slug)">
-                    <i class="pi" [ngClass]="getTierIcon(tier.slug)"></i>
-                    <span>{{ tier.name }}</span>
-                  </span>
-                  <span class="diet-badge diet-both" *ngIf="tier.diet_support === 'both'">Veg &amp; Non-Veg</span>
-                  <span class="diet-badge diet-veg" *ngIf="tier.diet_support === 'veg_only'">Veg Only</span>
-                  <span class="diet-badge diet-nonveg" *ngIf="tier.diet_support === 'nonveg_only'">Non-Veg Only</span>
-                </div>
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                  <button pButton label="Enable all" icon="pi pi-check" class="p-button-sm p-button-outlined p-button-success" (click)="enableAllForTier(tier)"></button>
-                  <button pButton label="Disable all" icon="pi pi-times" class="p-button-sm p-button-outlined p-button-secondary" (click)="disableAllForTier(tier)"></button>
-                </div>
-              </div>
-
-              <!-- Matrix grid (2 diet rows × 6 colums) -->
-              <div class="matrix-table-wrapper">
-                <table class="matrix-table">
-                  <thead>
-                    <tr>
-                      <th class="matrix-th-diet">Diet</th>
-                      @for (d of durations; track d) {
-                        @for (s of slotCombos; track s) {
-                          <th class="matrix-th-combo">
-                            <div class="combo-label-dur">{{ d | titlecase }}</div>
-                            <div class="combo-label-slot">{{ s === 'breakfast_only' ? 'Breakfast' : s === 'dinner_only' ? 'Dinner' : 'Both' }}</div>
-                          </th>
-                        }
-                      }
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (diet of (tier.diet_support === 'veg_only' ? ['veg'] : tier.diet_support === 'nonveg_only' ? ['nonveg'] : ['veg','nonveg']); track diet) {
-                      <tr>
-                        <td class="matrix-diet-cell">
-                          <span class="diet-badge" [ngClass]="'diet-' + diet">{{ diet === 'veg' ? '🌿 Veg' : '🍖 Non-Veg' }}</span>
-                        </td>
-                        @for (d of durations; track d) {
-                          @for (s of slotCombos; track s) {
-                            <td class="matrix-combo-cell" [class.matrix-combo-cell--off]="!getPlan(tier.id, diet, s, d)?.is_active">
-                              @let plan = getPlan(tier.id, diet, s, d);
-                              @if (plan) {
-                                <div class="matrix-cell-inner" [pTooltip]="getPlanTooltip(plan)" tooltipPosition="top">
-                                  <span class="matrix-price">{{ getPlanPrice(plan) }}</span>
-                                  <p-toggleSwitch [(ngModel)]="plan.is_active" (onChange)="togglePlanActive(plan)" class="mt-1"></p-toggleSwitch>
-                                </div>
-                              } @else {
-                                <div class="matrix-cell-inner matrix-cell-empty">
-                                  <span class="text-muted">N/A</span>
-                                </div>
-                              }
-                            </td>
-                          }
-                        }
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-        </div>
-      </p-tabpanel>
-
     </p-tabpanels>
   </p-tabs>
 </div>
-
-<!-- ==================== PRICE RULE DIALOG ==================== -->
-<p-dialog [(visible)]="pricingDialogTier" [modal]="true"
-  [header]="'Manage Pricing: ' + (pricingDialogTier?.name || '')"
-  [style]="{width:'620px'}" styleClass="premium-light-modal">
-
-  <div class="pricing-content" *ngIf="pricingDialogTier">
-    <!-- Add New Price Row -->
-    <div class="add-price-section">
-      <h4>Add New Price Rule</h4>
-      <form [formGroup]="newPriceForm">
-        <div class="form-field">
-          <label class="form-label">Diet</label>
-          <p-select [options]="getPricingOptions(pricingDialogTier)" formControlName="diet_type"
-            optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Price / Meal (₹)</label>
-          <input pInputText type="number" formControlName="price_per_meal" class="w-full" min="1" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Effective From</label>
-          <p-datepicker formControlName="effective_from" appendTo="body" class="w-full" [minDate]="today"></p-datepicker>
-        </div>
-        <button pButton icon="pi pi-plus" label="Add" (click)="saveNewPrice()"
-          class="p-button-success" [disabled]="newPriceForm.invalid"></button>
-      </form>
-    </div>
-
-    <!-- Pricing History -->
-    <p-table [value]="getPricingHistory(pricingDialogTier?.id)" [rows]="8" [paginator]="true" styleClass="p-datatable-sm">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Diet</th>
-          <th>Price / Meal</th>
-          <th>Effective From</th>
-          <th>Status</th>
-          <th>Active</th>
-          <th>Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-p>
-        <tr>
-          <td><span class="diet-badge" [ngClass]="'diet-' + p.diet_type">{{ p.diet_type }}</span></td>
-          <td class="font-bold text-lg">₹{{ p.price_per_meal }}</td>
-          <td>{{ p.effective_from | date:'MMM d, yyyy' }}</td>
-          <td><span class="status-chip" [class.chip-active]="p.status === 'active'" [class.chip-scheduled]="p.status === 'scheduled'">{{ p.status }}</span></td>
-          <td>
-            <p-toggleSwitch [(ngModel)]="p.is_active" (onChange)="togglePricingActive(p)"></p-toggleSwitch>
-          </td>
-          <td>
-            <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger p-0" (click)="deletePricingRule(p, pricingDialogTier.id)" pTooltip="Delete price rule"></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <button pButton label="Close" class="p-button-text p-button-secondary" (click)="closePricingForm()"></button>
-  </ng-template>
-</p-dialog>
 
 <!-- ==================== TIER DIALOG ==================== -->
 <p-dialog [(visible)]="tierDialog" [modal]="true"
@@ -519,5 +359,62 @@
     <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="tierDialog = false"></button>
     <button pButton [label]="isEditMode ? 'Save Changes' : 'Create Tier'" icon="pi pi-check"
       (click)="saveTier()" class="p-button-success" [disabled]="tierForm.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- ==================== COMBINATION DIALOG ==================== -->
+<p-dialog [(visible)]="combinationDialog" [modal]="true"
+  [header]="isEditCombination ? 'Edit Combination Overrides' : 'Add Plan Combination'"
+  [style]="{width:'500px'}" styleClass="premium-light-modal">
+
+  <form [formGroup]="combinationForm" class="flex flex-column gap-3 p-1">
+    <div *ngIf="isEditCombination" style="background: #f0fdf4; border: 1px solid #10b981; color: #166534; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.5rem;">
+      <i class="pi pi-info-circle mr-1"></i> Editing settings for <strong>{{ combinationForm.value.diet_type === 'veg' ? 'Veg' : 'Non-Veg' }} {{ combinationForm.value.duration | titlecase }} Single/Double Meal</strong>. Updates will apply to all matching delivery slots.
+    </div>
+
+    <!-- Select Tier (hidden or read-only during edit) -->
+    <div class="form-field" *ngIf="!isEditCombination">
+      <label class="form-label">Meal Tier <span class="required">*</span></label>
+      <p-select [options]="tiers" formControlName="tier_id" optionLabel="name" optionValue="id" placeholder="Select tier" appendTo="body" class="w-full"></p-select>
+    </div>
+
+    <div class="form-row-2" *ngIf="!isEditCombination">
+      <div class="form-field">
+        <label class="form-label">Diet Type <span class="required">*</span></label>
+        <p-select [options]="[{label: 'Veg', value: 'veg'}, {label: 'Non-Veg', value: 'nonveg'}]" formControlName="diet_type" optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Duration <span class="required">*</span></label>
+        <p-select [options]="[{label: 'Weekly', value: 'weekly'}, {label: 'Monthly', value: 'monthly'}]" formControlName="duration" optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
+      </div>
+    </div>
+
+    <div class="form-field" *ngIf="!isEditCombination">
+      <label class="form-label">Meal Slot <span class="required">*</span></label>
+      <p-select [options]="[{label: 'Single Meal (Breakfast Only)', value: 'breakfast_only'}, {label: 'Single Meal (Dinner Only)', value: 'dinner_only'}, {label: 'Double Meal (Breakfast + Dinner)', value: 'both'}]" formControlName="slot_combo" optionLabel="label" optionValue="value" appendTo="body" class="w-full"></p-select>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Total Meal Count (Leave empty for default)</label>
+      <input pInputText type="number" formControlName="meal_count" placeholder="e.g. 6, 12, 24, 48" class="w-full" />
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Override Price (Total package price, ₹)</label>
+      <input pInputText type="number" formControlName="price" placeholder="Leave empty to use dynamic base price" class="w-full" />
+      <small class="text-muted" *ngIf="isEditCombination">Enter a value to set a fixed override price (e.g. 600). Enter -1 to clear the override and use dynamic base pricing.</small>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Override Delivery Charge (Total package delivery, ₹)</label>
+      <input pInputText type="number" formControlName="delivery_charge" placeholder="Leave empty to use dynamic tier delivery" class="w-full" />
+      <small class="text-muted" *ngIf="isEditCombination">Enter a value to set a fixed override delivery charge. Enter -1 to clear the override and use dynamic tier delivery.</small>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="combinationDialog = false"></button>
+    <button pButton [label]="isEditCombination ? 'Save Overrides' : 'Create Combination'" icon="pi pi-check"
+      (click)="saveCombination()" class="p-button-success" [disabled]="combinationForm.invalid"></button>
   </ng-template>
 </p-dialog>

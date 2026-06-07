@@ -1,7 +1,10 @@
 <header class="header">
   <div class="container header-content">
-    <div class="logo" routerLink="/">
-      <div class="logo-icon">N</div>
+    <div class="logo brand-logo-hover-container" (click)="openLogoPreview($event)">
+      <div class="shimmer-logo-wrap">
+        <img src="/logo1.png" alt="Nutribox" class="logo-img logo-shimmer-effect" />
+        <span class="logo-glow-ring"></span>
+      </div>
       <span class="logo-text">Nutribox</span>
     </div>
 
@@ -14,8 +17,9 @@
 
     <div class="actions">
       @if (isLoggedIn) {
-        <button type="button" class="icon-btn header-btn" aria-label="Announcements & Offers" (click)="openDrawer()">
+        <button type="button" class="icon-btn header-btn notif-btn" aria-label="Announcements & Offers" (click)="openDrawer()">
           <i class="pi pi-bell"></i>
+          <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
         <div class="avatar-wrapper">
           <div class="avatar-initials header-avatar" (click)="toggleAvatarMenu()">{{ initials }}</div>
@@ -45,3 +49,18 @@
 
   <app-notifications-drawer [(visible)]="drawerOpen"></app-notifications-drawer>
 </header>
+
+<!-- Brand Logo Lightbox/Preview Overlay -->
+@if (logoPreviewOpen) {
+  <div class="logo-preview-backdrop" (click)="closeLogoPreview()">
+    <div class="logo-preview-container" (click)="$event.stopPropagation()">
+      <button class="logo-preview-close" aria-label="Close Preview" (click)="closeLogoPreview()">
+        <i class="pi pi-times"></i>
+      </button>
+      <div class="logo-preview-card">
+        <img src="/logo1.png" alt="Nutribox Brand Logo" class="logo-preview-img" />
+      </div>
+    </div>
+  </div>
+}
+

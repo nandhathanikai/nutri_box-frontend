@@ -23,6 +23,7 @@ interface Offer {
   valid_from: string;
   valid_until: string;
   status: 'active' | 'draft' | 'expired';
+  audience: string;
 }
 
 @Component({
@@ -46,7 +47,8 @@ export class AdminOffersComponent implements OnInit {
 
   newForm: any = {
     code: '', description: '', type: 'pct', value: null, max_cap: null,
-    min_order: null, usage_limit: null, valid_from: this.today, valid_until: ''
+    min_order: null, usage_limit: null, valid_from: this.today, valid_until: '',
+    audience: 'all'
   };
 
   offers: Offer[] = [];
@@ -78,6 +80,9 @@ export class AdminOffersComponent implements OnInit {
   get expiringSoon(): number {
     const soon = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
     return this.offers.filter(o => o.status === 'active' && o.valid_until <= soon).length;
+  }
+  get totalRedemptions(): number {
+    return this.offers.reduce((acc, o) => acc + (o.used_count || 0), 0);
   }
 
   valueLabel(o: Offer): string {
@@ -134,7 +139,7 @@ export class AdminOffersComponent implements OnInit {
       next: () => {
         this.msg.add({ severity: 'success', summary: 'Created', detail: `Offer ${this.newForm.code.toUpperCase()} created!` });
         this.showNewOffer = false;
-        this.newForm = { code: '', description: '', type: 'pct', value: null, max_cap: null, min_order: null, usage_limit: null, valid_from: this.today, valid_until: '' };
+        this.newForm = { code: '', description: '', type: 'pct', value: null, max_cap: null, min_order: null, usage_limit: null, valid_from: this.today, valid_until: '', audience: 'all' };
         this.isSaving = false;
         this.load();
       },
