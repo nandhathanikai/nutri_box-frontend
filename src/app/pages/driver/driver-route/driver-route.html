@@ -63,6 +63,38 @@
           <i class="pi pi-phone"></i>
         </a>
       </div>
+
+      <!-- Actions panel -->
+      <div class="route-actions-panel">
+        @if (routeInfo.status === 'assigned') {
+          <button class="btn-route-action btn-start-delivery" (click)="startDelivery()" [disabled]="actionLoading">
+            @if (actionLoading) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-directions"></i> }
+            Start Delivery
+          </button>
+        }
+
+        @if (routeInfo.status === 'on_the_way') {
+          <button class="btn-route-action btn-delivered" (click)="markDelivered()" [disabled]="actionLoading">
+            @if (actionLoading) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-check-circle"></i> }
+            Mark Delivered
+          </button>
+
+          @if (!isSimulating) {
+            <button class="btn-route-action btn-simulate" (click)="startSimulation()">
+              <i class="pi pi-play"></i> Simulate Rider Movement
+            </button>
+          }
+        }
+
+        @if (isSimulating) {
+          <div class="simulation-active-bar">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span><strong>Simulation Active:</strong> The bike is moving along the OSRM route towards the customer.</span>
+          </div>
+        }
+      </div>
     }
 
     <!-- Map -->

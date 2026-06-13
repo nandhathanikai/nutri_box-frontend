@@ -16,6 +16,20 @@ export interface DashboardStats {
     labels: string[];
     data: number[];
   };
+  dbStatus?: {
+    database_type: string;
+    size_mb: number;
+    size_limit_mb: number;
+    size_percentage: number;
+    size_limit_reached: boolean;
+    size_error: string | null;
+    connections: number;
+    connection_limit: number;
+    connection_percentage: number;
+    connection_limit_reached: boolean;
+    connection_error: string | null;
+    any_limit_reached: boolean;
+  };
 }
 
 export interface Customer {

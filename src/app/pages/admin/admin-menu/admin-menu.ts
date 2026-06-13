@@ -14,6 +14,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AdminService, Menu } from '../../../services/admin.service';
 import { AddDishFormComponent } from './add-dish-form/add-dish-form.component';
+import { resolveImageUrl } from '../../../utils/image-resolver';
 
 @Component({
   selector: 'app-admin-menu',
@@ -57,7 +58,10 @@ export class AdminMenuComponent implements OnInit {
     this.isLoading = true;
     this.adminService.getMenus().subscribe({
       next: (data) => {
-        this.menus = data;
+        this.menus = (data || []).map(m => ({
+          ...m,
+          menu_image: m.menu_image ? resolveImageUrl(m.menu_image) : undefined
+        }));
         this.isLoading = false;
       },
       error: () => {

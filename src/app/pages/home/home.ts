@@ -120,8 +120,7 @@ export class HomeComponent implements OnInit {
         this.loadingReviews = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Failed to load reviews', err);
+      error: () => {
         this.loadingReviews = false;
         this.cdr.markForCheck();
       }
@@ -134,9 +133,7 @@ export class HomeComponent implements OnInit {
         this.reviewStats = data || { total_reviews: 0, happy_customers: 0 };
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Failed to load review stats', err);
-      }
+      error: () => {}
     });
   }
 

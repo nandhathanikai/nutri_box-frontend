@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 import { environment } from '../../../../environments/environment';
 
-type SettingsTab = 'general' | 'notifications' | 'payment' | 'account';
+type SettingsTab = 'general' | 'notifications' | 'payment' | 'account' | 'ai_knowledge';
 
 @Component({
   selector: 'app-admin-settings',
@@ -29,6 +29,17 @@ export class AdminSettingsComponent {
   activeTab: SettingsTab = 'general';
   isSaving = false;
   isLoading = false;
+  showResetConfirm = false;
+
+  // AI Knowledge status
+  pdfStatus = {
+    uploaded: false,
+    filename: null,
+    uploaded_at: null,
+    total_chunks: 0
+  };
+  selectedPdfFile: File | null = null;
+  isUploadingPdf = false;
 
   // Contact info (synced with backend)
   contactForm: FormGroup;
@@ -64,6 +75,7 @@ export class AdminSettingsComponent {
       closes_at: ['22:00'],
     });
     this.loadSettings();
+    this.loadPdfStatus();
   }
 
   loadSettings() {
@@ -197,9 +209,7 @@ export class AdminSettingsComponent {
   }
 
   confirmClearDashboard() {
-    if (confirm("⚠️ WARNING: This will permanently delete all customer subscriptions, active orders, custom requests, delivery cancellations, and credits. This action is irreversible. Are you sure you want to reset the dashboard statistics?")) {
-      this.clearDashboard();
-    }
+    this.showResetConfirm = true;
   }
 
   clearDashboard() {
@@ -212,6 +222,51 @@ export class AdminSettingsComponent {
       error: (err) => {
         this.msg.add({ severity: 'error', summary: 'Error', detail: err.error?.detail || 'Failed to reset dashboard statistics.' });
         this.isLoading = false;
+      }
+    });
+  }
+
+  // ── AI CHATBOT KNOWLEDGE ACTIONS ──────────────────────────────────────────
+
+  loadPdfStatus() {
+    this.http.get<any>(`${environment.apiBaseUrl}/api/chatbot/pdf-status`).subscribe({
+      next: (status) => {
+        this.pdfStatus = status;
+      },
+      error: () => {}
+    });
+  }
+
+  onPdfFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        this.msg.add({ severity: 'error', summary: 'Invalid File', detail: 'Please select a valid PDF document.' });
+        return;
+      }
+      this.selectedPdfFile = file;
+    }
+  }
+
+  uploadPdf() {
+    if (!this.selectedPdfFile) return;
+    this.isUploadingPdf = true;
+    
+    const formData = new FormData();
+    formData.append('file', this.selectedPdfFile);
+
+    this.http.post<any>(`${environment.apiBaseUrl}/api/chatbot/upload-pdf`, formData).subscribe({
+      next: (resp) => {
+        this.msg.add({ severity: 'success', summary: 'Indexed!', detail: 'PDF has been parsed and embeddings generated successfully.' });
+        this.selectedPdfFile = null;
+        this.isUploadingPdf = false;
+        this.loadPdfStatus();
+      },
+      error: (err) => {
+        this.isUploadingPdf = false;
+        const msg = err.error?.detail || 'Failed to parse and index PDF.';
+        this.msg.add({ severity: 'error', summary: 'Upload Failed', detail: msg });
       }
     });
   }

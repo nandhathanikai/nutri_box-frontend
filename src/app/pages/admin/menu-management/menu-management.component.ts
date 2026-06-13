@@ -120,23 +120,23 @@ export class MenuManagementComponent implements OnInit {
 
   initForms() {
     this.newPriceForm = this.fb.group({
-      diet_type:     ['veg', Validators.required],
+      diet_type: ['veg', Validators.required],
       price_per_meal: [0, [Validators.required, Validators.min(1)]],
       effective_from: [new Date(), Validators.required],
     });
 
     this.tierForm = this.fb.group({
-      name:                   ['', Validators.required],
-      diet_support:           ['both', Validators.required],
+      name: ['', Validators.required],
+      diet_support: ['both', Validators.required],
       delivery_charge_weekly: [10, Validators.min(0)],
       delivery_charge_monthly: [0, Validators.min(0)],
-      is_active:              [true],
-      is_featured:            [false],
+      is_active: [true],
+      is_featured: [false],
     });
 
     this.uploadForm = this.fb.group({
-      tier_id:        ['', Validators.required],
-      diet_type:      ['both', Validators.required],
+      tier_id: ['', Validators.required],
+      diet_type: ['both', Validators.required],
       week_start_date: [this.selectedWeekDate, Validators.required],
     });
 
@@ -441,7 +441,7 @@ export class MenuManagementComponent implements OnInit {
         // 1. Single Meal (Breakfast Only / Dinner Only)
         const singlePlans = plans.filter(
           p => p.tier_id === tierId && p.diet_type === diet && p.duration === duration &&
-               (p.slot_combo === 'breakfast_only' || p.slot_combo === 'dinner_only')
+            (p.slot_combo === 'breakfast_only' || p.slot_combo === 'dinner_only')
         );
         if (singlePlans.length > 0) {
           const rep = singlePlans[0];
@@ -465,7 +465,7 @@ export class MenuManagementComponent implements OnInit {
         // 2. Double Meal (Both)
         const doublePlans = plans.filter(
           p => p.tier_id === tierId && p.diet_type === diet && p.duration === duration &&
-               p.slot_combo === 'both'
+            p.slot_combo === 'both'
         );
         if (doublePlans.length > 0) {
           const rep = doublePlans[0];
@@ -676,8 +676,8 @@ export class MenuManagementComponent implements OnInit {
 
   getComboTitle(plan: any): string {
     const slot = plan.slot_combo === 'breakfast_only' ? 'Breakfast'
-               : plan.slot_combo === 'dinner_only' ? 'Dinner'
-               : 'Breakfast + Dinner';
+      : plan.slot_combo === 'dinner_only' ? 'Dinner'
+        : 'Breakfast + Dinner';
     const dur = plan.duration === 'weekly' ? 'Weekly' : 'Monthly';
     return `${slot} • ${dur}`;
   }
@@ -688,8 +688,8 @@ export class MenuManagementComponent implements OnInit {
     this.coverageGrid = [];
     for (const tier of this.tiers) {
       const diets = tier.diet_support === 'veg_only' ? ['veg']
-                  : tier.diet_support === 'nonveg_only' ? ['nonveg']
-                  : ['veg', 'nonveg'];
+        : tier.diet_support === 'nonveg_only' ? ['nonveg']
+          : ['veg', 'nonveg'];
       for (const dt of diets) {
         this.coverageGrid.push({
           tier_id: tier.id,
@@ -919,9 +919,9 @@ export class MenuManagementComponent implements OnInit {
   getTierBadgeClass(slug: string): string {
     const map: Record<string, string> = {
       protein_rich: 'tier-protein_rich',
-      classic:      'tier-classic',
-      premium:      'tier-premium',
-      fruits_bowl:  'tier-fruits_bowl',
+      classic: 'tier-classic',
+      premium: 'tier-premium',
+      fruits_bowl: 'tier-fruits_bowl',
     };
     return map[slug] ?? 'tier-classic';
   }
@@ -929,9 +929,9 @@ export class MenuManagementComponent implements OnInit {
   getTierIcon(slug: string): string {
     const map: Record<string, string> = {
       protein_rich: 'pi pi-bolt',
-      classic:      'pi pi-star',
-      premium:      'pi pi-crown',
-      fruits_bowl:  'pi pi-apple',
+      classic: 'pi pi-star',
+      premium: 'pi pi-crown',
+      fruits_bowl: 'pi pi-apple',
     };
     return map[slug] ?? 'pi pi-circle';
   }
@@ -944,8 +944,8 @@ export class MenuManagementComponent implements OnInit {
   generateDisplayName(tierName: string, dietType: string, slotCombo: string, duration: string): string {
     const diet = dietType === 'veg' ? 'Veg' : 'Non-Veg';
     const slot = slotCombo === 'breakfast_only' ? 'Breakfast Only'
-               : slotCombo === 'dinner_only' ? 'Dinner Only'
-               : 'Breakfast + Dinner';
+      : slotCombo === 'dinner_only' ? 'Dinner Only'
+        : 'Breakfast + Dinner';
     const dur = duration === 'weekly' ? 'Weekly' : 'Monthly';
     return `${tierName} · ${diet} · ${slot} · ${dur}`;
   }

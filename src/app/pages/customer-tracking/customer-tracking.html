@@ -85,7 +85,14 @@
 
     <!-- Map container -->
     <div class="map-section">
-      @if (custLat && custLng) {
+      @if (geocoding) {
+        <!-- Geocoding in progress -->
+        <div class="no-coords-card geocoding-card">
+          <i class="pi pi-spin pi-spinner"></i>
+          <h4>Locating your address…</h4>
+          <p>Finding your delivery point on the map.</p>
+        </div>
+      } @else if (custLat && custLng) {
         <div class="map-outer">
           <div #mapContainer class="leaflet-map"></div>
           <!-- Pin styles -->
@@ -102,12 +109,24 @@
             .customer-pin { background: #2e7d32; }
           </style>
         </div>
+      } @else if (customerAddressText) {
+        <!-- Address known but geocoding failed — show address card with Maps link -->
+        <div class="no-coords-card address-fallback-card">
+          <i class="pi pi-map-marker"></i>
+          <h4>Delivery Address</h4>
+          <p class="address-text">{{ customerAddressText }}</p>
+          <a [href]="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(customerAddressText)"
+             target="_blank" class="btn-profile">
+            <i class="pi pi-external-link"></i> Open in Google Maps
+          </a>
+        </div>
       } @else {
+        <!-- No address info at all -->
         <div class="no-coords-card">
           <i class="pi pi-exclamation-circle"></i>
-          <h4>Missing Coordinates</h4>
-          <p>We do not have your exact delivery coordinates. Please update your profile address and verify your location coordinates to view the live tracking map.</p>
-          <a routerLink="/profile" class="btn-profile">Update Profile Coordinates</a>
+          <h4>Location Not Available</h4>
+          <p>Please add your address or Google Maps link in your profile so we can show live tracking.</p>
+          <a routerLink="/profile" class="btn-profile">Update Profile</a>
         </div>
       }
     </div>

@@ -5,7 +5,83 @@
         <h1><i class="pi pi-th-large"></i> Dashboard</h1>
         <p>Overview of revenue, orders, and customer activity.</p>
       </div>
+
+      <!-- Database Status Badge & Popover -->
+      <div class="db-status-wrapper" *ngIf="dbStatusData">
+        <button class="btn-db-status" [class.near-limit]="dbStatusData.any_limit_reached" (click)="showDbPopover = !showDbPopover">
+          <i class="pi" [class.pi-database]="!dbStatusData.any_limit_reached" [class.pi-exclamation-triangle]="dbStatusData.any_limit_reached"></i>
+          <span>Database: {{ dbStatusData.any_limit_reached ? 'Warning' : 'Healthy' }}</span>
+        </button>
+
+        <!-- Detailed Popover Card -->
+        <div class="db-popover-card" *ngIf="showDbPopover">
+          <div class="popover-header">
+            <h4><i class="pi pi-database"></i> Database Resource Info</h4>
+            <button class="close-popover-btn" (click)="showDbPopover = false"><i class="pi pi-times"></i></button>
+          </div>
+          <div class="popover-body">
+            <div class="db-info-row">
+              <span class="info-label">Type:</span>
+              <span class="info-val font-semibold">{{ dbStatusData.database_type }} (Free Version)</span>
+            </div>
+            
+            <hr class="popover-divider" />
+            
+            <!-- Size utilization -->
+            <div class="util-section">
+              <div class="util-meta">
+                <span>Storage Size</span>
+                <span>{{ dbStatusData.size_mb }} MB / {{ dbStatusData.size_limit_mb }} MB</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" [style.width.%]="dbStatusData.size_percentage" [class.danger]="dbStatusData.size_limit_reached"></div>
+              </div>
+              <small class="percentage-hint" [class.text-danger]="dbStatusData.size_limit_reached">
+                {{ dbStatusData.size_percentage }}% utilized
+              </small>
+            </div>
+            
+            <!-- Connection utilization -->
+            <div class="util-section">
+              <div class="util-meta">
+                <span>Connection Pool</span>
+                <span>{{ dbStatusData.connections }} / {{ dbStatusData.connection_limit }}</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" [style.width.%]="dbStatusData.connection_percentage" [class.danger]="dbStatusData.connection_limit_reached"></div>
+              </div>
+              <small class="percentage-hint" [class.text-danger]="dbStatusData.connection_limit_reached">
+                {{ dbStatusData.connection_percentage }}% utilized
+              </small>
+            </div>
+
+            <!-- Errors/Permissions Warnings if pg_database_size or pg_stat_activity failed -->
+            <div class="db-error-log" *ngIf="dbStatusData.size_error || dbStatusData.connection_error">
+              <h5><i class="pi pi-info-circle"></i> Diagnostics</h5>
+              <p *ngIf="dbStatusData.size_error" class="error-detail">Storage Query: {{ dbStatusData.size_error }}</p>
+              <p *ngIf="dbStatusData.connection_error" class="error-detail">Connection Query: {{ dbStatusData.connection_error }}</p>
+            </div>
+
+            <div class="db-upgrade-notice" *ngIf="dbStatusData.any_limit_reached">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>Resource usage exceeds 90%! Upgrade your database plan to prevent immediate service disruption.</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Critical database alert warning banner -->
+  <div *ngIf="dbStatusData?.any_limit_reached" class="db-critical-warning-banner">
+    <div class="banner-alert-content">
+      <i class="pi pi-exclamation-triangle"></i>
+      <div>
+        <strong>Database Resource Limit Alert!</strong>
+        <p>Your free database subscription is reaching its usage limits (>= 90%). Upgradation is required immediately to avoid potential connection losses or transaction errors.</p>
+      </div>
+    </div>
+    <button class="view-details-btn" (click)="showDbPopover = true">View Details</button>
   </div>
 
 

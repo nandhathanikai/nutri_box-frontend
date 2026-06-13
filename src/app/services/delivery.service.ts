@@ -121,6 +121,8 @@ export interface TrackingStatus {
   customer_address?: string;
   customer_latitude?: number | null;
   customer_longitude?: number | null;
+  customer_location_link?: string | null;
+  customer_landmark?: string | null;
 }
 
 // ── WebSocket Message types ──────────────────────────────────────────────────
@@ -174,6 +176,10 @@ export class DeliveryService {
   private _gpsTimer: any = null;
   private _offlineQueue: { lat: number; lng: number; recorded_at: string }[] = [];
   private _currentAssignmentId: string | number | null = null;
+
+  private _simulatedCoords: [number, number][] = [];
+  private _simIndex = 0;
+  private _isSimulating = false;
 
   constructor(private http: HttpClient, private auth: AuthService) {
     // Build WebSocket base URL from HTTP base (replace http(s) with ws(s))
@@ -309,6 +315,84 @@ export class DeliveryService {
     this._currentAssignmentId = null;
   }
 
+  /** True when the driver WebSocket connection is open and ready to send GPS. */
+  get isGpsTrackingActive(): boolean {
+    return this._driverWs?.readyState === WebSocket.OPEN;
+  }
+
+  /** Send a single real GPS point through the driver WebSocket immediately. */
+  sendGpsPoint(lat: number, lng: number): void {
+    const point = { lat, lng, recorded_at: new Date().toISOString() };
+    if (this._driverWs?.readyState === WebSocket.OPEN) {
+      this._driverWs.send(JSON.stringify(point));
+    } else {
+      this._offlineQueue.push(point);
+      if (this._offlineQueue.length > 200) this._offlineQueue.shift();
+    }
+  }
+
+  startGpsSimulation(assignmentId: string | number, routeCoords: [number, number][]): void {
+    this._currentAssignmentId = assignmentId;
+    this._simulatedCoords = routeCoords;
+    this._simIndex = 0;
+    this._isSimulating = true;
+
+    // Connect WebSocket
+    this._openDriverWs(assignmentId);
+
+    // Stop real GPS tracking loop if running
+    if (this._gpsTimer) {
+      clearInterval(this._gpsTimer);
+      this._gpsTimer = null;
+    }
+
+    // Run simulation loop
+    this._gpsTimer = setInterval(() => {
+      if (!this._isSimulating || this._simIndex >= this._simulatedCoords.length) {
+        this.stopGpsSimulation();
+        return;
+      }
+
+      const coord = this._simulatedCoords[this._simIndex];
+      // OSRM coordinates format: [longitude, latitude]
+      const lng = coord[0];
+      const lat = coord[1];
+
+      const point = {
+        lat: lat,
+        lng: lng,
+        recorded_at: new Date().toISOString(),
+      };
+
+      // Send to WebSocket
+      if (this._driverWs?.readyState === WebSocket.OPEN) {
+        this._driverWs.send(JSON.stringify(point));
+      } else {
+        this._offlineQueue.push(point);
+        if (this._offlineQueue.length > 200) this._offlineQueue.shift();
+      }
+
+      // Also publish locally via locationUpdate$ so the driver route map updates too
+      this.locationUpdate$.next({
+        type: 'location_update',
+        assignment_id: assignmentId,
+        driver_id: 0,
+        latitude: lat,
+        longitude: lng,
+        recorded_at: point.recorded_at,
+        status: 'on_the_way',
+        server_time: point.recorded_at
+      });
+
+      this._simIndex++;
+    }, 2000); // Step every 2 seconds
+  }
+
+  stopGpsSimulation(): void {
+    this._isSimulating = false;
+    this.stopGpsTracking();
+  }
+
   private _openDriverWs(assignmentId: string | number): void {
     const token = this.auth.getToken();
     if (!token) return;
@@ -350,7 +434,7 @@ export class DeliveryService {
             if (this._offlineQueue.length > 200) this._offlineQueue.shift();
           }
         },
-        (err) => console.warn('GPS error:', err),
+        () => {},
         { enableHighAccuracy: true, timeout: 5000 }
       );
     }, 5000);

@@ -9,12 +9,13 @@ import { BottomNavComponent } from './components/bottom-nav/bottom-nav';
 import { AuthService } from './services/auth.service';
 import { LoadingService } from './services/loading.service';
 import { environment } from '../environments/environment';
+import { ChatbotComponent } from './components/chatbot/chatbot';
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, BottomNavComponent, ToastModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, BottomNavComponent, ToastModule, ChatbotComponent],
   providers: [MessageService],
   templateUrl: './app.html',
   styleUrl: './app.scss'

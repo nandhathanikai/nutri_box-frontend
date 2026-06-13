@@ -74,8 +74,7 @@ export class SignupComponent {
         });
         this.messageService.add({ severity: 'success', summary: 'Location Fetched', detail: 'Google Maps link populated with your GPS coordinates.' });
       },
-      (error) => {
-        console.error('Error fetching location:', error);
+      () => {
         this.messageService.add({ severity: 'error', summary: 'Permission Denied', detail: 'Could not fetch your location. Please check browser permissions.' });
       },
       { enableHighAccuracy: true, timeout: 10000 }

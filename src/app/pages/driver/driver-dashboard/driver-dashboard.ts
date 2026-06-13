@@ -80,7 +80,6 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     // Cooldown of 1.5 seconds to prevent ghost clicks/accidental double-taps on mobile
     const lastAction = this.lastActionTime[item.assignment_id];
     if (lastAction && (Date.now() - lastAction < 1500)) {
-      console.warn('Ignoring rapid click on markDelivered');
       return;
     }
 

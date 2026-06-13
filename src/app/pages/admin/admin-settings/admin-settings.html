@@ -13,10 +13,10 @@
   <!-- Sub-tabs -->
   <div class="stg-content">
     <div class="stabs">
-    <button class="stab" [class.active]="activeTab === 'general'" (click)="activeTab = 'general'">General</button>
-
-    <button class="stab" [class.active]="activeTab === 'account'" (click)="activeTab = 'account'">Account & Security</button>
-  </div>
+      <button class="stab" [class.active]="activeTab === 'general'" (click)="activeTab = 'general'">General</button>
+      <button class="stab" [class.active]="activeTab === 'ai_knowledge'" (click)="activeTab = 'ai_knowledge'">AI Chatbot Knowledge</button>
+      <button class="stab" [class.active]="activeTab === 'account'" (click)="activeTab = 'account'">Account & Security</button>
+    </div>
 
   <!-- ── GENERAL ── -->
   <ng-container *ngIf="activeTab === 'general'">
@@ -129,5 +129,102 @@
       </div>
     </div>
   </ng-container>
+
+  <!-- ── AI CHATBOT KNOWLEDGE ── -->
+  <ng-container *ngIf="activeTab === 'ai_knowledge'">
+    <div class="settings-card">
+      <h3>AI Chatbot FAQ & Policies Reference</h3>
+      <p>Upload a PDF file containing your policies, menus, and subscription guidelines. The AI Chatbot will read this document to answer customer questions.</p>
+      
+      <!-- Upload Status Information -->
+      <div class="status-info-box" style="margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.2rem; border-radius: 12px; background: rgba(120, 120, 120, 0.05); border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 0.8rem 0; color: var(--heading-green); font-size: 14px;"><i class="pi pi-info-circle" style="margin-right: 6px;"></i>Knowledge Status</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+          <div>
+            <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Status</span>
+            <span style="font-size: 13.5px; font-weight: 600;" [style.color]="pdfStatus.uploaded ? '#10b981' : '#ef4444'">
+              {{ pdfStatus.uploaded ? '● Active' : '○ Not Configured' }}
+            </span>
+          </div>
+          <div>
+            <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Active Document</span>
+            <span style="font-size: 13.5px; font-weight: 600; color: var(--text-main);" class="text-truncate" title="{{ pdfStatus.filename || 'None' }}">
+              {{ pdfStatus.filename || 'No PDF uploaded' }}
+            </span>
+          </div>
+          <div>
+            <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Parsed Segments</span>
+            <span style="font-size: 13.5px; font-weight: 600; color: var(--text-main);">
+              {{ pdfStatus.total_chunks }} Chunks
+            </span>
+          </div>
+          <div>
+            <span style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Upload Date</span>
+            <span style="font-size: 13.5px; font-weight: 600; color: var(--text-main);">
+              {{ pdfStatus.uploaded_at ? (pdfStatus.uploaded_at | date:'mediumDate') : '—' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Upload Control -->
+      <div class="fg">
+        <label>Select policy PDF</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-top: 0.5rem;">
+          <input 
+            type="file" 
+            accept=".pdf" 
+            (change)="onPdfFileSelected($event)" 
+            style="display: none;" 
+            #fileInput 
+          />
+          <button class="btn btn-secondary" (click)="fileInput.click()">
+            <i class="pi pi-file-pdf" style="margin-right: 6px;"></i>Choose File
+          </button>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+            {{ selectedPdfFile ? selectedPdfFile.name : 'No file selected' }}
+            <button 
+              *ngIf="selectedPdfFile" 
+              (click)="selectedPdfFile = null; fileInput.value = ''" 
+              style="background: transparent; border: none; padding: 2px; color: #ef4444; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;"
+              title="Clear selection"
+            >
+              <i class="pi pi-times"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer" style="margin-top: 2rem;">
+        <button class="btn btn-primary" (click)="uploadPdf()" [disabled]="!selectedPdfFile || isUploadingPdf">
+          {{ isUploadingPdf ? 'Parsing & Embedding…' : 'Upload and Index PDF' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
   </div>
 </div>
+
+<!-- ── Clear Dashboard Confirm Modal ── -->
+@if (showResetConfirm) {
+  <div class="modal-overlay" (click)="showResetConfirm = false">
+    <div class="modal-panel" (click)="$event.stopPropagation()" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 style="color: #dc2626;"><i class="pi pi-exclamation-triangle"></i> Reset Dashboard</h2>
+        <button class="modal-close" (click)="showResetConfirm = false"><i class="pi pi-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; color: #4b5563;">
+          ⚠️ <strong>WARNING:</strong> This will permanently delete all customer subscriptions, active orders, custom requests, delivery cancellations, and credits. This action is irreversible. Are you sure you want to reset the dashboard statistics?
+        </p>
+        <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid var(--border-light); margin-top: 0.5rem; display: flex; justify-content: flex-end; gap: 0.6rem;">
+          <button type="button" class="btn btn-secondary" (click)="showResetConfirm = false" style="height: 38px;">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="showResetConfirm = false; clearDashboard()" [disabled]="isLoading" style="background: #dc2626; border-color: #dc2626; color: #ffffff; height: 38px;">
+            @if (isLoading) { <i class="pi pi-spin pi-spinner"></i> }
+            Reset Everything
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

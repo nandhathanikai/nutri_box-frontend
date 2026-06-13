@@ -29,6 +29,11 @@ export class AdminDeliveryPartnersComponent implements OnInit {
   editError = '';
   editingDriver: DriverProfile | null = null;
 
+  // Delete modal
+  showConfirmDeleteModal = false;
+  deletingDriver: DriverProfile | null = null;
+  deleteError = '';
+
   constructor(private deliveryService: DeliveryService, private fb: FormBuilder) {
     this.createForm = this.fb.group({
       full_name: ['', [Validators.required, Validators.minLength(2)]],
@@ -169,15 +174,32 @@ export class AdminDeliveryPartnersComponent implements OnInit {
   }
 
   deleteDriver(driver: DriverProfile) {
-    if (confirm(`Are you sure you want to permanently delete delivery partner "${driver.full_name}"?`)) {
-      this.deliveryService.deleteDriver(driver.id).subscribe({
-        next: () => {
-          this.drivers = this.drivers.filter(d => d.id !== driver.id);
-        },
-        error: (err) => {
-          alert(err.error?.detail || 'Failed to delete driver partner.');
-        }
-      });
-    }
+    this.deletingDriver = driver;
+    this.deleteError = '';
+    this.showConfirmDeleteModal = true;
+  }
+
+  closeConfirmDelete() {
+    this.showConfirmDeleteModal = false;
+    this.deletingDriver = null;
+    this.deleteError = '';
+  }
+
+  submitDelete() {
+    if (!this.deletingDriver || this.loading) return;
+    const targetId = this.deletingDriver.id;
+    this.loading = true;
+    this.deleteError = '';
+    this.deliveryService.deleteDriver(targetId).subscribe({
+      next: () => {
+        this.loading = false;
+        this.drivers = this.drivers.filter(d => d.id !== targetId);
+        this.closeConfirmDelete();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.deleteError = err.error?.detail || 'Failed to delete driver partner.';
+      }
+    });
   }
 }

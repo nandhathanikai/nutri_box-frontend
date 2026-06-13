@@ -1,0 +1,180 @@
+<!-- Standalone Chatbot Widget Wrapper -->
+@if (isVisible) {
+  <div class="chatbot-container" [class.panel-open]="isOpen">
+    
+    <!-- Floating Chat bubble trigger button -->
+    <button class="chat-bubble-trigger" (click)="toggleChat()" aria-label="Toggle Support Chat">
+      <div class="glowing-ring"></div>
+      <div class="bubble-icon-wrap">
+        @if (!isOpen) {
+          <!-- Chat Message Icon (SVG) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        } @else {
+          <!-- Close Icon (SVG) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon rotate-in">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        }
+      </div>
+    </button>
+
+    <!-- Chat Window Panel -->
+    <div class="chat-panel shadow-5">
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <div class="header-info">
+          <div class="avatar-ring">
+            <div class="pulsing-green-dot"></div>
+            <img src="/logo1.png" alt="NutriBox AI" class="avatar-img" />
+          </div>
+          <div class="title-stack">
+            <span class="panel-title">NutriBox Assistant</span>
+            <span class="panel-subtitle">Powered by Gemini AI</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <!-- Reset button to start over -->
+          <button class="close-panel-btn" (click)="resetChat()" title="Start Over" aria-label="Start Over">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+          </button>
+          <button class="close-panel-btn" (click)="toggleChat()" title="Minimize" aria-label="Minimize Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="svg-close">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Scroll Area -->
+      <div class="chat-body" #scrollContainer>
+        @for (msg of messages; track msg.time) {
+          <div class="message-row" [class.user-row]="msg.sender === 'user'" [class.bot-row]="msg.sender === 'bot'">
+            <div class="message-bubble">
+              <p class="message-text" style="white-space: pre-line;">{{ msg.text }}</p>
+              <span class="message-time">{{ msg.time | date:'shortTime' }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Typing Indicator Bubble -->
+        @if (isTyping) {
+          <div class="message-row bot-row">
+            <div class="message-bubble typing-bubble">
+              <div class="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Interactive Options / Input Footer Area -->
+      <div class="chat-footer">
+        
+        <!-- Welcome Options (Initial choices) -->
+        @if (messages.length === 1 && mode === 'chat' && wizardStep === 0) {
+          <div class="options-layout">
+            <button class="opt-btn btn-gold" (click)="startWizard()">
+              🎯 Find My Ideal Plan
+            </button>
+            <button class="opt-btn btn-secondary-glass" (click)="selectFreeChat()">
+              💬 Just Ask a Question
+            </button>
+          </div>
+        }
+        
+        <!-- Wizard Step 1: Aim -->
+        @else if (mode === 'wizard' && wizardStep === 1) {
+          <div class="options-layout">
+            <button class="opt-btn" (click)="selectAim('weight_loss')">📉 Lose Weight</button>
+            <button class="opt-btn" (click)="selectAim('weight_gain')">📈 Gain Weight</button>
+            <button class="opt-btn" (click)="selectAim('maintain')">⚖️ Maintain Weight</button>
+            <button class="opt-btn btn-skip" (click)="selectAim('skip')">Skip Step ➜</button>
+          </div>
+        }
+
+        <!-- Wizard Step 2: Diet -->
+        @else if (mode === 'wizard' && wizardStep === 2) {
+          <div class="options-layout">
+            <button class="opt-btn" (click)="selectDiet('veg')">🌿 Vegetarian</button>
+            <button class="opt-btn" (click)="selectDiet('nonveg')">🍖 Non-Vegetarian</button>
+            <button class="opt-btn" (click)="selectDiet('both')">🍽️ Both</button>
+            <button class="opt-btn btn-skip" (click)="selectDiet('skip')">Skip Step ➜</button>
+          </div>
+        }
+
+        <!-- Wizard Step 3: Budget -->
+        @else if (mode === 'wizard' && wizardStep === 3) {
+          <div class="options-layout">
+            <button class="opt-btn" (click)="selectBudget('under_1000')">Under ₹1000</button>
+            <button class="opt-btn" (click)="selectBudget('1000_2000')">₹1000 - ₹2000</button>
+            <button class="opt-btn" (click)="selectBudget('over_2000')">Over ₹2000</button>
+            <button class="opt-btn btn-skip" (click)="selectBudget('skip')">Skip Step ➜</button>
+          </div>
+        }
+
+        <!-- Wizard Step 4: Notes (Quick Options + Free Text + Skip Button) -->
+        @else if (mode === 'wizard' && wizardStep === 4) {
+          <div class="options-layout" style="gap: 6px;">
+            <div class="quick-favorites-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 4px;">
+              <button class="opt-btn" (click)="selectFavoriteOption('Extra Protein')">💪 Extra Protein</button>
+              <button class="opt-btn" (click)="selectFavoriteOption('Gluten Free')">🌾 Gluten Free</button>
+              <button class="opt-btn" (click)="selectFavoriteOption('Low Carb')">🥗 Low Carb</button>
+              <button class="opt-btn" (click)="selectFavoriteOption('Extra Veggies')">🥦 Extra Veggies</button>
+            </div>
+            <div class="input-layout-wrap">
+              <div class="input-row">
+                <input 
+                  type="text" 
+                  class="chat-input-field" 
+                  [(ngModel)]="userInput" 
+                  (keydown.enter)="submitWizardNotes(false)" 
+                  placeholder="Or type custom favorites..." 
+                  [disabled]="isTyping"
+                  maxlength="250"
+                />
+                <button class="send-message-btn" (click)="submitWizardNotes(false)" [disabled]="!userInput.trim() || isTyping" aria-label="Send Message">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-send">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+              <button class="opt-btn btn-skip w-full" style="margin-top: 6px;" (click)="submitWizardNotes(true)">
+                Skip Favorites & Get Suggestion ➜
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Free Text Chat Mode -->
+        @else {
+          <div class="input-row w-full">
+            <input 
+              type="text" 
+              class="chat-input-field" 
+              [(ngModel)]="userInput" 
+              (keydown.enter)="sendMessage()" 
+              placeholder="Ask a question..." 
+              [disabled]="isTyping"
+              maxlength="250"
+            />
+            <button class="send-message-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping" aria-label="Send Message">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-send">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}

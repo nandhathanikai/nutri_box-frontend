@@ -212,3 +212,32 @@
     </div>
   </div>
 }
+
+<!-- ── Confirm Delete Modal ────────────────────────────────────────────────── -->
+@if (showConfirmDeleteModal && deletingDriver) {
+  <div class="modal-overlay" (click)="closeConfirmDelete()">
+    <div class="modal-panel delete-confirm-panel" (click)="$event.stopPropagation()" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2 style="color: #dc2626;"><i class="pi pi-exclamation-triangle"></i> Delete Delivery Partner</h2>
+        <button class="modal-close" (click)="closeConfirmDelete()"><i class="pi pi-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (deleteError) {
+          <div class="form-error-banner" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.2); padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px;">
+            {{ deleteError }}
+          </div>
+        }
+        <p style="margin: 0 0 20px 0; font-size: 14.5px; line-height: 1.6; color: #374151;">
+          Are you sure you want to permanently delete delivery partner <strong>"{{ deletingDriver.full_name }}"</strong>? This action cannot be undone.
+        </p>
+        <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid var(--border-light); margin-top: 0.5rem; display: flex; justify-content: flex-end; gap: 0.6rem;">
+          <button type="button" class="btn-secondary" (click)="closeConfirmDelete()">Cancel</button>
+          <button type="button" class="btn-primary" (click)="submitDelete()" [disabled]="loading" style="background: #dc2626; border-color: #dc2626; color: #ffffff;">
+            @if (loading) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-trash"></i> }
+            Permanently Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

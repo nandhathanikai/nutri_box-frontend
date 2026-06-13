@@ -107,8 +107,7 @@ export class AddDishFormComponent implements OnInit {
         }));
         this.isLoadingTiers = false;
       },
-      error: (err) => {
-        console.error('Failed to load tiers', err);
+      error: () => {
         this.isLoadingTiers = false;
         this.tiersLoadError = true;
       }
@@ -193,9 +192,7 @@ export class AddDishFormComponent implements OnInit {
           this.submitDish();
         },
         error: (err) => {
-          console.error(err);
-          // If error has a message
-          const msg = err.error?.detail || err.message || 'Failed to upload image';
+          const msg = err.error?.detail || 'Failed to upload image';
           this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
           this.isSaving = false;
         }
@@ -213,8 +210,7 @@ export class AddDishFormComponent implements OnInit {
         this.isSaving = false;
       },
       error: (err) => {
-        console.error(err);
-        const msg = err.error?.detail || err.message || 'Failed to save dish';
+        const msg = err.error?.detail || 'Failed to save dish';
         this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
         this.isSaving = false;
       }

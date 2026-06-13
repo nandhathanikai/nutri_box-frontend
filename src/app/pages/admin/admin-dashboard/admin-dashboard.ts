@@ -27,6 +27,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   chartData: DashboardStats | null = null;
   loadError = false;
   isLoading = true;
+  dbStatusData: any = null;
+  showDbPopover = false;
   private revenueChartInstance: any = null;
   private cancellationsChartInstance: any = null;
 
@@ -42,6 +44,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.adminService.getDashboardStats().subscribe({
       next: (data) => {
         this.chartData = data;
+        this.dbStatusData = data.dbStatus || null;
         this.stats = [
           { icon: 'pi pi-users', value: data.activeCustomers, label: 'Active Customers', change: '+0%', positive: true },
           { icon: 'pi pi-indian-rupee', value: data.monthlyRevenue, label: 'Monthly Revenue', change: '+0%', positive: true },

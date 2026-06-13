@@ -104,8 +104,7 @@ export class ProfileComponent implements OnInit {
         this.user.location_link = `https://maps.google.com/?q=${lat},${lng}`;
         this.msg.add({ severity: 'success', summary: 'Location Fetched', detail: 'Google Maps link populated with your GPS coordinates.' });
       },
-      (error) => {
-        console.error('Error fetching location:', error);
+      () => {
         this.msg.add({ severity: 'error', summary: 'Permission Denied', detail: 'Could not fetch your location. Please check browser permissions.' });
       },
       { enableHighAccuracy: true, timeout: 10000 }

@@ -36,6 +36,11 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
   custLat: number | null = null;
   custLng: number | null = null;
 
+  /** Address text shown when coords are unavailable */
+  customerAddressText: string = '';
+  /** True while geocoding the landmark/address */
+  geocoding = false;
+
   private locationSub: any = null;
   private statusSub: any = null;
 
@@ -50,7 +55,7 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
   ngOnInit() {
     this.assignmentId = this.route.snapshot.paramMap.get('assignmentId') || '';
     this.loadTrackingData();
-    
+
     // Subscribe to live WebSocket tracking updates
     this.deliveryService.connectCustomerTracking(this.assignmentId);
 
@@ -115,6 +120,40 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
     if (this.map) this.map.remove();
   }
 
+  extractCoordsFromLink(url: string): { lat: number; lng: number } | null {
+    if (!url) return null;
+
+    // 1. Google Maps ?q=lat,lng or &query=lat,lng
+    let match = url.match(/[?&](q|query)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (match) {
+      return { lat: parseFloat(match[2]), lng: parseFloat(match[3]) };
+    }
+
+    // 2. Google Maps /@lat,lng,zoom or /place/.../@lat,lng
+    match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (match) {
+      return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    }
+
+    // 3. OpenStreetMap ?mlat=lat&mlon=lng
+    match = url.match(/mlat=(-?\d+\.?\d*).*mlon=(-?\d+\.?\d*)/);
+    if (match) {
+      return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    }
+
+    // 4. Generic lat,lng in URL path/query (fallback)
+    match = url.match(/(-?\d{1,3}\.\d{4,}),\s*(-?\d{1,3}\.\d{4,})/);
+    if (match) {
+      const lat = parseFloat(match[1]);
+      const lng = parseFloat(match[2]);
+      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        return { lat, lng };
+      }
+    }
+
+    return null;
+  }
+
   loadTrackingData() {
     this.loading = true;
     this.error = '';
@@ -123,8 +162,37 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
         this.trackingInfo = info;
         this.driverLat = info.driver_latitude;
         this.driverLng = info.driver_longitude;
-        this.custLat = info.customer_latitude;
-        this.custLng = info.customer_longitude;
+
+        // ── Customer coords resolution — priority chain ─────────────────
+        // 1. Direct lat/lng from backend
+        let cLat: number | null = info.customer_latitude ?? null;
+        let cLng: number | null = info.customer_longitude ?? null;
+
+        // 2. Parse from location_link (Google Maps URL saved in profile)
+        if ((!cLat || !cLng) && info.customer_location_link) {
+          const parsed = this.extractCoordsFromLink(info.customer_location_link);
+          if (parsed) {
+            cLat = parsed.lat;
+            cLng = parsed.lng;
+          }
+        }
+
+        this.custLat = cLat;
+        this.custLng = cLng;
+
+        // 3. Geocode landmark or full address using Nominatim (free, no API key)
+        if (!this.custLat || !this.custLng) {
+          const landmark  = info.customer_landmark?.trim();
+          const address   = info.customer_address?.trim();
+          // Prefer landmark (more specific), fall back to full address text
+          const query = landmark || address;
+          if (query) {
+            this.customerAddressText = address || landmark || '';
+            this.geocoding = true;
+            this.geocodeAddress(query);
+          }
+        }
+
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -134,6 +202,30 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
         this.cdr.detectChanges();
       }
     });
+  }
+
+  /** Geocode a text string via Nominatim. Falls back silently if unavailable. */
+  private geocodeAddress(query: string) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+    fetch(url, { headers: { 'Accept-Language': 'en' } })
+      .then(r => r.json())
+      .then((results: any[]) => {
+        this.geocoding = false;
+        if (results && results.length > 0) {
+          this.custLat = parseFloat(results[0].lat);
+          this.custLng = parseFloat(results[0].lon);
+          this.cdr.detectChanges();
+          // Map may now be ready — trigger init
+          this.initMap();
+        } else {
+          // No results — show address text card as last resort
+          this.cdr.detectChanges();
+        }
+      })
+      .catch(() => {
+        this.geocoding = false;
+        this.cdr.detectChanges();
+      });
   }
 
   private loadLeaflet(): Promise<void> {
@@ -152,6 +244,13 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
 
   private async initMap() {
     if (!this.custLat || !this.custLng) return;
+    // Don't re-init if already created
+    if (this.map) {
+      this.updateMapPositions();
+      return;
+    }
+    // Wait for the view child to be ready (geocoding path may arrive late)
+    if (!this.mapContainer?.nativeElement) return;
 
     await this.loadLeaflet();
 
@@ -192,7 +291,7 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
         this.driverMarker = L.marker([this.driverLat, this.driverLng], { icon: driverIcon })
           .addTo(this.map)
           .bindPopup(`<strong>Delivery Partner</strong><br>${this.trackingInfo?.driver_name || 'Driver'}`);
-        
+
         // Auto fit bounds to include both driver and customer
         if (this.custLat && this.custLng) {
           this.map.fitBounds([[this.driverLat, this.driverLng], [this.custLat, this.custLng]], { padding: [50, 50] });
@@ -244,6 +343,9 @@ export class CustomerTrackingComponent implements OnInit, AfterViewInit, OnDestr
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
+
+  /** Exposed to template for address URL encoding */
+  encodeURIComponent = encodeURIComponent;
 
   goBack() {
     this.router.navigate(['/dashboard']);

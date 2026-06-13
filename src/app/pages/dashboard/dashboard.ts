@@ -130,40 +130,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     forkJoin({
       profile: this.authService.getCurrentUser().pipe(
-        catchError(err => {
-          console.error('Failed to load profile', err);
-          return of(null);
-        })
+        catchError(() => of(null))
       ),
       sub: this.subs.getMySubscription().pipe(
-        catchError(err => {
-          console.error('Failed to load subscription', err);
-          return of(null);
-        })
+        catchError(() => of(null))
       ),
       calendar: this.subs.getCalendar().pipe(
-        catchError(err => {
-          console.error('Failed to load calendar', err);
-          return of(null);
-        })
+        catchError(() => of(null))
       ),
       offers: this.http.get<Offer[]>(`${environment.apiBaseUrl}/api/offers/my-offers`).pipe(
-        catchError(err => {
-          console.error('Failed to load offers', err);
-          return of([] as Offer[]);
-        })
+        catchError(() => of([] as Offer[]))
       ),
       gallery: this.http.get<any[]>(`${environment.apiBaseUrl}/api/gallery`).pipe(
-        catchError(err => {
-          console.error('Failed to load gallery', err);
-          return of([] as any[]);
-        })
+        catchError(() => of([] as any[]))
       ),
       myReview: this.http.get<any>(`${environment.apiBaseUrl}/api/reviews/my-review`).pipe(
-        catchError(err => {
-          console.error('Failed to load user review', err);
-          return of({ review: null });
-        })
+        catchError(() => of({ review: null }))
       )
     }).subscribe({
       next: (res) => {
@@ -283,7 +265,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   offerValueLabel(o: Offer): string {
-    if (o.type === 'pct')  return `${o.value}% OFF`;
+    if (o.type === 'pct') return `${o.value}% OFF`;
     if (o.type === 'flat') return `₹${o.value} OFF`;
     return 'FREE DELIVERY';
   }
@@ -296,7 +278,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   copyOfferCode(code: string) {
     this.copiedCode = code;
-    navigator.clipboard?.writeText(code).catch(() => {});
+    navigator.clipboard?.writeText(code).catch(() => { });
     setTimeout(() => { if (this.copiedCode === code) this.copiedCode = null; }, 2500);
   }
 
@@ -448,7 +430,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   get trackTransform(): string { return ''; }
   readonly CARD_STEP = 216;
   silentJump = false;
-  setActiveShowcaseIndexFromVisible(_i: number) {}
+  setActiveShowcaseIndexFromVisible(_i: number) { }
   absCardDistance(_i: number): number { return 0; }
   activeShowcaseIndex = 0;
 
