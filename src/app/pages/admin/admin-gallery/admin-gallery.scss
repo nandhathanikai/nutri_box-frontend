@@ -312,8 +312,16 @@
 /* Current Showcase list Grid styling */
 .showcase-grid-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .showcase-card {
@@ -337,7 +345,7 @@
 
   .image-wrapper {
     position: relative;
-    height: 140px;
+    height: 110px;
     width: 100%;
     background: #cbd5e1;
 
@@ -384,7 +392,7 @@
   }
 
   .card-info {
-    padding: 0.85rem 1rem;
+    padding: 0.65rem 0.8rem;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -403,7 +411,7 @@
       }
 
       .name-text {
-        font-size: 0.88rem;
+        font-size: 0.82rem;
         font-weight: 700;
         color: #0f172a;
         line-height: 1.3;
