@@ -1,408 +1,429 @@
 ================================================================================
-                    NUTRIBOX - ADMIN ACTIVITIES & PORTAL GUIDE
+                    NUTRIBOX - ADMIN ACTIVITIES & CRUD PORTAL GUIDE
 ================================================================================
 
-This document is a comprehensive operational and reference guide for NutriBox administrators.
-It details every dashboard section, form field, action, and provides realistic example 
-values to ensure seamless daily administration.
+This document is a comprehensive operational and reference guide for NutriBox 
+administrators. It explains every CRUD (Create, Read, Update, Delete) operation 
+across all administrative modules of the application, complete with step-by-step 
+instructions and concrete example values.
 
 --------------------------------------------------------------------------------
 TABLE OF CONTENTS
 --------------------------------------------------------------------------------
-1. Admin Dashboard (Real-Time Stats)
-2. Today's Orders & Dispatch
-3. Customer Management
-4. Menu & Pricing Management (Tiers, Weekly Menus & Custom Combinations)
-5. Skip Credits & Refund Approvals
-6. Announcements & Notifications
-7. Offers, Promo Codes & Coupons
-8. Reports & Sales Analytics
-9. System Settings & Contact Support
+1. Customer Management
+2. Menu Management (Dishes)
+3. Subscription Tiers
+4. Tier Pricing Rules
+5. Plan Combination Matrix
+6. Weekly Menu Previews
+7. Skip Credits & Manual Overrides
+8. Announcements & Banners
+9. Offers & Promo Codes
 10. Custom Plan Requests
 11. Gallery Showcase Management
 12. Delivery Partners
-13. Live Delivery Monitor
-14. Customer Reviews & Feedback
+13. Live Delivery Assignments & Monitor
+14. Customer Reviews & Moderation
+15. Global Settings & Support Contacts
 
 ================================================================================
-1. ADMIN DASHBOARD
+1. CUSTOMER MANAGEMENT
 ================================================================================
-The dashboard is the central hub for monitoring system health at a glance.
+Manages all user accounts, profile details, delivery coordinates, and roles.
 
-* KEY SECTIONS:
-  - Active Customers Widget: Displays count of users with ongoing subscriptions.
-  - Monthly Revenue Widget: Displays total gross revenue collected in the current month.
-  - Cancellations Widget: Displays count of cancelled orders or subscriptions.
-  - Active Offers Widget: Displays count of live promo codes.
-  - Revenue Trend Chart: Visual line chart tracking sales performance.
-  - Cancellations by Session Chart: Visual bar chart breakdown of skip rates.
+* CREATE (Add New Customer):
+  - Go to: Admin -> Customers -> click "Add Customer" button.
+  - Fill in the form fields:
+    * Full Name: John Doe
+    * Email Address: john.doe@example.com
+    * Phone Number: +919876543210
+    * Password: SecurePass123!
+    * Address Line 1: Flat 405, Green Valley Apartments
+    * Area / Landmark: Opposite High School Playground, Sector 4, HSR Layout
+    * Location Link: https://maps.app.goo.gl/9xZ1y2w3v4u5t
+    * User Role: customer (Dropdown options: customer, admin, driver)
+    * Select Plan: Protein Rich Weekly (Dropdown)
+    * Subscription Start Date: 2026-06-15
+  - Click "Submit" to save.
 
-* OPERATIONS:
-  - Real-time page auto-refreshing for live stats.
+* READ (View & Search Customers):
+  - Go to: Admin -> Customers.
+  - Features:
+    * Search Bar: Type "John Doe" or "john.doe@example.com" to filter lists instantly.
+    * Pagination: Use bottom navigation buttons (1, 2, Next) to flip pages.
+    * View details: Click on a customer row to view full address history and plan status.
 
-================================================================================
-2. TODAY'S ORDERS & DISPATCH
-================================================================================
-Used by dispatch managers every morning/evening to review meals that need preparation.
+* UPDATE (Edit Customer Profile & Roles):
+  - Go to: Admin -> Customers -> Click "Edit" (pencil icon) next to the user row.
+  - Operations:
+    * Modify Details: Edit "Address Line 1" to "Flat 502, Green Valley Apartments".
+    * Toggle Role: Change role from "customer" to "admin" to grant portal access.
+    * Manage Active Status: Set "Status" toggle to "Inactive" to suspend account.
+  - Click "Save Changes" to commit.
 
-* KEY SECTIONS:
-  - Active Orders Table: Lists customer names, delivery addresses, diet types, 
-    and meal slots (Breakfast vs Dinner) for today.
-  - Cancelled/Skipped Meals Table: Lists users who opted out of today's delivery 
-    (used to avoid food waste).
-  - Search Bar: Quick search by customer name, plan name, or address.
-
-================================================================================
-3. CUSTOMER MANAGEMENT
-================================================================================
-Allows support staff to create, modify, and delete customer profiles.
-
-* KEY SECTIONS:
-  - Customer Directory Table: Paginated list showing names, contact details, 
-    active plans, subscription dates, and accumulated skip credits.
-  - Role Management: Upgrade customer to admin or downgrade back.
-
-* FORM: "Add User/Customer Form"
-  - Field: Full Name
-    * Description: The user's registered name.
-    * Example Value: John Doe
-  - Field: Email Address
-    * Description: Primary login email and notification receiver.
-    * Example Value: john.doe@example.com
-  - Field: Phone Number
-    * Description: Contact number for deliveries and support.
-    * Example Value: +919876543210
-  - Field: Password
-    * Description: Account credential (must be secure).
-    * Example Value: JohnPass123!
-  - Field: Address Line 1
-    * Description: Main street address/flat number.
-    * Example Value: Flat 405, Green Valley Apartments
-  - Field: Address Line 2 / Area
-    * Description: Secondary address location details.
-    * Example Value: Sector 4, HSR Layout
-  - Field: Landmark
-    * Description: Notable landmark near the customer's home.
-    * Example Value: Opposite High School Playground
-  - Field: Location Link
-    * Description: Google Maps share link for delivery navigation.
-    * Example Value: https://maps.app.goo.gl/9xZ1y2w3v4u5t
-  - Field: User Role
-    * Description: Permission tier (Customer vs Administrator).
-    * Example Value: customer
-  - Field: Select Plan
-    * Description: Assign a subscription tier to the user.
-    * Example Value: Classic Weekly
-  - Field: Subscription Start Date
-    * Description: Date on which the meal delivery cycle activates.
-    * Example Value: 2026-06-08 (YYYY-MM-DD)
+* DELETE (Delete Customer Profile):
+  - Go to: Admin -> Customers -> Click "Delete" (trash icon) next to the target customer.
+  - Confirmation: Click "Confirm" on the pop-up warning dialog.
+  - Result: Deletes user profile, logs, and billing history.
 
 ================================================================================
-4. MENU & PRICING MANAGEMENT
+2. MENU MANAGEMENT (DISHES)
 ================================================================================
-This is the core area to update meals, manage subscription boxes (Tiers), set 
-pricing rules, and upload weekly menu preview charts.
+Used to manage the available recipe catalog prepared by the kitchen staff.
 
----------------------------
-A. ADD DISH FORM
----------------------------
-Used to expand the available recipe collection.
-* FIELDS:
-  - Field: Dish Name
-    * Description: Name displayed to customers and kitchen.
-    * Example Value: Grilled Garlic-Herb Chicken Breast
-  - Field: Subscription Tier
-    * Description: The box level this dish belongs to.
-    * Example Value: Protein Rich
-  - Field: Meal Slot
-    * Description: Meal timing assignment (Can select multiple: Breakfast, Lunch, Dinner).
-    * Example Value: [Lunch, Dinner]
-  - Field: Diet Type
-    * Description: Vegetarian vs Non-Vegetarian tag.
-    * Example Value: Non-Veg
-  - Field: Description
-    * Description: Ingredients or recipe brief.
-    * Example Value: Tender chicken breast marinated in herbs, grilled and served with broccoli.
-  - Field: Calories
-    * Description: Total energy in kcal.
-    * Example Value: 420
-  - Field: Dish Image
-    * Description: Direct image upload (Max 5MB).
-    * Example Value: [chicken_breast.jpg]
+* CREATE (Add New Dish):
+  - Go to: Admin -> Menu Management -> click "Add Dish" button.
+  - Fill in the form fields:
+    * Dish Name: Grilled Garlic-Herb Chicken Breast
+    * Subscription Tier: Protein Rich (Select from Tier dropdown)
+    * Meal Slot: Select multiple: [Lunch, Dinner]
+    * Diet Type: Non-Veg (Select Veg or Non-Veg)
+    * Description: Chicken breast marinated in herbs, grilled and served with broccoli.
+    * Calories: 420 (Numeric value in kcal)
+    * Dish Image: Upload a file (e.g., chicken_breast.jpg, max 5MB)
+  - Click "Submit" to save.
 
----------------------------
-B. SUBSCRIPTION TIER FORM
----------------------------
-Used to define subscription product boxes.
-* FIELDS:
-  - Field: Tier Name
-    * Description: Brand tier name.
-    * Example Value: Premium Box
-  - Field: Diet Support
-    * Description: Diet options supported by this box.
-    * Example Value: Veg & Non-Veg (or Veg Only / Non-Veg Only)
-  - Field: Weekly Delivery Charge
-    * Description: Shipping charge applied on weekly cycle.
-    * Example Value: 60
-  - Field: Monthly Delivery Charge
-    * Description: Shipping charge applied on monthly cycle.
-    * Example Value: 200
-  - Field: Is Active
-    * Description: Checkbox to toggle public visibility.
-    * Example Value: True
-  - Field: Is Featured
-    * Description: Highlight on pricing/plans page.
-    * Example Value: True
+* READ (View & Filter Recipe Directory):
+  - Go to: Admin -> Menu Management.
+  - Features:
+    * Filter by Tier: Select "Protein Rich" dropdown to show matching dishes.
+    * Filter by Slot: Check "Lunch" slot checkbox.
+    * Search: Search by name (e.g. "Garlic").
 
----------------------------
-C. TIER PRICING RULE FORM
----------------------------
-Tiers use pricing rules to handle base costs dynamically.
-* FIELDS:
-  - Field: Diet Type
-    * Description: Target diet type.
-    * Example Value: Veg
-  - Field: Price Per Meal
-    * Description: Cost per individual meal unit.
-    * Example Value: 120
-  - Field: Effective From
-    * Description: Active date for the price change.
-    * Example Value: 2026-06-08
+* UPDATE (Edit Dish Details):
+  - Go to: Admin -> Menu Management -> Click "Edit" next to the dish.
+  - Operations:
+    * Edit fields: Change "Calories" from 420 to 450.
+    * Replace Image: Upload a fresh picture.
+  - Click "Save" to save.
 
----------------------------
-D. PLAN COMBINATION MATRIX
----------------------------
-Pre-calculated package configurations that customers buy (e.g. Classic-Veg-BreakfastOnly-Weekly).
-* FIELDS:
-  - Field: Tier
-    * Description: Target subscription box.
-    * Example Value: Classic Box
-  - Field: Diet Type
-    * Description: Veg vs Non-Veg option.
-    * Example Value: Veg
-  - Field: Duration
-    * Description: Billing cycle duration.
-    * Example Value: weekly (or monthly)
-  - Field: Slot Combo
-    * Description: Selected meal slots.
-    * Example Value: breakfast_only (or dinner_only or both)
-  - Field: Meal Count
-    * Description: Total number of meals delivered during this cycle.
-    * Example Value: 6 (or 24 for monthly breakfast)
-  - Field: Price Override
-    * Description: Set a custom package price instead of base formula.
-    * Example Value: 899 (Optional, overrides base meal price calculations)
-  - Field: Delivery Charge Override
-    * Description: Set custom delivery fee.
-    * Example Value: 50 (Optional)
-
----------------------------
-E. WEEKLY MENU PREVIEW UPLOAD
----------------------------
-Allows upload of weekly menu graphic calendar.
-* FIELDS:
-  - Field: Target Tier
-    * Example Value: Classic Box
-  - Field: Diet Type
-    * Example Value: Veg
-  - Field: Target Week Start Date
-    * Description: Monday of the target week.
-    * Example Value: 2026-06-08
-  - Field: Menu Image
-    * Description: High-resolution PNG or JPEG showing daily dishes.
-    * Example Value: [weekly_menu_veg_classic.jpg]
+* DELETE (Delete Dish):
+  - Go to: Admin -> Menu Management -> Click "Delete" next to the target dish.
+  - Confirmation: Click "Confirm Delete" on the warning dialog.
 
 ================================================================================
-5. SKIP CREDITS & REFUND APPROVALS
+3. SUBSCRIPTION TIERS
 ================================================================================
-Administers user skips, credit generation, and logs all transaction overrides.
+Defines subscription levels (e.g. Classic, Premium, Protein Rich).
 
-* KEY SECTIONS:
-  - Skip Requests Table: Shows scheduled skip events with user names and dates.
-  - Manual Skip Override Dialog: Allows staff to trigger manual skips on customer demand.
+* CREATE (Add Subscription Tier):
+  - Go to: Admin -> Settings -> Subscription Tiers -> click "Add Tier".
+  - Fill in the form fields:
+    * Tier Name: Premium Box
+    * Description: Gourmet organic meals cooked by certified dietitians.
+    * Weekly Delivery Charge: 60 (Base delivery cost in rupees per week)
+    * Monthly Delivery Charge: 200 (Base delivery cost in rupees per month)
+    * Status: Active (Checked)
+    * Is Featured: True (Checked to highlight on landing page)
+  - Click "Save" to register the tier.
 
-* FORM: "Manual Skip Form"
-  - Field: Customer
-    * Description: Choose customer from list.
-    * Example Value: John Doe (ID: 12)
-  - Field: Meal Slot / Session
-    * Description: Which session is skipped.
-    * Example Value: BF (Breakfast) or DINNER
-  - Field: Skip Date
-    * Description: The date of the skipped delivery.
-    * Example Value: 2026-06-09
-  - Field: Administrative Note
-    * Description: Internal log reason.
-    * Example Value: Customer out of town; requested via support call.
+* READ (View Tiers):
+  - Go to: Admin -> Settings -> Subscription Tiers.
+  - Lists name, base delivery charges, visibility indicators, and pricing rules.
 
-* FORM: "Credit Review Override Form"
-  - Field: Override Status
-    * Description: Approve or deny the skip credit refund.
-    * Example Value: approved (or rejected)
-  - Field: Review Notes
-    * Description: Detailed notes on approval/denial reasoning.
-    * Example Value: Approved special medical exemption.
+* UPDATE (Edit Subscription Tier details):
+  - Go to: Admin -> Settings -> Subscription Tiers -> Click "Edit Tier" next to "Premium Box".
+  - Operations:
+    * Change "Weekly Delivery Charge" to 80.
+    * Toggle "Is Featured" to False.
+  - Click "Save" to apply.
 
-================================================================================
-6. ANNOUNCEMENTS & NOTIFICATIONS
-================================================================================
-Creates global banners shown on the client dashboard.
-
-* FORM: "Create Announcement Form"
-  - Field: Title
-    * Description: Bold headline of the banner.
-    * Example Value: 🎉 Monsoon Delivery Timings!
-  - Field: Announcement Body
-    * Description: Full detail text.
-    * Example Value: Due to heavy rain, lunch deliveries might be delayed by 15-20 mins. Stay safe!
-  - Field: Target Audience
-    * Description: Who sees the announcement banner.
-    * Example Value: all (or active_subscribers / inactive)
-  - Field: Visual Icon
-    * Description: Accent icon next to the title.
-    * Example Value: info (or bell / star / gift)
-  - Field: Start Date
-    * Description: Date the banner starts displaying.
-    * Example Value: 2026-06-08
-  - Field: End Date
-    * Description: Date the banner is hidden automatically.
-    * Example Value: 2026-06-12
-  - Field: Publication Status
-    * Description: Draft vs Published state.
-    * Example Value: published
+* DELETE (Delete Subscription Tier):
+  - Go to: Admin -> Settings -> Subscription Tiers -> Click "Delete" next to the tier.
+  - Note: Will block deletion if active customers are subscribed to this tier.
 
 ================================================================================
-7. OFFERS, PROMO CODES & COUPONS
+4. TIER PRICING RULES
 ================================================================================
-Manage discounts and promotional campaign codes.
+Specifies the base cost of meals inside a tier depending on diet types.
 
-* FORM: "Add Offer Form"
-  - Field: Promo Code
-    * Description: Capitalized alphanumeric code users enter.
-    * Example Value: NUTRIHEALTH50
-  - Field: Discount Type
-    * Description: Math rule for deduction.
-    * Example Value: pct (Percentage) (or flat (Rupee discount) / free (Free Delivery))
-  - Field: Discount Value
-    * Description: Amount of percentage or flat deduction.
-    * Example Value: 15 (e.g. 15% off)
-  - Field: Max Cap Amount
-    * Description: Upper limit of discount in rupees.
-    * Example Value: 100
-  - Field: Minimum Order Total
-    * Description: Order value threshold to apply promo code.
-    * Example Value: 499
-  - Field: Usage Limit Per User
-    * Description: Maximum times a single user can redeem.
-    * Example Value: 1
-  - Field: Valid From
-    * Description: Offer activation date.
-    * Example Value: 2026-06-07
-  - Field: Valid Until
-    * Description: Offer expiration date.
-    * Example Value: 2026-06-30
-  - Field: Coupon Description
-    * Description: Summary displayed to user.
-    * Example Value: 15% OFF up to ₹100 on orders above ₹499
-  - Field: Target Audience
-    * Description: User segment eligibility.
-    * Example Value: new_users (or all / vip)
+* CREATE (Add Pricing Rule to Tier):
+  - Go to: Admin -> Settings -> Tiers -> click "Manage Price Rules" next to "Classic Box" -> click "Add Pricing Rule".
+  - Fill in the form fields:
+    * Diet Type: Veg (Dropdown: Veg, Non-Veg)
+    * Price Per Meal: 120 (Price in rupees)
+    * Effective From: 2026-06-08 (Date)
+  - Click "Add Rule" to confirm.
+
+* READ (View Pricing Rules):
+  - Go to: Admin -> Settings -> Tiers -> Click "Manage Price Rules". Displays a list of historic and active price points.
+
+* UPDATE (Edit Pricing Rule):
+  - Go to: Admin -> Settings -> Pricing Rules -> Click "Edit" (pencil icon) next to the target rule.
+  - Change "Price Per Meal" from 120 to 135.
+  - Click "Update" to confirm.
+
+* DELETE (Delete Pricing Rule):
+  - Go to: Admin -> Settings -> Pricing Rules -> Click "Delete" (trash icon).
+  - Confirm deletion on pop-up.
 
 ================================================================================
-8. REPORTS & SALES ANALYTICS
+5. PLAN COMBINATION MATRIX
 ================================================================================
-Key analytics monitoring platform profitability.
+Defines custom price overrides for specific slots and durations.
 
-* KEY SECTIONS:
-  - Date/Period Filter: Quick switch (weekly, monthly, yearly).
-  - Total Revenue Counter: Total gross payments.
-  - Total Orders Count: Combined volume of plan purchases.
-  - New Customers Trend: User signups over selected duration.
-  - AOV (Average Order Value): Measure of average cart size.
-  - Customer Segment Chart: Percentage breakdown of subscription box tiers.
+* CREATE (Add Custom Plan Combination):
+  - Go to: Admin -> Settings -> Pricing Matrix -> click "Add Combination Override".
+  - Fill in the form fields:
+    * Tier: Classic Box (Dropdown)
+    * Diet Type: Non-Veg (Dropdown)
+    * Duration: weekly (Dropdown options: weekly, monthly)
+    * Slot Combo: breakfast_only (Dropdown options: breakfast_only, dinner_only, both)
+    * Price Override: 899 (Custom package cost in rupees)
+    * Delivery Charge Override: 50 (Custom package delivery cost in rupees)
+  - Click "Create Override" to save.
+
+* READ (View Pricing Matrix):
+  - Go to: Admin -> Settings -> Pricing Matrix.
+  - Shows custom package pricings that bypass base calculated pricing.
+
+* UPDATE (Modify Override Values):
+  - Go to: Admin -> Settings -> Pricing Matrix -> Click "Edit Override" next to "Classic-Non-Veg-Weekly-Breakfast".
+  - Change "Price Override" to 849.
+  - Click "Save" to save.
+
+* DELETE (Delete Custom Override):
+  - Go to: Admin -> Settings -> Pricing Matrix -> Click "Delete Override" (trash icon) next to override row.
+  - System reverts calculation to base formula: (Price Per Meal * Meals) + Delivery Fee.
 
 ================================================================================
-9. SYSTEM SETTINGS & CONTACT SUPPORT
+6. WEEKLY MENU PREVIEWS
 ================================================================================
-Controls global brand contacts shown on frontend customer dashboard.
+Uploads visual weekly menus shown on the customer dashboard.
 
-* FORM: "Contact Settings Form"
-  - Field: WhatsApp Support Number
-    * Description: Customer chat redirect link target.
-    * Example Value: +919876543210
-  - Field: Customer Support Email
-    * Description: Helpdesk mail destination.
-    * Example Value: care@nutribox.com
+* CREATE / UPDATE (Upload Menu Chart):
+  - Go to: Admin -> Weekly Menu -> click "Upload Weekly Menu Chart".
+  - Fill in the form fields:
+    * Target Tier: Classic Box (Dropdown)
+    * Diet Type: Veg (Dropdown)
+    * Week Start Date: 2026-06-15 (Monday of the target week)
+    * Menu Graphic: Upload PNG/JPEG (e.g. weekly_menu_classic_veg_june15.png)
+  - Click "Publish" to upload.
 
-* FORM: "Change Password Form"
-  - Field: Current Password (Example: adminold123)
-  - Field: New Password (Example: adminnew567!)
-  - Field: Confirm Password (Example: adminnew567!)
+* READ (View Menu Previews):
+  - Go to: Admin -> Weekly Menu.
+  - Displays grid of uploaded charts by tier and week.
+
+* DELETE (Remove Menu Chart):
+  - Go to: Admin -> Weekly Menu -> click "Remove" next to the target menu card.
+
+================================================================================
+7. SKIP CREDITS & MANUAL OVERRIDES
+================================================================================
+Oversees meal skipping, manual adjustment, and refund credit approvals.
+
+* CREATE (Log a Manual Skip Request):
+  - Go to: Admin -> Skip Override Dashboard -> click "Log Manual Skip".
+  - Fill in the form fields:
+    * Customer: John Doe (ID: 12) (Searchable dropdown)
+    * Skip Date: 2026-06-16 (Target skip date)
+    * Session Slot: Breakfast (Select Breakfast, Dinner or Both)
+    * Support Notes: Customer out of town; called helpdesk.
+  - Click "Submit Skip Override" to register.
+
+* READ (Review Pending Credits):
+  - Go to: Admin -> Skip Overrides -> click "Pending Approvals" tab.
+  - Displays list of skips requiring administrative sign-off before credit points are rewarded.
+
+* UPDATE (Approve/Reject Skip Credit):
+  - Go to: Admin -> Skip Overrides -> click "Review" (pencil) next to John Doe's skip request.
+  - Actions:
+    * Override Status: Select "Approved" (Dropdown)
+    * Reviewer Notes: Approved medical exemption.
+  - Click "Confirm Status". This issues a wallet credit point to the user.
+
+* DELETE (Cancel Skip Request):
+  - Go to: Admin -> Skip Overrides -> Click "Cancel Skip" next to the pending request.
+  - Restores the customer's delivery schedule back to active for that date.
+
+================================================================================
+8. ANNOUNCEMENTS & BANNERS
+================================================================================
+Creates global visual alert banners displayed on the customer dashboard.
+
+* CREATE (Add New Announcement):
+  - Go to: Admin -> Announcements -> click "Create Announcement".
+  - Fill in the form fields:
+    * Title: 🎉 Monsoon Delivery Timings
+    * Message Body: Due to heavy rain, lunch deliveries might be delayed by 15-20 mins. Stay safe!
+    * Icon: info (Dropdown: info, bell, star, gift)
+    * Target Audience: active_subscribers (Dropdown: all, active_subscribers, expired_subscribers)
+    * Start Date: 2026-06-13
+    * End Date: 2026-06-16
+    * Publish Status: Published (Toggle button)
+  - Click "Publish Announcement".
+
+* READ (View Announcement list):
+  - Go to: Admin -> Announcements.
+  - Lists all past and current active announcements, showing duration and status.
+
+* UPDATE (Edit Announcement details):
+  - Go to: Admin -> Announcements -> Click "Edit" next to "Monsoon Delivery Timings".
+  - Operations:
+    * Extend visibility: Change "End Date" to 2026-06-18.
+    * Modify title: "🎉 Monsoon Delivery Updates".
+  - Click "Save Changes".
+
+* DELETE (Delete Announcement):
+  - Go to: Admin -> Announcements -> Click "Delete" next to the target row.
+  - Confirmed deletion removes the announcement instantly from client portals.
+
+================================================================================
+9. OFFERS & PROMO CODES
+================================================================================
+Controls coupon codes, flat/percentage discounts, and coupon visibility rules.
+
+* CREATE (Add Promo Code):
+  - Go to: Admin -> Offers & Discounts -> click "Add Coupon".
+  - Fill in the form fields:
+    * Promo Code: NUTRIHEALTH50 (Alphanumeric uppercase string)
+    * Discount Type: pct (Dropdown options: pct (Percentage), flat (Rupee amount))
+    * Discount Value: 15 (e.g. 15% discount)
+    * Max Cap Amount: 100 (Upper ceiling of discount in rupees)
+    * Minimum Order Total: 499 (Rupees threshold)
+    * Usage Limit Per User: 1 (Numeric value)
+    * Valid From: 2026-06-13
+    * Valid Until: 2026-06-30
+    * Coupon Description: 15% OFF up to ₹100 on orders above ₹499
+    * Target Audience: new_users (Dropdown: all, new_users, vip)
+  - Click "Save Coupon" to activate.
+
+* READ (List Coupons):
+  - Go to: Admin -> Offers & Discounts.
+  - Displays grid of coupons, usage stats, and validity periods.
+
+* UPDATE (Modify Coupon Details):
+  - Go to: Admin -> Offers & Discounts -> click "Edit Coupon" next to "NUTRIHEALTH50".
+  - Operations:
+    * Extend date: Change "Valid Until" to 2026-07-15.
+    * Modify limit: Change "Usage Limit Per User" to 2.
+  - Click "Update Coupon".
+
+* DELETE (Deactivate / Delete Coupon):
+  - Go to: Admin -> Offers & Discounts -> Click "Delete" (trash icon).
+  - Instantly invalidates the code for checkout.
 
 ================================================================================
 10. CUSTOM PLAN REQUESTS
 ================================================================================
-For premium customers submitting special meal criteria.
+Used to review custom client requests and propose special meal tariffs.
 
-* KEY SECTIONS:
-  - Custom Request Grid: Shows requests like "No onion/garlic", "Keto 2500 kcal".
-  - Proposed Prices proposal tool.
+* READ (View Customer Requests):
+  - Go to: Admin -> Custom Plan Requests.
+  - Lists requests submitted by customers containing detailed descriptions (e.g. "Keto diet, high protein, no onions").
 
-* FORM: "Price Proposal Form"
-  - Field: Proposed Price Per Meal
-    * Description: Cost determined by dietitian based on premium ingredients.
-    * Example Value: 185
-  - Field: Proposed Delivery Charge
-    * Description: custom delivery tariff.
-    * Example Value: 15
+* UPDATE (Propose Custom Pricing):
+  - Go to: Admin -> Custom Plan Requests -> Click "Review Request" next to John Doe's request.
+  - Fill in the proposal fields:
+    * Proposed Price Per Meal: 185 (Rupees)
+    * Proposed Delivery Charge: 15 (Rupees)
+    * Admin Notes: Custom dietary profile approved by dietitian.
+  - Click "Send Proposal". This emails the proposed price link to the customer.
+
+* DELETE (Reject / Delete Request):
+  - Go to: Admin -> Custom Plan Requests -> Click "Reject Request" (trash icon).
+  - Confirmation cancels and deletes the custom query.
 
 ================================================================================
 11. GALLERY SHOWCASE MANAGEMENT
 ================================================================================
-Maintains high-end kitchen photography carousel on customer dashboard.
+Controls the cooking showcase pictures displayed on client portals.
 
-* FORM: "Add Gallery Image Form"
-  - Field: Image Upload
-    * Description: Select high-res cooking asset.
-    * Example Value: [premium_salad.jpg]
-  - Field: Caption
-    * Description: Editorial copy shown on hover.
-    * Example Value: Chef Special - Fresh Mediterranean Beetroot Salad
+* CREATE (Add Gallery Image):
+  - Go to: Admin -> Gallery Manager -> click "Add Gallery Image".
+  - Fill in the form fields:
+    * Image File: Upload image (e.g., premium_salad.jpg)
+    * Caption: Chef Special - Fresh Mediterranean Beetroot Salad
+  - Click "Upload Image" to save.
+
+* READ (View Gallery showcase):
+  - Go to: Admin -> Gallery Manager. Displays list of active carousel graphics and text captions.
+
+* DELETE (Delete Gallery Image):
+  - Go to: Admin -> Gallery Manager -> Click "Remove Image" next to beet salad.
+  - Removes the slide from client carousels.
 
 ================================================================================
 12. DELIVERY PARTNERS
 ================================================================================
-Maintains profiles of logistics personnel.
+Registers and manages logistics personnel delivery profiles.
 
-* FORM: "Create Delivery Partner Form"
-  - Field: Partner Name
-    * Description: Driver's full name.
-    * Example Value: Ramesh Kumar
-  - Field: Mobile Phone
-    * Description: Primary driver phone number.
-    * Example Value: +919988776655
-  - Field: Vehicle Type
-    * Description: Scooter, Bike, etc.
-    * Example Value: bike
-  - Field: Vehicle Number Plate
-    * Description: Legal registration number.
-    * Example Value: KA-51-EX-5678
+* CREATE (Add Delivery Partner):
+  - Go to: Admin -> Delivery Partners -> click "Create Delivery Partner".
+  - Fill in the form fields:
+    * Partner Name: Ramesh Kumar
+    * Mobile Phone: +919988776655
+    * Vehicle Type: bike (Dropdown options: bike, scooter, car)
+    * Vehicle Number Plate: KA-51-EX-5678
+  - Click "Create Partner" to register.
 
-================================================================================
-13. LIVE DELIVERY MONITOR
-================================================================================
-Provides maps and real-time status of current dispatch assignments.
+* READ (View Delivery Partners directory):
+  - Go to: Admin -> Delivery Partners. Lists all registered drivers with license plate details and phone numbers.
 
-* KEY SECTIONS:
-  - Live Run Table: Shows lists of drivers, assigned orders, route status (Pending, 
-    Picked Up, Delivered), and current delivery durations.
+* UPDATE (Edit Driver Details):
+  - Go to: Admin -> Delivery Partners -> click "Edit" next to "Ramesh Kumar".
+  - Change "Vehicle Number Plate" to KA-51-EX-9999.
+  - Click "Save changes".
+
+* DELETE (Delete Delivery Partner):
+  - Go to: Admin -> Delivery Partners -> Click "Remove Partner" (trash icon).
 
 ================================================================================
-14. CUSTOMER REVIEWS & FEEDBACK
+13. LIVE DELIVERY ASSIGNMENTS & MONITOR
 ================================================================================
-Allows moderators to review all star ratings and testimonial text left by customers.
+Dispatches meal boxes and monitors driver navigation live in real-time.
 
-* KEY SECTIONS:
-  - Testimonial Feed: Shows rating stars (1-5), review text, user info, and dates.
-  - Delete Review Action: To filter spam or inappropriate remarks.
+* CREATE (Assign Dispatch Route):
+  - Go to: Admin -> Live Delivery Monitor -> click "Create Route Assignment".
+  - Fill in the fields:
+    * Select Driver: Ramesh Kumar (Dropdown)
+    * Select Order: #1042 - John Doe (Breakfast) (Searchable dropdown)
+  - Click "Assign Route". Generates active navigation tracking URL.
+
+* READ (Monitor Live Navigation Run):
+  - Go to: Admin -> Live Delivery Monitor.
+  - Displays map with driver location coordinates and delivery routes.
+  - Shows statistics table (Driver name, ETA, assignment status, duration).
+
+* UPDATE (Modify Route Status):
+  - Go to: Admin -> Live Delivery Monitor -> Click "Update Route" next to Ramesh Kumar's assignment.
+  - Status Dropdown: Change from "Pending" to "Picked Up" (or "Delivered").
+  - Click "Update" to trigger customer alerts.
+
+* DELETE (Cancel Route Assignment):
+  - Go to: Admin -> Live Delivery Monitor -> Click "Cancel Assignment" next to driver row.
+  - Resets order status back to "Not Dispatched" in the kitchen database.
+
+================================================================================
+14. CUSTOMER REVIEWS & MODERATION
+================================================================================
+Moderates public testimonials and ratings.
+
+* READ (Review Feed):
+  - Go to: Admin -> Reviews & Moderation.
+  - Lists customer name, rating count (1 to 5 stars), review message, and date.
+
+* DELETE (Remove Review):
+  - Go to: Admin -> Reviews -> click "Delete Review" next to a spam rating.
+  - Removes comment from the landing page reviews panel.
+
+================================================================================
+15. GLOBAL SETTINGS & SUPPORT CONTACTS
+================================================================================
+Modifies primary brand contact information displayed inside customer apps.
+
+* READ (View Contact Details):
+  - Go to: Admin -> Settings -> Global Settings. Displays current support numbers.
+
+* UPDATE (Change Support Details & Password):
+  - Go to: Admin -> Settings -> Global Settings.
+  - Fill in fields:
+    * WhatsApp Support Number: +919629105651
+    * Customer Support Email: care@nutribox.com
+  - Click "Update Settings" to apply globally.
+  - Optional change password fields:
+    * Current Password: adminold123
+    * New Password: adminnew567!
+    * Confirm Password: adminnew567!
+  - Click "Update Password" to reset credentials.
 ================================================================================
