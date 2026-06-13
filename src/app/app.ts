@@ -11,7 +11,6 @@ import { LoadingService } from './services/loading.service';
 import { environment } from '../environments/environment';
 import { ChatbotComponent } from './components/chatbot/chatbot';
 
-
 @Component({
   selector: 'app-root',
   standalone: true,

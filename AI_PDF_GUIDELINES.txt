@@ -1,0 +1,82 @@
+================================================================================
+                 NUTRIBOX - AI CHATBOT PDF KNOWLEDGE BASE GUIDELINES
+================================================================================
+
+To ensure the RAG-based chatbot provides accurate and context-driven answers for your 
+customers (especially when using the interactive suggestion wizard), your uploaded PDF 
+should contain detailed information structured around the following categories. 
+
+When you draft your PDF, make sure to cover these sections clearly:
+
+--------------------------------------------------------------------------------
+1. DETAILED SUBSCRIPTION PLANS & TIERS
+--------------------------------------------------------------------------------
+Describe each box/tier with calorie estimates, portion targets, and ideal audiences:
+* Classic Box: Balanced everyday meals (~500-600 kcal). Perfect for weight maintenance
+  and general healthy eating. Includes standard vegetables and lean proteins.
+* Premium Box: Chef-special ingredients (~600-750 kcal). Elevated culinary designs.
+* Protein Rich Box: High-protein portions (~750-900 kcal, >40g protein). Designed 
+  for muscle building, active gym-goers, and weight gain.
+* Fruits Bowl: Fresh seasonal fruits, nuts, and seeds (~300-400 kcal). Ideal for detox,
+  light snacks, or calorie-deficit weight loss plans.
+
+--------------------------------------------------------------------------------
+2. FITNESS GOALS ALIGNMENT (WEIGHT LOSS, GAIN, & MAINTENANCE)
+--------------------------------------------------------------------------------
+Add a section mapping fitness goals to specific plans to help the AI answer wizard queries:
+* Weight Loss Guide:
+  - Recommend the "Fruits Bowl" (for dinner slot) or "Classic Box" (Veg/Non-Veg).
+  - Emphasize calorie deficits. Mention that Classic meals hover around 550 kcal.
+  - Advise opting for "Veg Only" or "Lean Non-Veg" options.
+* Weight Gain Guide:
+  - Recommend the "Protein Rich Box" (both slots: Lunch & Dinner combo).
+  - Emphasize calorie surplus and muscle recovery. Mention that Protein Rich meals 
+    contain over 40g of protein and 800 kcal.
+  - Advise adding healthy extras like nuts or extra egg whites.
+* Weight Maintenance Guide:
+  - Recommend the "Classic Box" (both slots or single slot depending on daily routine).
+
+--------------------------------------------------------------------------------
+3. PRICING, BUNDLES & BUDGET BRACKETS
+--------------------------------------------------------------------------------
+Include a reference table for costs to align with the budget question:
+* Weekly Package (Under ₹1000 - ₹2000 range):
+  - Single Slot (Breakfast Only / Dinner Only) ranges from ₹900 to ₹1500 per week.
+* Monthly Package (Over ₹2000 range):
+  - Best value packages. Double Slot (Breakfast + Dinner) ranges from ₹3500 to ₹6000 
+    depending on the tier selected.
+* Delivery Charges:
+  - Mention standard weekly shipping charges (e.g. ₹60) and monthly savings (e.g. ₹200).
+
+--------------------------------------------------------------------------------
+4. CUSTOM PLANS & MENU CUSTOMIZATIONS
+--------------------------------------------------------------------------------
+Explain the custom plan submission policy for users asking to "gain this much" or 
+"restrict specific ingredients":
+* Process: Customers can submit requests via the "Custom Plan" tab in their portal.
+* Options: Adjust macro ratios, exclude specific allergens (e.g. no gluten, no dairy,
+  no onion/garlic), or target high-calorie counts.
+* Review: A dietitian reviews the request within 24 hours, proposes a custom price,
+  and once paid, the custom menu is sent to the kitchen.
+
+--------------------------------------------------------------------------------
+5. REFUND & CANCELATION POLICIES (SKIP CREDITS)
+--------------------------------------------------------------------------------
+This is the most common customer question:
+* Skip Deadline: Customers can skip any meal directly from their calendar.
+  - Breakfast/Lunch skips must be made BEFORE 6:00 PM the previous day.
+  - Dinner skips must be made BEFORE 10:00 AM the same day.
+* Skip Credits: If skipped before the deadline, the meal cost is fully credited back
+  to the user's account. This credit is automatically deducted from their next renewal.
+* Subscription Cancelation: Subscription can be cancelled at any time. Active service
+  ends immediately, and pending credits remain valid for future reactivations.
+
+--------------------------------------------------------------------------------
+SAMPLE TEMPLATE FOR A Q&A SECTION (RECOMMENDED)
+--------------------------------------------------------------------------------
+Including a direct Q&A section in the PDF makes RAG retrieval extremely precise:
+- "Q: Which plan is best for reducing fat?
+   A: The Fruits Bowl for snacks or the Classic Box (Veg) for lunch is recommended for calorie deficit and weight loss."
+- "Q: Can I customize my meals?
+   A: Yes, via the Custom Plan page. We accommodate allergen removals, macro targets, and special ingredient exclusions."
+================================================================================

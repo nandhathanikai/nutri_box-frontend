@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../services/auth.service';
 
 import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
@@ -30,7 +29,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class AdminCreditsComponent implements OnInit {
 
-  readonly apiBase = environment.apiBaseUrl;
+  private readonly apiBase = environment.apiBaseUrl;
 
   // ── State ──────────────────────────────────────────────────────────────
   loading = true;
@@ -86,7 +85,6 @@ export class AdminCreditsComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService,
     private messageService: MessageService,
   ) {}
 
@@ -102,13 +100,8 @@ export class AdminCreditsComponent implements OnInit {
     if (tab === 'customers' || tab === 'log') this.loadAllCredits();
   }
 
-  // ── Data Loading ───────────────────────────────────────────────────────
-  private headers() {
-    return { Authorization: `Bearer ${this.authService.getToken()}` };
-  }
-
   loadStats() {
-    this.http.get<any>(`${this.apiBase}/api/admin/credits/stats`, { headers: this.headers() })
+    this.http.get<any>(`${this.apiBase}/api/admin/credits/stats`)
       .subscribe({
         next: (res) => this.stats = res,
         error: () => {},
@@ -117,7 +110,7 @@ export class AdminCreditsComponent implements OnInit {
 
   loadOverview() {
     this.loading = true;
-    this.http.get<any[]>(`${this.apiBase}/api/admin/credits/overview`, { headers: this.headers() })
+    this.http.get<any[]>(`${this.apiBase}/api/admin/credits/overview`)
       .subscribe({
         next: (res) => {
           this.overviewData = res;
@@ -140,7 +133,7 @@ export class AdminCreditsComponent implements OnInit {
       url += `&status=${this.logStatusFilter}`;
     }
 
-    this.http.get<any>(url, { headers: this.headers() })
+    this.http.get<any>(url)
       .subscribe({
         next: (res) => {
           this.allCredits = res.data || [];
@@ -183,7 +176,7 @@ export class AdminCreditsComponent implements OnInit {
   // ── Process Credits ────────────────────────────────────────────────────
   processCredits() {
     this.isProcessing = true;
-    this.http.post<any>(`${this.apiBase}/api/credits/process`, {}, { headers: this.headers() })
+    this.http.post<any>(`${this.apiBase}/api/credits/process`, {})
       .subscribe({
         next: (res) => {
           const p = res.promoted ?? 0;
@@ -206,7 +199,7 @@ export class AdminCreditsComponent implements OnInit {
 
   // ── Manual Credit ──────────────────────────────────────────────────────
   loadCustomerList() {
-    this.http.get<any[]>(`${this.apiBase}/api/admin/customers/list`, { headers: this.headers() })
+    this.http.get<any[]>(`${this.apiBase}/api/admin/customers/list`)
       .subscribe({
         next: (res) => {
           this.customerList = res;
@@ -233,7 +226,7 @@ export class AdminCreditsComponent implements OnInit {
       session: this.manualForm.session,
       delivery_on: this.manualForm.delivery_on,
       note: this.manualForm.note || undefined,
-    }, { headers: this.headers() })
+    })
       .subscribe({
         next: (res) => {
           this.messageService.add({ severity: 'success', summary: 'Credit Added', detail: res.message });
@@ -267,8 +260,7 @@ export class AdminCreditsComponent implements OnInit {
 
     this.http.patch(
       `${this.apiBase}/api/admin/credits/${this.selectedCredit.id}`,
-      { status: this.overrideStatus, notes: this.overrideNotes },
-      { headers: this.headers() }
+      { status: this.overrideStatus, notes: this.overrideNotes }
     ).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Credit Updated' });

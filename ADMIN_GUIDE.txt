@@ -1,0 +1,408 @@
+================================================================================
+                    NUTRIBOX - ADMIN ACTIVITIES & PORTAL GUIDE
+================================================================================
+
+This document is a comprehensive operational and reference guide for NutriBox administrators.
+It details every dashboard section, form field, action, and provides realistic example 
+values to ensure seamless daily administration.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. Admin Dashboard (Real-Time Stats)
+2. Today's Orders & Dispatch
+3. Customer Management
+4. Menu & Pricing Management (Tiers, Weekly Menus & Custom Combinations)
+5. Skip Credits & Refund Approvals
+6. Announcements & Notifications
+7. Offers, Promo Codes & Coupons
+8. Reports & Sales Analytics
+9. System Settings & Contact Support
+10. Custom Plan Requests
+11. Gallery Showcase Management
+12. Delivery Partners
+13. Live Delivery Monitor
+14. Customer Reviews & Feedback
+
+================================================================================
+1. ADMIN DASHBOARD
+================================================================================
+The dashboard is the central hub for monitoring system health at a glance.
+
+* KEY SECTIONS:
+  - Active Customers Widget: Displays count of users with ongoing subscriptions.
+  - Monthly Revenue Widget: Displays total gross revenue collected in the current month.
+  - Cancellations Widget: Displays count of cancelled orders or subscriptions.
+  - Active Offers Widget: Displays count of live promo codes.
+  - Revenue Trend Chart: Visual line chart tracking sales performance.
+  - Cancellations by Session Chart: Visual bar chart breakdown of skip rates.
+
+* OPERATIONS:
+  - Real-time page auto-refreshing for live stats.
+
+================================================================================
+2. TODAY'S ORDERS & DISPATCH
+================================================================================
+Used by dispatch managers every morning/evening to review meals that need preparation.
+
+* KEY SECTIONS:
+  - Active Orders Table: Lists customer names, delivery addresses, diet types, 
+    and meal slots (Breakfast vs Dinner) for today.
+  - Cancelled/Skipped Meals Table: Lists users who opted out of today's delivery 
+    (used to avoid food waste).
+  - Search Bar: Quick search by customer name, plan name, or address.
+
+================================================================================
+3. CUSTOMER MANAGEMENT
+================================================================================
+Allows support staff to create, modify, and delete customer profiles.
+
+* KEY SECTIONS:
+  - Customer Directory Table: Paginated list showing names, contact details, 
+    active plans, subscription dates, and accumulated skip credits.
+  - Role Management: Upgrade customer to admin or downgrade back.
+
+* FORM: "Add User/Customer Form"
+  - Field: Full Name
+    * Description: The user's registered name.
+    * Example Value: John Doe
+  - Field: Email Address
+    * Description: Primary login email and notification receiver.
+    * Example Value: john.doe@example.com
+  - Field: Phone Number
+    * Description: Contact number for deliveries and support.
+    * Example Value: +919876543210
+  - Field: Password
+    * Description: Account credential (must be secure).
+    * Example Value: JohnPass123!
+  - Field: Address Line 1
+    * Description: Main street address/flat number.
+    * Example Value: Flat 405, Green Valley Apartments
+  - Field: Address Line 2 / Area
+    * Description: Secondary address location details.
+    * Example Value: Sector 4, HSR Layout
+  - Field: Landmark
+    * Description: Notable landmark near the customer's home.
+    * Example Value: Opposite High School Playground
+  - Field: Location Link
+    * Description: Google Maps share link for delivery navigation.
+    * Example Value: https://maps.app.goo.gl/9xZ1y2w3v4u5t
+  - Field: User Role
+    * Description: Permission tier (Customer vs Administrator).
+    * Example Value: customer
+  - Field: Select Plan
+    * Description: Assign a subscription tier to the user.
+    * Example Value: Classic Weekly
+  - Field: Subscription Start Date
+    * Description: Date on which the meal delivery cycle activates.
+    * Example Value: 2026-06-08 (YYYY-MM-DD)
+
+================================================================================
+4. MENU & PRICING MANAGEMENT
+================================================================================
+This is the core area to update meals, manage subscription boxes (Tiers), set 
+pricing rules, and upload weekly menu preview charts.
+
+---------------------------
+A. ADD DISH FORM
+---------------------------
+Used to expand the available recipe collection.
+* FIELDS:
+  - Field: Dish Name
+    * Description: Name displayed to customers and kitchen.
+    * Example Value: Grilled Garlic-Herb Chicken Breast
+  - Field: Subscription Tier
+    * Description: The box level this dish belongs to.
+    * Example Value: Protein Rich
+  - Field: Meal Slot
+    * Description: Meal timing assignment (Can select multiple: Breakfast, Lunch, Dinner).
+    * Example Value: [Lunch, Dinner]
+  - Field: Diet Type
+    * Description: Vegetarian vs Non-Vegetarian tag.
+    * Example Value: Non-Veg
+  - Field: Description
+    * Description: Ingredients or recipe brief.
+    * Example Value: Tender chicken breast marinated in herbs, grilled and served with broccoli.
+  - Field: Calories
+    * Description: Total energy in kcal.
+    * Example Value: 420
+  - Field: Dish Image
+    * Description: Direct image upload (Max 5MB).
+    * Example Value: [chicken_breast.jpg]
+
+---------------------------
+B. SUBSCRIPTION TIER FORM
+---------------------------
+Used to define subscription product boxes.
+* FIELDS:
+  - Field: Tier Name
+    * Description: Brand tier name.
+    * Example Value: Premium Box
+  - Field: Diet Support
+    * Description: Diet options supported by this box.
+    * Example Value: Veg & Non-Veg (or Veg Only / Non-Veg Only)
+  - Field: Weekly Delivery Charge
+    * Description: Shipping charge applied on weekly cycle.
+    * Example Value: 60
+  - Field: Monthly Delivery Charge
+    * Description: Shipping charge applied on monthly cycle.
+    * Example Value: 200
+  - Field: Is Active
+    * Description: Checkbox to toggle public visibility.
+    * Example Value: True
+  - Field: Is Featured
+    * Description: Highlight on pricing/plans page.
+    * Example Value: True
+
+---------------------------
+C. TIER PRICING RULE FORM
+---------------------------
+Tiers use pricing rules to handle base costs dynamically.
+* FIELDS:
+  - Field: Diet Type
+    * Description: Target diet type.
+    * Example Value: Veg
+  - Field: Price Per Meal
+    * Description: Cost per individual meal unit.
+    * Example Value: 120
+  - Field: Effective From
+    * Description: Active date for the price change.
+    * Example Value: 2026-06-08
+
+---------------------------
+D. PLAN COMBINATION MATRIX
+---------------------------
+Pre-calculated package configurations that customers buy (e.g. Classic-Veg-BreakfastOnly-Weekly).
+* FIELDS:
+  - Field: Tier
+    * Description: Target subscription box.
+    * Example Value: Classic Box
+  - Field: Diet Type
+    * Description: Veg vs Non-Veg option.
+    * Example Value: Veg
+  - Field: Duration
+    * Description: Billing cycle duration.
+    * Example Value: weekly (or monthly)
+  - Field: Slot Combo
+    * Description: Selected meal slots.
+    * Example Value: breakfast_only (or dinner_only or both)
+  - Field: Meal Count
+    * Description: Total number of meals delivered during this cycle.
+    * Example Value: 6 (or 24 for monthly breakfast)
+  - Field: Price Override
+    * Description: Set a custom package price instead of base formula.
+    * Example Value: 899 (Optional, overrides base meal price calculations)
+  - Field: Delivery Charge Override
+    * Description: Set custom delivery fee.
+    * Example Value: 50 (Optional)
+
+---------------------------
+E. WEEKLY MENU PREVIEW UPLOAD
+---------------------------
+Allows upload of weekly menu graphic calendar.
+* FIELDS:
+  - Field: Target Tier
+    * Example Value: Classic Box
+  - Field: Diet Type
+    * Example Value: Veg
+  - Field: Target Week Start Date
+    * Description: Monday of the target week.
+    * Example Value: 2026-06-08
+  - Field: Menu Image
+    * Description: High-resolution PNG or JPEG showing daily dishes.
+    * Example Value: [weekly_menu_veg_classic.jpg]
+
+================================================================================
+5. SKIP CREDITS & REFUND APPROVALS
+================================================================================
+Administers user skips, credit generation, and logs all transaction overrides.
+
+* KEY SECTIONS:
+  - Skip Requests Table: Shows scheduled skip events with user names and dates.
+  - Manual Skip Override Dialog: Allows staff to trigger manual skips on customer demand.
+
+* FORM: "Manual Skip Form"
+  - Field: Customer
+    * Description: Choose customer from list.
+    * Example Value: John Doe (ID: 12)
+  - Field: Meal Slot / Session
+    * Description: Which session is skipped.
+    * Example Value: BF (Breakfast) or DINNER
+  - Field: Skip Date
+    * Description: The date of the skipped delivery.
+    * Example Value: 2026-06-09
+  - Field: Administrative Note
+    * Description: Internal log reason.
+    * Example Value: Customer out of town; requested via support call.
+
+* FORM: "Credit Review Override Form"
+  - Field: Override Status
+    * Description: Approve or deny the skip credit refund.
+    * Example Value: approved (or rejected)
+  - Field: Review Notes
+    * Description: Detailed notes on approval/denial reasoning.
+    * Example Value: Approved special medical exemption.
+
+================================================================================
+6. ANNOUNCEMENTS & NOTIFICATIONS
+================================================================================
+Creates global banners shown on the client dashboard.
+
+* FORM: "Create Announcement Form"
+  - Field: Title
+    * Description: Bold headline of the banner.
+    * Example Value: 🎉 Monsoon Delivery Timings!
+  - Field: Announcement Body
+    * Description: Full detail text.
+    * Example Value: Due to heavy rain, lunch deliveries might be delayed by 15-20 mins. Stay safe!
+  - Field: Target Audience
+    * Description: Who sees the announcement banner.
+    * Example Value: all (or active_subscribers / inactive)
+  - Field: Visual Icon
+    * Description: Accent icon next to the title.
+    * Example Value: info (or bell / star / gift)
+  - Field: Start Date
+    * Description: Date the banner starts displaying.
+    * Example Value: 2026-06-08
+  - Field: End Date
+    * Description: Date the banner is hidden automatically.
+    * Example Value: 2026-06-12
+  - Field: Publication Status
+    * Description: Draft vs Published state.
+    * Example Value: published
+
+================================================================================
+7. OFFERS, PROMO CODES & COUPONS
+================================================================================
+Manage discounts and promotional campaign codes.
+
+* FORM: "Add Offer Form"
+  - Field: Promo Code
+    * Description: Capitalized alphanumeric code users enter.
+    * Example Value: NUTRIHEALTH50
+  - Field: Discount Type
+    * Description: Math rule for deduction.
+    * Example Value: pct (Percentage) (or flat (Rupee discount) / free (Free Delivery))
+  - Field: Discount Value
+    * Description: Amount of percentage or flat deduction.
+    * Example Value: 15 (e.g. 15% off)
+  - Field: Max Cap Amount
+    * Description: Upper limit of discount in rupees.
+    * Example Value: 100
+  - Field: Minimum Order Total
+    * Description: Order value threshold to apply promo code.
+    * Example Value: 499
+  - Field: Usage Limit Per User
+    * Description: Maximum times a single user can redeem.
+    * Example Value: 1
+  - Field: Valid From
+    * Description: Offer activation date.
+    * Example Value: 2026-06-07
+  - Field: Valid Until
+    * Description: Offer expiration date.
+    * Example Value: 2026-06-30
+  - Field: Coupon Description
+    * Description: Summary displayed to user.
+    * Example Value: 15% OFF up to ₹100 on orders above ₹499
+  - Field: Target Audience
+    * Description: User segment eligibility.
+    * Example Value: new_users (or all / vip)
+
+================================================================================
+8. REPORTS & SALES ANALYTICS
+================================================================================
+Key analytics monitoring platform profitability.
+
+* KEY SECTIONS:
+  - Date/Period Filter: Quick switch (weekly, monthly, yearly).
+  - Total Revenue Counter: Total gross payments.
+  - Total Orders Count: Combined volume of plan purchases.
+  - New Customers Trend: User signups over selected duration.
+  - AOV (Average Order Value): Measure of average cart size.
+  - Customer Segment Chart: Percentage breakdown of subscription box tiers.
+
+================================================================================
+9. SYSTEM SETTINGS & CONTACT SUPPORT
+================================================================================
+Controls global brand contacts shown on frontend customer dashboard.
+
+* FORM: "Contact Settings Form"
+  - Field: WhatsApp Support Number
+    * Description: Customer chat redirect link target.
+    * Example Value: +919876543210
+  - Field: Customer Support Email
+    * Description: Helpdesk mail destination.
+    * Example Value: care@nutribox.com
+
+* FORM: "Change Password Form"
+  - Field: Current Password (Example: adminold123)
+  - Field: New Password (Example: adminnew567!)
+  - Field: Confirm Password (Example: adminnew567!)
+
+================================================================================
+10. CUSTOM PLAN REQUESTS
+================================================================================
+For premium customers submitting special meal criteria.
+
+* KEY SECTIONS:
+  - Custom Request Grid: Shows requests like "No onion/garlic", "Keto 2500 kcal".
+  - Proposed Prices proposal tool.
+
+* FORM: "Price Proposal Form"
+  - Field: Proposed Price Per Meal
+    * Description: Cost determined by dietitian based on premium ingredients.
+    * Example Value: 185
+  - Field: Proposed Delivery Charge
+    * Description: custom delivery tariff.
+    * Example Value: 15
+
+================================================================================
+11. GALLERY SHOWCASE MANAGEMENT
+================================================================================
+Maintains high-end kitchen photography carousel on customer dashboard.
+
+* FORM: "Add Gallery Image Form"
+  - Field: Image Upload
+    * Description: Select high-res cooking asset.
+    * Example Value: [premium_salad.jpg]
+  - Field: Caption
+    * Description: Editorial copy shown on hover.
+    * Example Value: Chef Special - Fresh Mediterranean Beetroot Salad
+
+================================================================================
+12. DELIVERY PARTNERS
+================================================================================
+Maintains profiles of logistics personnel.
+
+* FORM: "Create Delivery Partner Form"
+  - Field: Partner Name
+    * Description: Driver's full name.
+    * Example Value: Ramesh Kumar
+  - Field: Mobile Phone
+    * Description: Primary driver phone number.
+    * Example Value: +919988776655
+  - Field: Vehicle Type
+    * Description: Scooter, Bike, etc.
+    * Example Value: bike
+  - Field: Vehicle Number Plate
+    * Description: Legal registration number.
+    * Example Value: KA-51-EX-5678
+
+================================================================================
+13. LIVE DELIVERY MONITOR
+================================================================================
+Provides maps and real-time status of current dispatch assignments.
+
+* KEY SECTIONS:
+  - Live Run Table: Shows lists of drivers, assigned orders, route status (Pending, 
+    Picked Up, Delivered), and current delivery durations.
+
+================================================================================
+14. CUSTOMER REVIEWS & FEEDBACK
+================================================================================
+Allows moderators to review all star ratings and testimonial text left by customers.
+
+* KEY SECTIONS:
+  - Testimonial Feed: Shows rating stars (1-5), review text, user info, and dates.
+  - Delete Review Action: To filter spam or inappropriate remarks.
+================================================================================

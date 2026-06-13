@@ -41,6 +41,16 @@ export class AdminSettingsComponent {
   selectedPdfFile: File | null = null;
   isUploadingPdf = false;
 
+  // AI Knowledge status
+  pdfStatus = {
+    uploaded: false,
+    filename: null,
+    uploaded_at: null,
+    total_chunks: 0
+  };
+  selectedPdfFile: File | null = null;
+  isUploadingPdf = false;
+
   // Contact info (synced with backend)
   contactForm: FormGroup;
 

@@ -1,0 +1,112 @@
+ ================================================================================
+                       NUTRIBOX - DEVELOPER HANDOFF GUIDE                       
+================================================================================
+
+This document serves as a comprehensive operational and architectural reference
+for developers maintaining or extending the NutriBox platform.
+
+--------------------------------------------------------------------------------
+1. PROJECT ARCHITECTURE & DEPLOYMENT STACK
+--------------------------------------------------------------------------------
+NutriBox is a premium, full-stack meal subscription application designed with a 
+cinematic, mobile-first aesthetic. The infrastructure leverages free-tier cloud
+services to run cost-effectively.
+
+- Frontend Hosting:
+  * Platform: Vercel (Free Tier)
+  * Framework: Angular v21.x + PrimeNG (Aura Light & Dark Customized Themes)
+  * Build command: `ng build`
+  * Routing fallback: Handled by `vercel.json` rewrite rule to redirect all
+    non-file paths to `index.html`.
+
+- Backend Hosting:
+  * Platform: Render (Free Web Service Tier)
+  * Framework: Python 3.10+ with FastAPI & Uvicorn/Gunicorn
+  * Execution: Configured via `Procfile` and `gunicorn.conf.py` for process management.
+  * API Base URL is dynamic and loaded from environments (`environment.ts` / `.env`).
+
+- Database System:
+  * Engine: CockroachDB Serverless (Free Version)
+  * Connection: Managed via SQLAlchemy utilizing the `sqlalchemy-cockroachdb` 
+    adapter and `psycopg2-binary`.
+  * Migrations: Managed using Alembic (`alembic.ini` and `/alembic` folder).
+  * SSL Certificate: The serverless database connection requires the `root.crt`
+    certificate file located in the `backend/` directory for secure authentication.
+
+- Third-Party Integrations:
+  * Payment Gateway: Razorpay (configured with live/test API keys in the environment).
+  * Transactional Email: Brevo (formerly Sendinblue) SMTP / API client using 
+    `sib-api-v3-sdk` for OTP recovery and automated credit warnings.
+
+--------------------------------------------------------------------------------
+2. KEY VISUAL STYLES & BRAND IDENTITY
+--------------------------------------------------------------------------------
+NutriBox uses a dark, editorial, luxury visual identity to elevate the dining
+experience. The design tokens are defined in `src/styles.scss`.
+
+- Core Palette:
+  * Primary Theme: Dark Forest Green (`#081510` and `#1b3a2d`)
+  * Accent Colors: Premium Brand Gold (`#ffd700`)
+  * Neutral Elements: Glassmorphic borders (`rgba(255,255,255,0.08)`), depth shadows.
+- Typography:
+  * Main Fonts: Plus Jakarta Sans / Inter
+- Important Styling Rules:
+  * Avoid raw bright colors. Always use brand-gold or low-contrast opacity filters.
+  * Always use transition curves like `cubic-bezier(0.4, 0, 0.2, 1)` to keep
+    the micro-interactions feeling smooth and premium.
+
+--------------------------------------------------------------------------------
+3. DETAILED IMPLEMENTATION OF KEY CORE COMPONENTS
+--------------------------------------------------------------------------------
+
+A. Brand Bar (`<app-brand-bar>`):
+   - Located at: `src/app/components/brand-bar/`
+   - Features: Glassmorphic visual gradient header with gold pulsing emblem ring 
+     and animated delivery status indicator tags.
+   - Visibility: Unconditionally displayed at the top of the main customer
+     dashboard for premium visual coherence.
+
+B. Coverflow Gallery Carousel:
+   - Located at: `src/app/pages/dashboard/`
+   - Data Source: Admin-uploaded images from `/api/gallery` (replicated to fill 
+     at least 10 slots if fewer are uploaded).
+   - Layout Design: 5 visible cards aligned on a single axis.
+     * Center active card: Full size (1.0 scale), solid opacity (100%), gold border.
+     * Nearest neighbors (left/right): Medium size (0.82 scale), 80% opacity.
+     * Outer cards (left/right): Small size (0.62 scale), 45% opacity.
+   - Endless Loop: Driven by an unbounded `virtualCenterIndex` modulo calculation
+     to enable infinite, seamless cycle transitions without hard boundaries.
+   - Auto-Play: Moves to the next slide every 2 seconds. Resets when dots or cards
+     are manually clicked.
+
+C. Daily Wellness Tips Widget:
+   - Located in: `dashboard.html`
+   - Visibility: Renders unconditionally for all three customer lifecycle states:
+     1. State 1: Fresh account (no active subscription yet)
+     2. State 2: Lapsed user (previously subscribed, now inactive)
+     3. State 3: Active subscriber (user with a purchased ongoing meal plan)
+   - Allows users to cycle through premium food/wellness quotes by tapping the
+     refresh button.
+
+D. WhatsApp Chat Badge:
+   - Located in: `src/app/app.html` (the global shell)
+   - Visibility Restriction: Exclusive to non-admin customers! Wrapped in an 
+     `@if (currentUser?.role?.toLowerCase() !== 'admin')` condition to prevent 
+     the admin themselves from seeing the chat button.
+
+--------------------------------------------------------------------------------
+4. LOCAL RUN & DEVELOPMENT COMMANDS
+--------------------------------------------------------------------------------
+
+- Frontend (Angular):
+  * Root folder: `frontend/app/`
+  * Install dependencies: `npm install`
+  * Run dev server: `npm run dev` or `npx ng serve` (default: http://localhost:4200)
+  * Verify compilation: `npx ng build --configuration=development`
+
+- Backend (FastAPI):
+  * Root folder: `backend/`
+  * Activate environment: `venv\Scripts\activate` (Windows)
+  * Run server: `python -m uvicorn app.main:app --reload` (default: http://localhost:8000)
+
+================================================================================

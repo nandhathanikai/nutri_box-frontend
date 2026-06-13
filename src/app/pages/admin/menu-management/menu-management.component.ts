@@ -23,6 +23,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { ErrorBannerComponent, ApiError } from '../../../components/error-banner/error-banner.component';
 import { environment } from '../../../../environments/environment';
+import { resolveImageUrl } from '../../../utils/image-resolver';
 
 @Component({
   selector: 'app-menu-management',
@@ -721,7 +722,7 @@ export class MenuManagementComponent implements OnInit {
         const img = this.weeklyImages.find(
           i => i.tier_id === status.tier_id && i.diet_type === status.diet_type
         );
-        cell.image_url = img?.image_url || null;
+        cell.image_url = img?.image_url ? resolveImageUrl(img.image_url) : null;
       }
     }
   }
@@ -762,7 +763,7 @@ export class MenuManagementComponent implements OnInit {
 
     this.http.post<{ image_url: string }>(`${this.apiUrl}/upload-image`, fd).subscribe({
       next: (res) => {
-        this.uploadPreview = res.image_url;
+        this.uploadPreview = resolveImageUrl(res.image_url);
         this.uploadingImage = false;
         this.uploadError = null;
       },

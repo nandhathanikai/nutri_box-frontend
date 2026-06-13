@@ -36,7 +36,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
   ],
 })
 export class PlansComponent implements OnInit {
-  apiUrl = `${environment.apiBaseUrl}/api/menu`;
+  private apiUrl = `${environment.apiBaseUrl}/api/menu`;
 
   // ── Data ──────────────────────────────────────────────────────────────
   tiers: any[] = [];
