@@ -158,7 +158,7 @@
               </div>
 
               <div class="field">
-                <label for="landmark">LANDMARK <span class="optional">(optional)</span></label>
+                <label for="landmark">LANDMARK <span class="optional" style="color: var(--color-gold, #c47a1a);">*</span></label>
                 <div class="premium-input-wrapper">
                   <i class="pi pi-compass premium-input-icon"></i>
                   <input id="landmark" type="text" pInputText formControlName="landmark" placeholder="e.g. Near City Mall, Opposite Park" />
@@ -168,7 +168,7 @@
 
             <!-- Live Location (Full Width) -->
             <div class="field full-width-field">
-              <label for="locationLink">LIVE LOCATION <span class="optional">(optional)</span></label>
+              <label for="locationLink">LIVE LOCATION <span class="optional" style="color: var(--color-gold, #c47a1a);">*</span></label>
               <div class="premium-input-wrapper live-location-wrapper">
                 <i class="pi pi-map-marker premium-input-icon"></i>
                 <input id="locationLink" type="url" pInputText formControlName="locationLink" placeholder="Paste your Google Maps link" />
@@ -176,6 +176,12 @@
                   <i class="pi pi-compass"></i> Locate Me
                 </button>
               </div>
+            </div>
+
+            <!-- Validation Error for Landmark / Location -->
+            <div *ngIf="signupForm.get('addressLine1')?.valid && !signupForm.get('landmark')?.value?.trim() && !signupForm.get('locationLink')?.value?.trim()" class="field-error-msg" style="color: #c83b3b; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>Either Landmark or Live Location is mandatory.</span>
             </div>
 
             <!-- Action Buttons -->

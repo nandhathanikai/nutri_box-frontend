@@ -168,13 +168,16 @@
 
       <div class="dlg-row">
         <div class="dlg-field">
-          <label>Landmark</label>
+          <label>Landmark <span *ngIf="addForm.get('role')?.value === 'customer'" class="req">*</span></label>
           <input pInputText type="text" formControlName="landmark" placeholder="Nearby landmark" />
         </div>
         <div class="dlg-field">
-          <label>Live Location</label>
+          <label>Live Location <span *ngIf="addForm.get('role')?.value === 'customer'" class="req">*</span></label>
           <input pInputText type="url" formControlName="location_link" placeholder="https://maps.google.com/..." />
         </div>
+      </div>
+      <div class="helper" style="color: var(--color-red, #dc2626); margin-top: -0.5rem; margin-bottom: 0.75rem;" *ngIf="addForm.get('role')?.value === 'customer' && addForm.errors?.['locationRequired'] && (addForm.get('landmark')?.touched || addForm.get('location_link')?.touched)">
+        Please provide either a Landmark or Live Location.
       </div>
 
       <div class="checkbox-field" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">

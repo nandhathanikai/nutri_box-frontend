@@ -90,7 +90,10 @@ export class SignupComponent {
   }
 
   get step2Valid(): boolean {
-    return this.signupForm.get('addressLine1')!.valid;
+    const addressLine1 = this.signupForm.get('addressLine1')?.value || '';
+    const landmark = this.signupForm.get('landmark')?.value || '';
+    const locationLink = this.signupForm.get('locationLink')?.value || '';
+    return !!addressLine1 && (landmark.trim().length > 0 || locationLink.trim().length > 0);
   }
 
   get passwordsMatch(): boolean {

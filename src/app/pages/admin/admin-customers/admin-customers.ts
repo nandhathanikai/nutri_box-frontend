@@ -76,7 +76,7 @@ export class AdminCustomersComponent implements OnInit {
       plan_id:                 [''],
       subscription_start_date: [new Date()],
       customization_details:   [''],
-    });
+    }, { validators: this.customerLocationValidator });
 
     this.addForm.get('add_subscription')?.valueChanges.subscribe(val => {
       const planControl = this.addForm.get('plan_id');
@@ -111,6 +111,18 @@ export class AdminCustomersComponent implements OnInit {
       customControl?.updateValueAndValidity();
     });
   }
+
+  customerLocationValidator = (group: any) => {
+    const role = group.get('role')?.value;
+    if (role === 'customer') {
+      const landmark = group.get('landmark')?.value || '';
+      const locationLink = group.get('location_link')?.value || '';
+      if (!landmark.toString().trim() && !locationLink.toString().trim()) {
+        return { locationRequired: true };
+      }
+    }
+    return null;
+  };
 
   ngOnInit() {
     this.load();
