@@ -84,6 +84,10 @@
       <img src="/logo1.png" alt="Nutribox" class="hero-logo" />
       <h1>Welcome to Nutribox, {{ firstName }} 👋</h1>
       <p class="welcome-sub">Fresh, chef-curated meals delivered Monday through Saturday.<br/>Pick a plan to get started on your healthy journey.</p>
+      <!-- Bulk order note for new users -->
+      <div class="bulk-order-notice" style="margin-top: 0.75rem; margin-bottom: 0.75rem; font-size: 0.92rem; color: #15803d; font-weight: 600; background: #f0fdf4; border: 1px dashed #bbf7d0; padding: 0.5rem 1rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin-left: auto; margin-right: auto;">
+        <span>💡 If you want bulk order please choose customize menu options...</span>
+      </div>
       <div class="welcome-cta">
         <p-button routerLink="/plans" label="View Meal Plans" icon="pi pi-shopping-cart" size="large"></p-button>
         <a routerLink="/profile" class="text-link">Complete your profile first →</a>
@@ -286,6 +290,12 @@
           <span class="label">Active Until</span>
           <span class="value">{{ subscription.end_date | date:'MMM d, y' }}</span>
         </div>
+        @if (subscription.customization_details) {
+          <div class="plan-summary-item" style="grid-column: span 2; margin-top: 0.5rem;">
+            <span class="label">Customization Details</span>
+            <span class="value" style="font-size: 0.88rem; color: #15803d; border-left: 2px solid var(--primary-green); padding-left: 0.5rem; margin-top: 0.25rem; white-space: pre-wrap; display: block; text-align: left;">{{ subscription.customization_details }}</span>
+          </div>
+        }
       </div>
     </div>
 

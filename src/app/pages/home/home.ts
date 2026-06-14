@@ -60,10 +60,20 @@ export class HomeComponent implements OnInit {
   loadingReviews = false;
   reviewStats = { total_reviews: 0, happy_customers: 0 };
 
+  heroVideoSrc = '';
+  vegVideoSrc = '';
+
   ngOnInit() {
     this.loadFeaturedPlans();
     this.loadReviews(false);
     this.loadReviewStats();
+
+    // Defer loading of heavy background videos on landing page
+    setTimeout(() => {
+      this.heroVideoSrc = 'background_video.mp4';
+      this.vegVideoSrc = 'vegetables_video.mp4';
+      this.cdr.markForCheck();
+    }, 1000);
   }
 
   loadReviews(append = false) {
@@ -77,7 +87,7 @@ export class HomeComponent implements OnInit {
 
     this.loadingReviews = true;
     const url = `${environment.apiBaseUrl}/api/reviews?skip=${this.reviewsSkip}&limit=${this.reviewsLimit}`;
-    this.http.get<any[]>(url).subscribe({
+    this.http.get<any[]>(url, { headers: { 'X-Skip-Loader': 'true' } }).subscribe({
       next: (data) => {
         const mapped = (data || []).map(r => {
           const name = r.customer_name || 'Valued Customer';
@@ -128,7 +138,7 @@ export class HomeComponent implements OnInit {
   }
 
   loadReviewStats() {
-    this.http.get<any>(`${environment.apiBaseUrl}/api/reviews/stats`).subscribe({
+    this.http.get<any>(`${environment.apiBaseUrl}/api/reviews/stats`, { headers: { 'X-Skip-Loader': 'true' } }).subscribe({
       next: (data) => {
         this.reviewStats = data || { total_reviews: 0, happy_customers: 0 };
         this.cdr.markForCheck();
@@ -150,7 +160,7 @@ export class HomeComponent implements OnInit {
   }
 
   private loadFeaturedPlans() {
-    this.http.get<any[]>(`${environment.apiBaseUrl}/api/menu/tiers`).subscribe({
+    this.http.get<any[]>(`${environment.apiBaseUrl}/api/menu/tiers`, { headers: { 'X-Skip-Loader': 'true' } }).subscribe({
       next: (data) => {
         const active = (data || [])
           .filter(t => t.is_active && (t.pricing?.length || 0) > 0)

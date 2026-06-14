@@ -75,6 +75,7 @@ export interface AdminUserPayload {
   role: 'customer' | 'admin';
   plan_id?: string;
   subscription_start_date?: string;
+  customization_details?: string;
 }
 
 export interface DishPayload {

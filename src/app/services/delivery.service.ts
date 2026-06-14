@@ -43,6 +43,7 @@ export interface OrderRow {
   driver_id: number | null;
   driver_name: string | null;
   cancelled_at?: string | null;
+  customization_details?: string | null;
 }
 
 export interface SessionGroup {

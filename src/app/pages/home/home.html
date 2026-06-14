@@ -4,8 +4,8 @@
   <!-- HERO SECTION -->
   <section class="hero" #parallaxHero>
     <div class="hero-bg" [style.transform]="'translateY(' + heroParallax + 'px)'">
-      <video autoplay muted loop playsinline class="hero-video">
-        <source src="background_video.mp4" type="video/mp4">
+      <video autoplay muted loop playsinline class="hero-video" [preload]="'none'">
+        <source [src]="heroVideoSrc" type="video/mp4" *ngIf="heroVideoSrc">
       </video>
       <div class="hero-overlay"></div>
     </div>
@@ -91,8 +91,8 @@
   <!-- PARALLAX BANNER -->
   <section class="parallax-banner" #parallaxBanner>
     <div class="pb-bg">
-      <video autoplay muted loop playsinline>
-        <source src="vegetables_video.mp4" type="video/mp4">
+      <video autoplay muted loop playsinline [preload]="'none'">
+        <source [src]="vegVideoSrc" type="video/mp4" *ngIf="vegVideoSrc">
       </video>
       <div class="pb-overlay"></div>
     </div>
@@ -103,7 +103,7 @@
       <div class="pb-features">
         <div class="pb-feat"><i class="pi pi-check-circle"></i>100% Organic Sourcing</div>
         <div class="pb-feat"><i class="pi pi-check-circle"></i>Chef-crafted meals</div>
-        <div class="pb-feat"><i class="pi pi-check-circle"></i>Nutritionist approved</div>
+        <div class="pb-feat"><i class="pi pi-check-circle"></i>Predefined menus customize also available</div>
         <div class="pb-feat"><i class="pi pi-check-circle"></i>Zero preservatives</div>
       </div>
     </div>

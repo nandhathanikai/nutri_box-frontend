@@ -106,7 +106,7 @@ export class App implements OnInit {
     });
 
     // Fetch branding and business settings globally
-    this.http.get(`${environment.apiBaseUrl}/api/settings`).subscribe({
+    this.http.get(`${environment.apiBaseUrl}/api/settings`, { headers: { 'X-Skip-Loader': 'true' } }).subscribe({
       next: (data) => { this.settings = data; },
       error: () => {}
     });

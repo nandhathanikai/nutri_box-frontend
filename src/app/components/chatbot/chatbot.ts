@@ -57,16 +57,21 @@ export class ChatbotComponent implements OnInit {
       this.checkVisibility();
     });
 
-    this.auth.getCurrentUser().subscribe({
-      next: (user) => {
-        this.currentUser = user;
-        this.checkVisibility();
-      },
-      error: () => {
-        this.currentUser = null;
-        this.checkVisibility();
-      }
-    });
+    if (this.auth.isLoggedIn()) {
+      this.auth.getCurrentUser().subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          this.checkVisibility();
+        },
+        error: () => {
+          this.currentUser = null;
+          this.checkVisibility();
+        }
+      });
+    } else {
+      this.currentUser = null;
+      this.checkVisibility();
+    }
   }
 
   checkVisibility() {

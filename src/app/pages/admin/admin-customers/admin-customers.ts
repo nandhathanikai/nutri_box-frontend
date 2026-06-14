@@ -75,20 +75,40 @@ export class AdminCustomersComponent implements OnInit {
       add_subscription:        [false],
       plan_id:                 [''],
       subscription_start_date: [new Date()],
+      customization_details:   [''],
     });
 
     this.addForm.get('add_subscription')?.valueChanges.subscribe(val => {
       const planControl = this.addForm.get('plan_id');
       const startControl = this.addForm.get('subscription_start_date');
+      const customControl = this.addForm.get('customization_details');
       if (val) {
         planControl?.setValidators([Validators.required]);
         startControl?.setValidators([Validators.required]);
+        if (planControl?.value === 'customize') {
+          customControl?.setValidators([Validators.required]);
+        } else {
+          customControl?.clearValidators();
+        }
       } else {
         planControl?.clearValidators();
         startControl?.clearValidators();
+        customControl?.clearValidators();
       }
       planControl?.updateValueAndValidity();
       startControl?.updateValueAndValidity();
+      customControl?.updateValueAndValidity();
+    });
+
+    this.addForm.get('plan_id')?.valueChanges.subscribe(planId => {
+      const customControl = this.addForm.get('customization_details');
+      const addSubscription = this.addForm.get('add_subscription')?.value;
+      if (addSubscription && planId === 'customize') {
+        customControl?.setValidators([Validators.required]);
+      } else {
+        customControl?.clearValidators();
+      }
+      customControl?.updateValueAndValidity();
     });
   }
 
@@ -105,10 +125,14 @@ export class AdminCustomersComponent implements OnInit {
   loadPlans() {
     this.adminService.getPlanCombinations().subscribe({
       next: (plans) => {
-        this.planOptions = plans.filter(p => p.is_active).map(p => ({
+        const formattedPlans = plans.filter(p => p.is_active).map(p => ({
           id: p.id,
           display_name: `${p.display_name} (₹${p.total_price})`
         }));
+        this.planOptions = [
+          ...formattedPlans,
+          { id: 'customize', display_name: 'Customize Plan / Order' }
+        ];
       },
       error: () => {
         this.msg.add({ severity: 'error', summary: 'Error', detail: 'Could not load plan combinations.' });
@@ -209,6 +233,9 @@ export class AdminCustomersComponent implements OnInit {
     if (formVal.add_subscription) {
       payload.plan_id = formVal.plan_id;
       payload.subscription_start_date = this.formatDate(formVal.subscription_start_date);
+      if (formVal.plan_id === 'customize') {
+        payload.customization_details = formVal.customization_details;
+      }
     }
     this.adminService.addCustomer(payload).subscribe({
       next: (res) => {

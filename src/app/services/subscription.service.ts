@@ -17,6 +17,7 @@ export interface Subscription {
   start_date?: string | null;
   end_date?: string | null;
   status: 'active' | 'expiring' | 'expired';
+  customization_details?: string | null;
 }
 
 export interface SubscribePayload {

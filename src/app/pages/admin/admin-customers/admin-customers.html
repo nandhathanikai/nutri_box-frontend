@@ -194,6 +194,12 @@
             <p-datepicker formControlName="subscription_start_date" [style]="{ width: '100%' }" appendTo="body"></p-datepicker>
           </div>
         </div>
+        <!-- Customization details text area -->
+        <div class="dlg-field" style="margin-top: 0.75rem;" *ngIf="addForm.get('plan_id')?.value === 'customize'">
+          <label>Customization Details <span class="req">*</span></label>
+          <textarea pInputTextarea formControlName="customization_details" placeholder="Specify customized menu details, pricing notes, or slots..." rows="3" style="width: 100%;"></textarea>
+          <span class="helper">Enter notes detailing what makes this customer's plan customized.</span>
+        </div>
       </div>
 
       <div class="dlg-actions">
